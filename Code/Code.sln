@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36429.23 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KTXSV", "KTXSV\KTXSV.csproj", "{B68DF8BF-7C9B-4D5B-AA09-D92D4F24A615}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Code", "Code\Code.csproj", "{D6FF9890-B89C-4668-94AB-FE4B52534C33}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B68DF8BF-7C9B-4D5B-AA09-D92D4F24A615}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B68DF8BF-7C9B-4D5B-AA09-D92D4F24A615}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B68DF8BF-7C9B-4D5B-AA09-D92D4F24A615}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B68DF8BF-7C9B-4D5B-AA09-D92D4F24A615}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6FF9890-B89C-4668-94AB-FE4B52534C33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6FF9890-B89C-4668-94AB-FE4B52534C33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6FF9890-B89C-4668-94AB-FE4B52534C33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6FF9890-B89C-4668-94AB-FE4B52534C33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A803F699-27E9-4343-A04A-094EE60D635B}
+		SolutionGuid = {CF5D78CB-6B39-4947-9A97-2E780726CEA4}
 	EndGlobalSection
 EndGlobal
