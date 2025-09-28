@@ -16,7 +16,7 @@
         <input type="password" name="password" required />
     </div>
     <button type="submit">Login</button>
-    @if (ViewBag.Error != null)
+    if (ViewBag.Error != null)
     {
         <p style="color:red">@ViewBag.Error</p>
     }

@@ -20,4 +20,5 @@ namespace Code.Models
         public string Role { get; set; } = "Student";    // Vai trò (Admin, sinh viên)
         public DateTime CreatedAt { get; set; } = DateTime.Now; // Ngày tạo tài khoản
     }
+
 }
