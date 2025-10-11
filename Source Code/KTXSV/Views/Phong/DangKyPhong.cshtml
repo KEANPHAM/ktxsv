@@ -1,8 +1,118 @@
-﻿
+﻿@model IEnumerable<KTXSV.Models.Room>
 @{
-    ViewBag.Title = "DangKyPhong";
+    ViewBag.Title = "Đăng ký phòng ký túc xá";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>DangKyPhong</h2>
+<main class="container my-5">
 
+    <h1 class="text-center fw-bold text-primary mb-4">Đăng ký phòng ký túc xá</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+    }
+
+    <!-- FORM LỌC PHÒNG -->
+    <section class="bg-light p-4 rounded-4 shadow-sm mb-4">
+        <h4 class="fw-bold mb-3">🔍 Lọc phòng trống</h4>
+
+        @using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Get))
+        {
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Giới tính</label>
+                    <select name="gender" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option value="Male">Nam</option>
+                        <option value="Female">Nữ</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Tòa nhà</label>
+                    <select name="building" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option value="A">Tòa A</option>
+                        <option value="B">Tòa B</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Loại phòng</label>
+                    <select name="capacity" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option value="4">Phòng 4 người</option>
+                        <option value="6">Phòng 6 người</option>
+                        <option value="8">Phòng 8 người</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                </div>
+            </div>
+        }
+    </section>
+
+    <!-- DANH SÁCH PHÒNG -->
+    <section>
+        <div class="table-responsive shadow-sm rounded-4">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th>Tòa</th>
+                        <th>Số phòng</th>
+                        <th>Giới tính</th>
+                        <th>Sức chứa</th>
+                        <th>Đã ở</th>
+                        <th>Giá (VNĐ)</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var phong in Model)
+                    {
+                        <tr class="text-center">
+                            <td>@phong.Building</td>
+                            <td>@phong.RoomNumber</td>
+                            <td>@phong.Gender</td>
+                            <td>@phong.Capacity</td>
+                            <td>@(phong.Occupied ?? 0)</td>
+                            <td>@string.Format("{0:N0}", phong.Price)</td>
+                            <td>
+                                @if (phong.Status == "Available")
+                                {
+                                    <span class="badge bg-success">Còn trống</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Đã đầy</span>
+                                }
+                            </td>
+                            <td>
+                                @if (phong.Status == "Available" && (phong.Occupied ?? 0) < phong.Capacity)
+                                {
+                                    using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Post))
+                                    {
+                                        @Html.Hidden("roomId", phong.RoomID)
+                                        <button type="submit" class="btn btn-primary btn-sm">Đăng ký</button>
+                                    }
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary btn-sm" disabled>Không khả dụng</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>

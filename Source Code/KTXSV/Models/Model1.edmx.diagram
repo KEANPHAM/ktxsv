@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="14dbeb4dd7124a41b3173880fb9ab728" Name="Diagram1" ZoomLevel="57">
+        <EntityTypeShape EntityType="KTXSVModel.Notification" Width="1.5" PointX="9" PointY="1.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.Payment" Width="1.375" PointX="26.625" PointY="5.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.Registration" Width="1.5" PointX="24" PointY="5.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.Room" Width="1.5" PointX="20.625" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.StudentFile" Width="1.5" PointX="20.75" PointY="9.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.SupportRequest" Width="1.5" PointX="17.625" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.User" Width="1.5" PointX="20.625" PointY="5.25" IsExpanded="true" />
+        <AssociationConnector Association="KTXSVModel.FK__Payments__RegID__5165187F" ManuallyRouted="false" >
+        </AssociationConnector>
+        <AssociationConnector Association="KTXSVModel.FK__Registrat__RoomI__49C3F6B7" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__Registrat__UserI__48CFD27E" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__SupportRe__RoomI__619B8048" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__StudentFi__UserI__5AEE82B9" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__SupportRe__UserI__60A75C0F" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

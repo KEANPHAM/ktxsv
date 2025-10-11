@@ -13,12 +13,7 @@ select,
 textarea {
     max-width: 280px;
 }
-html, body {
-    height: 100%;
-    font-family: var(--font-family-system);
-    font-size: 16px;
-    color: #000;
-}
+
 
 body {
     display: flex;
@@ -28,27 +23,53 @@ body {
 
 main {
     flex: 1;
+    margin-bottom:16px
 }
-.navbar .nav-link {
-    color: #000 !important;
-    font-weight: 450;
-    transition: color 0.2s ease, font-weight 0.2s ease;
-}
-
-
 
 :root {
-    --font-family-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-.navbar .nav-link,
-.navbar .navbar-brand,
-.navbar .dropdown-item {
-    color: #000 !important; 
-    font-weight: 450;
+    --font-family-system: "Instagram Sans UI", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-    .navbar .nav-link:hover,
-    .navbar .navbar-brand:hover,
-    .navbar .dropdown-item:hover {
-        color: #000 !important; 
+html, body {
+    font-family: var(--font-family-system);
+    font-size: 16px;
+    color: #000;
+    height:100%;
+}
+
+.navbar .nav-link {
+    text-decoration: none;
+    position: relative;
+}
+
+.navbar .nav-link {
+    text-decoration: none;
+}
+
+    .navbar .nav-link:hover {
+        text-decoration: none;
+    }
+
+    .navbar .nav-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 0;
+        height: 2px;
+        background-color: #EE6823;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .navbar .nav-link:hover::after {
+        width: 100%;
+    }
+.navbar .btn {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 16px;
+}
+    .navbar .btn:hover {
+        background-color: #EE6823;
+        border: 1px solid #EE6823;
     }

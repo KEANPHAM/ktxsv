@@ -10,6 +10,9 @@ namespace KTXSV.Controllers
     {
         public ActionResult Index()
         {
+            Session["UserID"] = 1;
+            Session["UserName"] = "Kiên Phạm";
+            Session["Role"] = "Student";
             return View();
         }
 
