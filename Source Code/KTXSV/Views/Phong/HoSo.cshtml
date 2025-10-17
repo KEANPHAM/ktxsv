@@ -1,0 +1,45 @@
+﻿@model KTXSV.Models.StudentFile
+
+@{
+    ViewBag.Title = "HoSo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container my-5">
+    <h2 class="fw-bold mb-4 text-center" style="color:#EE6823">📁 Tải lên hồ sơ sinh viên</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+
+    @using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Căn cước công dân</label>
+                <input type="file" name="CCCD" class="form-control" accept="image/*,.pdf" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Ảnh chân dung</label>
+                <input type="file" name="Portrait" class="form-control" accept="image/*" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Thẻ sinh viên</label>
+                <input type="file" name="StudentCard" class="form-control" accept="image/*,.pdf" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Bảo hiểm y tế</label>
+                <input type="file" name="Insurance" class="form-control" accept="image/*,.pdf" required />
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <button type="submit" class="btn btn-primary px-4">📤 Tải lên</button>
+        </div>
+    }
+</div>

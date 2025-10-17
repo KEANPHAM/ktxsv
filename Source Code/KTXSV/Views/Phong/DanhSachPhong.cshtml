@@ -1,8 +1,70 @@
-﻿
+﻿@model IEnumerable<KTXSV.Models.Registration>
+
 @{
-    ViewBag.Title = "DanhSachPhong";
+    ViewBag.Title = "Phòng đã đăng ký";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>DanhSachPhong</h2>
+<main class="container my-5">
+    <h1 class="text-center fw-bold mb-4" style="color:#EE6823">Danh sách phòng đã đăng ký</h1>
 
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center">
+            Bạn chưa đăng ký phòng nào.
+        </div>
+    }
+    else
+    {
+        foreach (var item in Model)
+        {
+            <div class="rounded-4 shadow-sm p-4 mb-3 border-start border-4 border-warning-subtle">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Tòa nhà:</strong> @item.Room.Building</p>
+                        <p><strong>Số phòng:</strong> @item.Room.RoomNumber</p>
+                        <p><strong>Ngày đăng ký:</strong> @item.StartDate.ToString("dd/MM/yyyy")</p>
+                    </div>
+
+                    <div class="col-md-4">
+                        <p><strong>Sức chứa:</strong> @item.Room.Capacity người</p>
+                        <p><strong>Đã ở:</strong> @(item.Room.Occupied ?? 0)</p>
+                    </div>
+
+                    <div class="col-md-4 text-md-end">
+                        <p><strong>Trạng thái:</strong></p>
+
+                        @if (item.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                        }
+                        else if (item.Status == "Active")
+                        {
+                            <span class="badge bg-success">Đang ở</span>
+                        }
+                        else if (item.Status == "Rejected")
+                        {
+                            <span class="badge bg-danger">Bị từ chối</span>
+                        }
+                        else if (item.Status == "Ended")
+                        {
+                            <span class="badge bg-secondary">Đã kết thúc</span>
+                        }
+
+                        @* Chỉ hiển thị nút hủy nếu đang chờ duyệt *@
+                        @if (item.Status == "Pending")
+                        {
+                            using (Html.BeginForm("HuyDangKy", "Phong", FormMethod.Post, new { onsubmit = "return confirm('Bạn có chắc muốn hủy đăng ký này không?');" }))
+                            {
+                                @Html.Hidden("regId", item.RegID)
+                                <button type="submit" class="btn btn-outline-danger btn-sm mt-2">
+                                    <i class="bi bi-x-circle"></i> Hủy yêu cầu
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</main>

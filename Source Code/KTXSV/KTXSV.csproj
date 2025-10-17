@@ -260,6 +260,7 @@
     <Content Include="Views\HoTro\LichSu.cshtml" />
     <Content Include="Views\TaiKhoan\DangXuat.cshtml" />
     <Content Include="Views\Phong\Index.cshtml" />
+    <Content Include="Views\Phong\HoSo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -25,14 +25,17 @@
             <div class="collapse navbar-collapse justify-content-end align-items-center" id="navbarNav">
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item"><a class="nav-link text-dark" href="/">Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="/Phong/Index">Đăng ký phòng</a></li>
+                 
+                    <li class="nav-item"><a class="nav-link text-dark" href="/Phong/Index">Đăng ký phòng mới</a></li>
+
+                    <li class="nav-item"><a class="nav-link text-dark" href="/Phong/DanhSachPhong">Phòng đã đăng ký</a></li>
                     <li class="nav-item"><a class="nav-link text-dark" href="/ThanhToan/HoaDon">Thanh toán</a></li>
                     <li class="nav-item"><a class="nav-link text-dark" href="/ThongBao/ThongBao">Thông báo</a></li>
                     <li class="nav-item"><a class="nav-link text-dark" href="/HoTro/LichSu">Hỗ trợ</a></li>
 
                     @if (Session["UserID"] != null)
                     {
-                        <li class="nav-item dropdown" >
+                        <li class="nav-item dropdown">
                             <button class="btn btn-outline-dark dropdown-toggle ms-2" id="studentMenu"
                                     data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:20px;font-size:20px">
                                 Trang cá nhân
@@ -67,6 +70,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("scripts", required: false)
 
 </body>
 </html>

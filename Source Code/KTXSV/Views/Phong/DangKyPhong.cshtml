@@ -3,10 +3,41 @@
     ViewBag.Title = "Đăng ký phòng ký túc xá";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<style>
+    .btn1 {
+        border-radius: 10px;
+        background-color: #EE6823;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        color: white;
+    }
 
+        .btn1:hover {
+            background-color: #DD6120;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            color: white;
+        }
+    .list-group-item {
+        border: none !important;
+    }
+    .card {
+        border: none !important;
+    }
+
+    .card-header,
+    .card-footer {
+        border: none !important;
+    }
+
+    .list-group-item {
+        border: none !important;
+        background-color: transparent !important;
+    }
+    .card-header {
+        background-color: rgb(239 103 0 / 7%) !important;
+    }
+</style>
 <main class="container my-5">
 
-    <h1 class="text-center fw-bold text-primary mb-4">Đăng ký phòng ký túc xá</h1>
 
     @if (TempData["Success"] != null)
     {
@@ -17,102 +48,119 @@
         <div class="alert alert-danger text-center">@TempData["Error"]</div>
     }
 
-    <!-- FORM LỌC PHÒNG -->
     <section class="bg-light p-4 rounded-4 shadow-sm mb-4">
-        <h4 class="fw-bold mb-3">🔍 Lọc phòng trống</h4>
-
-        @using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Get))
-        {
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Giới tính</label>
-                    <select name="gender" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        <option value="Male">Nam</option>
-                        <option value="Female">Nữ</option>
-                    </select>
+        <h4 class="fw-bold mb-3">Lọc phòng trống</h4>
+        
+        @using (Html.BeginForm("DangKyPhong","Phong",FormMethod.Get))
+            {
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Giới tính</label>
+                        <select name="gender" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="Male">Nam</option>
+                            <option value="Female">Nữ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tòa nhà</label>
+                        <select name="building" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="A">Tòa A</option>
+                            <option value="B">Tòa B</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Loại phòng</label>
+                        <select class="form-select" name="capacity">
+                            <option value="">Tất cả</option>
+                            <option value="4">Phòng 4 người</option>
+                            <option value="6">Phòng 6 người</option>
+                            <option value="8">Phòng 8 người</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn1 w-100">Lọc</button>
+                    </div>
                 </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Tòa nhà</label>
-                    <select name="building" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        <option value="A">Tòa A</option>
-                        <option value="B">Tòa B</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Loại phòng</label>
-                    <select name="capacity" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        <option value="4">Phòng 4 người</option>
-                        <option value="6">Phòng 6 người</option>
-                        <option value="8">Phòng 8 người</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
-                </div>
-            </div>
-        }
+            }
     </section>
 
-    <!-- DANH SÁCH PHÒNG -->
-    <section>
-        <div class="table-responsive shadow-sm rounded-4">
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-primary text-center">
-                    <tr>
-                        <th>Tòa</th>
-                        <th>Số phòng</th>
-                        <th>Giới tính</th>
-                        <th>Sức chứa</th>
-                        <th>Đã ở</th>
-                        <th>Giá (VNĐ)</th>
-                        <th>Trạng thái</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var phong in Model)
-                    {
-                        <tr class="text-center">
-                            <td>@phong.Building</td>
-                            <td>@phong.RoomNumber</td>
-                            <td>@phong.Gender</td>
-                            <td>@phong.Capacity</td>
-                            <td>@(phong.Occupied ?? 0)</td>
-                            <td>@string.Format("{0:N0}", phong.Price)</td>
-                            <td>
-                                @if (phong.Status == "Available")
-                                {
-                                    <span class="badge bg-success">Còn trống</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger">Đã đầy</span>
-                                }
-                            </td>
-                            <td>
-                                @if (phong.Status == "Available" && (phong.Occupied ?? 0) < phong.Capacity)
-                                {
-                                    using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Post))
-                                    {
-                                        @Html.Hidden("roomId", phong.RoomID)
-                                        <button type="submit" class="btn btn-primary btn-sm">Đăng ký</button>
-                                    }
-                                }
-                                else
-                                {
-                                    <button class="btn btn-secondary btn-sm" disabled>Không khả dụng</button>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+    <section class="mt-5">
+        @if (!Model.Any())
+        {
+            <div class="alert alert-warning text-center">Không tìm thấy phòng nào phù hợp</div>
+        }
+        else
+        {
+            foreach (var buildingGroup in Model.GroupBy(p => p.Building).OrderBy(g => g.Key))
+            {
+                <div class="mb-5">
+                    <h2 class="fw-bold  pb-2 mb-4" style="color:#EE6823">Tòa @buildingGroup.Key</h2>
+
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-5">
+                        @foreach (var phong in buildingGroup.OrderBy(p => p.RoomNumber))
+                        {
+                            var slotsAvailable = phong.Capacity - (phong.Occupied ?? 0);
+                            bool isAvailable = phong.Status == "Available" && slotsAvailable > 0;
+
+                            <div class="col">
+                                <div class="card h-100 shadow-sm border-light-subtle  ">
+                                    <div class="card-header p-3 d-flex justify-content-between align-items-center ">
+                                        <h5 class="card-title mb-0 fw-bold">Phòng @phong.RoomNumber</h5>
+                                        @if (isAvailable)
+                                        {
+                                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill ">Còn trống</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill">Đã đầy</span>
+                                        }
+                                    </div>
+
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">
+                                                <i class="bi bi-people-fill text-muted me-2"></i>
+                                                <strong>Giới tính:</strong> @(phong.Gender == "Male" ? "Nam" : "Nữ")
+                                            </li>
+                                            <li class="list-group-item">
+                                                <i class="bi bi-grid-3x3-gap-fill text-muted me-2"></i>
+                                                <strong>Sức chứa:</strong> @phong.Capacity người
+                                            </li>
+                                            <li class="list-group-item">
+                                                <i class="bi bi-person-check-fill text-muted me-2"></i>
+                                                <strong>Chỗ còn trống:</strong> <span class="fw-bold text-success">@slotsAvailable</span>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <i class="bi bi-cash-coin text-muted me-2"></i>
+                                                <strong>Giá:</strong> <span class="fw-bold text-danger">@string.Format("{0:N0}", phong.Price) VNĐ/tháng</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="card-footer bg-white border-0 p-3">
+                                        @if (isAvailable)
+                                        {
+                                            using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Post, new {onsubmit = "return confirm('Xác nhận đăng ký phòng');"}))
+                                            {
+                                                @Html.Hidden("roomId", phong.RoomID)
+                                        <button type="submit" class="btn btn1 w-100">
+                                            <i class="bi bi-check-circle"></i> Đăng ký
+                                        </button>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-secondary w-100" disabled>Không khả dụng</button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
     </section>
 </main>
