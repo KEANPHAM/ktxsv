@@ -129,6 +129,7 @@ namespace KTXSV.Controllers
 
             var dsDangKy = db.Registrations
                 .Where(r => r.UserID == userId)
+                .OrderByDescending(r => r.StartDate)
                 .ToList();
 
             return View(dsDangKy);

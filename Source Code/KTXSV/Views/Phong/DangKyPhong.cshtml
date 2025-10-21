@@ -9,13 +9,25 @@
         background-color: #EE6823;
         box-shadow: 0 1px 4px rgba(0,0,0,0.3);
         color: white;
+        transition: all 0.15s ease-in-out; /* Thêm chuyển động mượt */
     }
 
         .btn1:hover {
-            background-color: #DD6120;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background-color: #EE6823;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
             color: white;
+            transform: scale(1.03); /* Phóng to nhẹ khi hover */
         }
+
+        .btn1:active {
+            background-color: #EE6823 !important;
+            transform: scale(0.95); /* Thu nhỏ khi nhấn */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            color: white !important;
+            border: 0;
+        }
+
+    
     .list-group-item {
         border: none !important;
     }
@@ -72,13 +84,13 @@
                     </select>
                 </div>
                 @*<div class="col-md-3">
-                    <label class="form-label">Tòa nhà</label>
-                    <select name="building" class="form-select">
-                        <option value="">Tất cả</option>
-                        <option value="A">Tòa A</option>
-                        <option value="B">Tòa B</option>
-                    </select>
-                </div>*@
+                        <label class="form-label">Tòa nhà</label>
+                        <select name="building" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="A">Tòa A</option>
+                            <option value="B">Tòa B</option>
+                        </select>
+                    </div>*@
                 <div class="col-md-5">
                     <label class="form-label">Loại phòng</label>
                     <select class="form-select" name="capacity">
@@ -151,13 +163,17 @@
                                     <div class="card-footer bg-white border-0 p-3">
                                         @if (isAvailable)
                                         {
-                                            using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Post, new { onsubmit = "return confirm('Xác nhận đăng ký phòng');" }))
-                                            {
+                                            <form action="/Phong/DangKyPhong" method="post" class="registerForm">
                                                 @Html.Hidden("roomId", phong.RoomID)
-                                                <button type="submit" class="btn btn1 w-100">
+                                                <button type="button" class="btn btn1 w-100 btnRegister"
+                                                        data-room="@phong.RoomNumber"
+                                                        data-building="@phong.Building"
+                                                        data-capacity="@phong.Capacity"
+                                                        data-available="@slotsAvailable">
                                                     <i class="bi bi-check-circle"></i> Đăng ký
                                                 </button>
-                                            }
+                                            </form>
+
                                         }
                                         else
                                         {
@@ -172,5 +188,79 @@
             }
         }
     </section>
-  
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".btnRegister").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const form = this.closest("form");
+                    const room = this.dataset.room;
+                    const building = this.dataset.building;
+                    const capacity = this.dataset.capacity;
+                    const available = this.dataset.available;
+
+                    Swal.fire({
+                        title: '<h4 class="mb-3 fw-bold" style="color:#EE6823; font-size:20px;">Xác nhận đăng ký phòng</h4>',
+                        html: `
+  <div style="background-color:#fff8f4; border:1px solid #ffe0cc; border-radius:10px; padding:16px; font-size:16px;">
+  <div style="display:flex; justify-content:space-between; gap:20px;">
+
+    <!-- Cột trái -->
+    <div style="flex:1; padding-right:16px;">
+      <p style="margin:0 0 8px 0; display:flex; justify-content:space-between; align-items:center;">
+        <span>🏢 <b>Tòa:</b></span>
+        <span style="font-weight:600; color:#333;margin-right:20px">${building}</span>
+      </p>
+      <p style="margin:0; display:flex; justify-content:space-between; align-items:center;">
+        <span>🚪 <b>Phòng:</b></span>
+        <span style="font-weight:600; color:#333;margin-right:16px">${room}</span>
+      </p>
+    </div>
+
+    <!-- Cột phải -->
+    <div style="flex:1; padding-left:4px;">
+      <p style="margin:0 0 8px 0; display:flex; justify-content:space-between; align-items:center;">
+        <span>👥 <b>Sức chứa:</b></span>
+        <span style="font-weight:600; color:#333;">${capacity} người</span>
+      </p>
+      <p style="margin:0; display:flex; justify-content:space-between; align-items:center;">
+        <span>🛏️ <b>Còn trống:</b></span>
+        <span style="font-weight:600; color:green;">${available} chỗ</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+
+
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="bi bi-send-check-fill me-2"></i>Đăng ký',
+                        cancelButtonText: '<i class="bi bi-x-circle"></i> Hủy',
+                        buttonsStyling: false,
+                        customClass: {
+                            confirmButton: 'btn btn1 px-4 me-2',
+                            cancelButton: 'btn btn-secondary rounded-3 ms-2 px-4',
+                            popup: 'rounded-4 shadow-lg border border-light p-3'
+                        },
+                        backdrop: true,
+                        focusConfirm: false,
+                        showClass: {
+                            popup: 'animate__animated animate__zoomIn'
+                        },
+                        hideClass: {
+                            popup: 'animate__animated animate__zoomOut'
+                        }
+                    })
+
+                        .then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+
+                });
+            });
+        });
+    </script>
+
 </main>
