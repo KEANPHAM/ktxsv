@@ -11,9 +11,9 @@
     @Styles.Render("~/Content/css")
     
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid d-flex align-items-center">
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm  rounded-4 px-4 ">
+        <div class="container-fluid d-flex align-items-center ms-0" >
             <a class="navbar-brand d-flex align-items-center" href="/">
                 <img width="150" src="https://huflit.edu.vn/wp-content/uploads/2023/04/LOGO-HUFLIT-OFFICIAL.png" />
             </a>
@@ -26,7 +26,7 @@
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item"><a class="nav-link text-dark" href="/">Trang chủ</a></li>
                  
-                    <li class="nav-item"><a class="nav-link text-dark" href="/Phong/Index">Đăng ký phòng mới</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="/StudentFiles/Index">Đăng ký phòng mới</a></li>
 
                     <li class="nav-item"><a class="nav-link text-dark" href="/Phong/DanhSachPhong">Phòng đã đăng ký</a></li>
                     <li class="nav-item"><a class="nav-link text-dark" href="/ThanhToan/HoaDon">Thanh toán</a></li>
@@ -37,7 +37,7 @@
                     {
                         <li class="nav-item dropdown">
                             <button class="btn btn-outline-dark dropdown-toggle ms-2" id="studentMenu"
-                                    data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:20px;font-size:20px">
+                                    data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:20px;font-size:16px">
                                 Trang cá nhân
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="studentMenu">

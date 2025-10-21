@@ -139,6 +139,7 @@
     <Compile Include="Controllers\HoTroController.cs" />
     <Compile Include="Controllers\PhongController.cs" />
     <Compile Include="Controllers\SinhVienController.cs" />
+    <Compile Include="Controllers\StudentFilesController.cs" />
     <Compile Include="Controllers\TaiKhoanController.cs" />
     <Compile Include="Controllers\ThanhToanController.cs" />
     <Compile Include="Controllers\ThongBaoController.cs" />
@@ -237,6 +238,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Uploads\Students\Screenshot 2025-10-18 233233.png" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -259,7 +261,7 @@
     <Content Include="Views\HoTro\YeuCauHoTro.cshtml" />
     <Content Include="Views\HoTro\LichSu.cshtml" />
     <Content Include="Views\TaiKhoan\DangXuat.cshtml" />
-    <Content Include="Views\Phong\Index.cshtml" />
+    <Content Include="Views\StudentFiles\Index.cshtml" />
     <Content Include="Views\Phong\HoSo.cshtml" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using KTXSV.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -26,8 +27,27 @@ namespace KTXSV.Controllers
 
             int userId = int.Parse(Session["UserID"].ToString());
 
+            var uploadedTypes = db.StudentFiles
+                .Where(f => f.UserID == userId)
+                .Select(f => f.FileType)
+                .ToList();
+
+            var requiredFiles = new List<string> { "CCCD", "BHYT", "StudentCard", "Portrait" };
+
+            bool isComplete = requiredFiles.All(t => uploadedTypes.Contains(t));
+
+            if (!isComplete)
+            {
+                TempData["Error"] = "Vui lòng hoàn tất hồ sơ trước khi đăng ký phòng";
+                return RedirectToAction("Index", "StudentFiles");
+            }
+            else
+            {
+                TempData["Success"] = "Đã bổ sung hồ sơ";
+            }
+
             var dangKyHienTai = db.Registrations
-                .FirstOrDefault(r => r.UserID == userId && (r.Status == "Pending" || r.Status == "Active"));
+                    .FirstOrDefault(r => r.UserID == userId && (r.Status == "Pending" || r.Status == "Active"));
             ViewBag.DaDangKy = dangKyHienTai != null;
 
             var phongTrong = db.Rooms.AsQueryable();
@@ -50,6 +70,18 @@ namespace KTXSV.Controllers
         {
             int userId = int.Parse(Session["UserID"].ToString());
 
+            var uploadedTypes = db.StudentFiles
+                .Where(f => f.UserID == userId)
+                .Select(f => f.FileType)
+                .ToList();
+
+            var requiredFiles = new List<string> { "CCCD", "BHYT", "StudentCard", "Portrait" };
+
+            if (!requiredFiles.All(t => uploadedTypes.Contains(t)))
+            {
+                TempData["Error"] = "Vui lòng hoàn tất hồ sơ trước khi đăng ký phòng";
+                return RedirectToAction("Index", "StudentFiles");
+            }
             bool daDangKy = db.Registrations.Any(r => r.UserID == userId &&
                 (r.Status == "Active" || r.Status == "Pending"));
             if (daDangKy)
@@ -71,17 +103,24 @@ namespace KTXSV.Controllers
                     
                 };
                 phong.Occupied = (phong.Occupied ?? 0) + 1;
+                if (phong.Occupied == phong.Capacity)
+                {
+                    phong.Status = "Full";
+                }
                 db.Registrations.Add(dangKyMoi);
                 db.SaveChanges();
 
+
                 TempData["Success"] = "Đăng ký phòng thành công. Vui lòng chờ duyệt.";
+                return RedirectToAction("DanhSachPhong");
+
             }
             else
             {
                 TempData["Error"] = "Phòng không tồn tại hoặc đã đầy.";
             }
-
             return RedirectToAction("DangKyPhong");
+
         }
         //Phòng đã đk
         public ActionResult DanhSachPhong()
@@ -90,7 +129,6 @@ namespace KTXSV.Controllers
 
             var dsDangKy = db.Registrations
                 .Where(r => r.UserID == userId)
-                .OrderByDescending(r => r.StartDate)
                 .ToList();
 
             return View(dsDangKy);
@@ -100,13 +138,16 @@ namespace KTXSV.Controllers
         public ActionResult HuyDangKy(int regId)
         {
             var reg = db.Registrations.Find(regId);
-            var phong = db.Rooms.Find(regId);
+            var phong = db.Rooms.Find(reg.RoomID);
             if (reg != null && reg.Status == "Pending")
             {
-                db.Registrations.Remove(reg);
-                db.SaveChanges();
+                reg.Status = "Canceled";
                 phong.Occupied = (phong.Occupied ?? 0) - 1;
-
+                if (phong.Status == "Full" && phong.Occupied < phong.Capacity)
+                {
+                    phong.Status = "Available";
+                }    
+                db.SaveChanges();
                 TempData["Success"] = "Đã hủy yêu cầu đăng ký phòng.";
             }
             else

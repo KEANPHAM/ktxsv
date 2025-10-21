@@ -21,11 +21,18 @@
     }
     .card {
         border: none !important;
+        border-radius: 20px !important; 
+        overflow: hidden; 
     }
 
-    .card-header,
+    .card-header {
+        border-top-left-radius: 20px !important;
+        border-top-right-radius: 20px !important;
+    }
+
     .card-footer {
-        border: none !important;
+        border-bottom-left-radius: 20px !important;
+        border-bottom-right-radius: 20px !important;
     }
 
     .list-group-item {
@@ -41,49 +48,51 @@
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success text-center">@TempData["Success"]</div>
+        <div class=" alert alert-success px-3 py-1 ms-auto rounded-5" style="width:fit-content;">
+            @TempData["Success"]
+        </div>
     }
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger text-center">@TempData["Error"]</div>
     }
 
-    <section class="bg-light p-4 rounded-4 shadow-sm mb-4">
+    <section class="bg-white p-4 rounded-4 shadow-sm mb-4">
         <h4 class="fw-bold mb-3">Lọc phòng trống</h4>
-        
-        @using (Html.BeginForm("DangKyPhong","Phong",FormMethod.Get))
-            {
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Giới tính</label>
-                        <select name="gender" class="form-select">
-                            <option value="">Tất cả</option>
-                            <option value="Male">Nam</option>
-                            <option value="Female">Nữ</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Tòa nhà</label>
-                        <select name="building" class="form-select">
-                            <option value="">Tất cả</option>
-                            <option value="A">Tòa A</option>
-                            <option value="B">Tòa B</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Loại phòng</label>
-                        <select class="form-select" name="capacity">
-                            <option value="">Tất cả</option>
-                            <option value="4">Phòng 4 người</option>
-                            <option value="6">Phòng 6 người</option>
-                            <option value="8">Phòng 8 người</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn1 w-100">Lọc</button>
-                    </div>
+
+        @using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Get))
+        {
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Giới tính</label>
+                    <select name="gender" class="form-select">
+                        <option value="">--Tất cả--</option>
+                        <option value="Male">Nam</option>
+                        <option value="Female">Nữ</option>
+                    </select>
                 </div>
-            }
+                @*<div class="col-md-3">
+                    <label class="form-label">Tòa nhà</label>
+                    <select name="building" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="A">Tòa A</option>
+                        <option value="B">Tòa B</option>
+                    </select>
+                </div>*@
+                <div class="col-md-5">
+                    <label class="form-label">Loại phòng</label>
+                    <select class="form-select" name="capacity">
+                        <option value="">--Tất cả--</option>
+                        <option value="4">Phòng 4 người</option>
+                        <option value="6">Phòng 6 người</option>
+                        <option value="8">Phòng 8 người</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn1 w-100">Lọc</button>
+                </div>
+            </div>
+        }
     </section>
 
     <section class="mt-5">
@@ -105,7 +114,7 @@
                             bool isAvailable = phong.Status == "Available" && slotsAvailable > 0;
 
                             <div class="col">
-                                <div class="card h-100 shadow-sm border-light-subtle  ">
+                                <div class="card h-100 shadow-sm border-light-subtle rounded-3">
                                     <div class="card-header p-3 d-flex justify-content-between align-items-center ">
                                         <h5 class="card-title mb-0 fw-bold">Phòng @phong.RoomNumber</h5>
                                         @if (isAvailable)
@@ -118,7 +127,7 @@
                                         }
                                     </div>
 
-                                    <div class="card-body">
+                                    <div class="card-body ">
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item">
                                                 <i class="bi bi-people-fill text-muted me-2"></i>
@@ -142,12 +151,12 @@
                                     <div class="card-footer bg-white border-0 p-3">
                                         @if (isAvailable)
                                         {
-                                            using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Post, new {onsubmit = "return confirm('Xác nhận đăng ký phòng');"}))
+                                            using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Post, new { onsubmit = "return confirm('Xác nhận đăng ký phòng');" }))
                                             {
                                                 @Html.Hidden("roomId", phong.RoomID)
-                                        <button type="submit" class="btn btn1 w-100">
-                                            <i class="bi bi-check-circle"></i> Đăng ký
-                                        </button>
+                                                <button type="submit" class="btn btn1 w-100">
+                                                    <i class="bi bi-check-circle"></i> Đăng ký
+                                                </button>
                                             }
                                         }
                                         else
@@ -163,4 +172,5 @@
             }
         }
     </section>
+  
 </main>

@@ -1,0 +1,130 @@
+﻿@model KTXSV.Models.StudentFile
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+
+
+    .custom {
+        border-radius: 20px;
+        background-color: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        margin: 16px 32px;
+        padding: 20px;
+        transition: 0.3s;
+    }
+        .custom:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transform: scale(1.03);
+        }
+    .note-box {
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        background-color: #fffbe6;
+        margin: 0px 32px;
+        padding: 16px;
+        border-left: 5px solid #ffc107;
+        border-radius:20px;
+    }
+        .note-box:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .custom p,
+        .note-box p,
+        .note-box ul {
+            margin: 0;
+        }
+        .note-box ul {
+            margin-top: 8px; 
+            padding-left: 20px; 
+        }
+    .btn1 {
+        border-radius: 20px;
+        border: 0;
+        background-color: #EE6823;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        color:white;
+        padding: 12px;
+        font-size: 16px;
+    }
+        .btn1:hover {
+            transform: scale(1.15);
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+    .head {
+        background-color: #EE6823;
+        border-top-left-radius:20px; 
+        border-top-right-radius:20px; 
+    }
+    .upload-files {
+        border-radius:15px;
+        box-shadow: 0px 1px 4px rgba(0,0,0,0.3);
+    }
+        .upload-files:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+</style>
+<main class="pb-3 bg-white" style="border-radius: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.3)">
+    <div class=" head text-white ps-5 py-4 fs-3 fw-bold ">
+        <p class="m-0">Các hồ sơ cần thiết trước khi đăng ký</p>
+    </div>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center" >@TempData["Error"]</div>
+    }
+    @using (Html.BeginForm("UploadFiles", "StudentFiles", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="custom row">
+            <div class="col-10">
+                <p>🪪 Thẻ Căn cước công dân<br /><small>(Có thể sử dụng VneID)</small></p>
+            </div>
+            <div class="col-2">
+                <input type="file" name="CCCD" class="form-control upload-files" accept="image/*,.pdf" />
+            </div>
+        </div>
+
+        <div class="custom row">
+            <div class="col-10">
+                <p>🏥 Thẻ bảo hiểm y tế<br /><small>(Có thể sử dụng VneID/VssID hoặc hình chụp thẻ giấy)</small></p>
+            </div>
+            <div class="col-2">
+                <input type="file" name="BHYT" class="form-control upload-files" accept="image/*,.pdf" />
+            </div>
+        </div>
+        <div class="custom row">
+            <div class="col-10">
+                <p>📄 Giấy báo trúng tuyển, nhập học hoặc thẻ sinh viên</p>
+            </div>
+            <div class="col-2">
+                <input type="file" name="StudentCard" class="form-control upload-files" accept="image/*,.pdf" />
+            </div>
+        </div>
+        <div class="custom row ">
+            <div class="col-10">
+                <p>📸 Ảnh chân dung</p>
+            </div>
+            <div class="col-2">
+                <input  type="file" name="Portrait" class="form-control upload-files" accept="image/*,.pdf" />
+
+            </div>
+        </div>
+        <div class="note-box" >
+            <p>
+                <strong>Lưu ý:</strong>
+                <ul>
+
+                    <li style="opacity: 0.7">Bỏ qua nếu sinh viên đã bổ sung đủ hồ sơ !</li>
+                    <li style="opacity: 0.7">Sinh viên có thể xem lại và chỉnh sửa hồ sơ trong phần chỉnh sửa thông tin cá nhân.</li>
+                </ul>
+            </p>
+        </div>
+        <div class="text-end my-4 me-5">
+            <button type="submit" class="btn1 px-5 text-decoration-none">Đăng ký</button>
+        </div>
+    }
+    </main>
