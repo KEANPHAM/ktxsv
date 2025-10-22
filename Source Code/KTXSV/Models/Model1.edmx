@@ -4,7 +4,16 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="KTXSVModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="KTXSVModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Bed">
+          <Key>
+            <PropertyRef Name="BedID" />
+          </Key>
+          <Property Name="BedID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RoomID" Type="int" Nullable="false" />
+          <Property Name="BedNumber" Type="int" Nullable="false" />
+          <Property Name="IsOccupied" Type="bit" />
+        </EntityType>
         <EntityType Name="Notifications">
           <Key>
             <PropertyRef Name="NotiID" />
@@ -36,6 +45,7 @@
           <Property Name="StartDate" Type="date" Nullable="false" />
           <Property Name="EndDate" Type="date" />
           <Property Name="Status" Type="varchar" MaxLength="20" />
+          <Property Name="BedID" Type="int" />
         </EntityType>
         <EntityType Name="Rooms">
           <Key>
@@ -56,7 +66,7 @@
           </Key>
           <Property Name="FileID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="UserID" Type="int" Nullable="false" />
-          <Property Name="FileType" Type="varchar" MaxLength="50" />
+          <Property Name="FileType" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="FilePath" Type="varchar" MaxLength="255" Nullable="false" />
           <Property Name="UploadedAt" Type="datetime" />
         </EntityType>
@@ -86,6 +96,18 @@
           <Property Name="Role" Type="varchar" MaxLength="20" />
           <Property Name="CreatedAt" Type="datetime" />
         </EntityType>
+        <Association Name="FK__Bed__RoomID__367C1819">
+          <End Role="Rooms" Type="Self.Rooms" Multiplicity="1" />
+          <End Role="Bed" Type="Self.Bed" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rooms">
+              <PropertyRef Name="RoomID" />
+            </Principal>
+            <Dependent Role="Bed">
+              <PropertyRef Name="RoomID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__Payments__RegID__5165187F">
           <End Role="Registrations" Type="Self.Registrations" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -97,20 +119,6 @@
             </Principal>
             <Dependent Role="Payments">
               <PropertyRef Name="RegID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__Registrat__RoomI__49C3F6B7">
-          <End Role="Rooms" Type="Self.Rooms" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Role="Registrations" Type="Self.Registrations" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Rooms">
-              <PropertyRef Name="RoomID" />
-            </Principal>
-            <Dependent Role="Registrations">
-              <PropertyRef Name="RoomID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -142,18 +150,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__SupportRe__RoomI__619B8048">
-          <End Role="Rooms" Type="Self.Rooms" Multiplicity="0..1" />
-          <End Role="SupportRequests" Type="Self.SupportRequests" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Rooms">
-              <PropertyRef Name="RoomID" />
-            </Principal>
-            <Dependent Role="SupportRequests">
-              <PropertyRef Name="RoomID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK__SupportRe__UserI__60A75C0F">
           <End Role="Users" Type="Self.Users" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -168,7 +164,20 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Registrations_Bed">
+          <End Role="Bed" Type="Self.Bed" Multiplicity="0..1" />
+          <End Role="Registrations" Type="Self.Registrations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Bed">
+              <PropertyRef Name="BedID" />
+            </Principal>
+            <Dependent Role="Registrations">
+              <PropertyRef Name="BedID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="KTXSVModelStoreContainer">
+          <EntitySet Name="Bed" EntityType="Self.Bed" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Notifications" EntityType="Self.Notifications" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Payments" EntityType="Self.Payments" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Registrations" EntityType="Self.Registrations" Schema="dbo" store:Type="Tables" />
@@ -176,13 +185,13 @@
           <EntitySet Name="StudentFiles" EntityType="Self.StudentFiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SupportRequests" EntityType="Self.SupportRequests" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Bed__RoomID__367C1819" Association="Self.FK__Bed__RoomID__367C1819">
+            <End Role="Rooms" EntitySet="Rooms" />
+            <End Role="Bed" EntitySet="Bed" />
+          </AssociationSet>
           <AssociationSet Name="FK__Payments__RegID__5165187F" Association="Self.FK__Payments__RegID__5165187F">
             <End Role="Registrations" EntitySet="Registrations" />
             <End Role="Payments" EntitySet="Payments" />
-          </AssociationSet>
-          <AssociationSet Name="FK__Registrat__RoomI__49C3F6B7" Association="Self.FK__Registrat__RoomI__49C3F6B7">
-            <End Role="Rooms" EntitySet="Rooms" />
-            <End Role="Registrations" EntitySet="Registrations" />
           </AssociationSet>
           <AssociationSet Name="FK__Registrat__UserI__48CFD27E" Association="Self.FK__Registrat__UserI__48CFD27E">
             <End Role="Users" EntitySet="Users" />
@@ -192,17 +201,16 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="StudentFiles" EntitySet="StudentFiles" />
           </AssociationSet>
-          <AssociationSet Name="FK__SupportRe__RoomI__619B8048" Association="Self.FK__SupportRe__RoomI__619B8048">
-            <End Role="Rooms" EntitySet="Rooms" />
-            <End Role="SupportRequests" EntitySet="SupportRequests" />
-          </AssociationSet>
           <AssociationSet Name="FK__SupportRe__UserI__60A75C0F" Association="Self.FK__SupportRe__UserI__60A75C0F">
             <End Role="Users" EntitySet="Users" />
             <End Role="SupportRequests" EntitySet="SupportRequests" />
           </AssociationSet>
+          <AssociationSet Name="FK_Registrations_Bed" Association="Self.FK_Registrations_Bed">
+            <End Role="Bed" EntitySet="Bed" />
+            <End Role="Registrations" EntitySet="Registrations" />
+          </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="KTXSVModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -241,6 +249,8 @@
           <NavigationProperty Name="Payments" Relationship="Self.FK__Payments__RegID__5165187F" FromRole="Registrations" ToRole="Payments" />
           <NavigationProperty Name="Room" Relationship="Self.FK__Registrat__RoomI__49C3F6B7" FromRole="Registrations" ToRole="Rooms" />
           <NavigationProperty Name="User" Relationship="Self.FK__Registrat__UserI__48CFD27E" FromRole="Registrations" ToRole="Users" />
+          <Property Name="BedID" Type="Int32" />
+          <NavigationProperty Name="Bed" Relationship="KTXSVModel.FK_Registrations_Bed" FromRole="Registration" ToRole="Bed" />
         </EntityType>
         <EntityType Name="Room">
           <Key>
@@ -256,6 +266,7 @@
           <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Registrations" Relationship="Self.FK__Registrat__RoomI__49C3F6B7" FromRole="Rooms" ToRole="Registrations" />
           <NavigationProperty Name="SupportRequests" Relationship="Self.FK__SupportRe__RoomI__619B8048" FromRole="Rooms" ToRole="SupportRequests" />
+          <NavigationProperty Name="Beds" Relationship="KTXSVModel.FK__Bed__RoomID__367C1819" FromRole="Room" ToRole="Bed" />
         </EntityType>
         <EntityType Name="StudentFile">
           <Key>
@@ -263,7 +274,7 @@
           </Key>
           <Property Name="FileID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="UserID" Type="Int32" Nullable="false" />
-          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="UploadedAt" Type="DateTime" Precision="3" />
           <NavigationProperty Name="User" Relationship="Self.FK__StudentFi__UserI__5AEE82B9" FromRole="StudentFiles" ToRole="Users" />
@@ -413,7 +424,51 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="SupportRequests" EntitySet="SupportRequests" />
           </AssociationSet>
+          <EntitySet Name="Beds" EntityType="KTXSVModel.Bed" />
+          <AssociationSet Name="FK__Bed__RoomID__367C1819" Association="KTXSVModel.FK__Bed__RoomID__367C1819">
+            <End Role="Room" EntitySet="Rooms" />
+            <End Role="Bed" EntitySet="Beds" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Registrations_Bed" Association="KTXSVModel.FK_Registrations_Bed">
+            <End Role="Bed" EntitySet="Beds" />
+            <End Role="Registration" EntitySet="Registrations" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="Bed">
+          <Key>
+            <PropertyRef Name="BedID" />
+          </Key>
+          <Property Name="BedID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RoomID" Type="Int32" Nullable="false" />
+          <Property Name="BedNumber" Type="Int32" Nullable="false" />
+          <Property Name="IsOccupied" Type="Boolean" />
+          <NavigationProperty Name="Room" Relationship="KTXSVModel.FK__Bed__RoomID__367C1819" FromRole="Bed" ToRole="Room" />
+          <NavigationProperty Name="Registrations" Relationship="KTXSVModel.FK_Registrations_Bed" FromRole="Bed" ToRole="Registration" />
+        </EntityType>
+        <Association Name="FK__Bed__RoomID__367C1819">
+          <End Type="KTXSVModel.Room" Role="Room" Multiplicity="1" />
+          <End Type="KTXSVModel.Bed" Role="Bed" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Room">
+              <PropertyRef Name="RoomID" />
+            </Principal>
+            <Dependent Role="Bed">
+              <PropertyRef Name="RoomID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Registrations_Bed">
+          <End Type="KTXSVModel.Bed" Role="Bed" Multiplicity="0..1" />
+          <End Type="KTXSVModel.Registration" Role="Registration" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Bed">
+              <PropertyRef Name="BedID" />
+            </Principal>
+            <Dependent Role="Registration">
+              <PropertyRef Name="BedID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -446,6 +501,7 @@
           <EntitySetMapping Name="Registrations">
             <EntityTypeMapping TypeName="KTXSVModel.Registration">
               <MappingFragment StoreEntitySet="Registrations">
+                <ScalarProperty Name="BedID" ColumnName="BedID" />
                 <ScalarProperty Name="RegID" ColumnName="RegID" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
                 <ScalarProperty Name="RoomID" ColumnName="RoomID" />
@@ -505,6 +561,16 @@
                 <ScalarProperty Name="Phone" ColumnName="Phone" />
                 <ScalarProperty Name="Role" ColumnName="Role" />
                 <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Beds">
+            <EntityTypeMapping TypeName="KTXSVModel.Bed">
+              <MappingFragment StoreEntitySet="Bed">
+                <ScalarProperty Name="IsOccupied" ColumnName="IsOccupied" />
+                <ScalarProperty Name="BedNumber" ColumnName="BedNumber" />
+                <ScalarProperty Name="RoomID" ColumnName="RoomID" />
+                <ScalarProperty Name="BedID" ColumnName="BedID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

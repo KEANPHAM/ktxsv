@@ -25,5 +25,4 @@ namespace KTXSV.Models
         public virtual Room Room { get; set; }
         public virtual User User { get; set; }
     }
-    
 }

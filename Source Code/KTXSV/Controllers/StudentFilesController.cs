@@ -28,12 +28,22 @@ namespace KTXSV.Controllers
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
 
+            var existingFiles = db.StudentFiles.Where(f => f.UserID == userId).ToList();
+
             void SaveFile(HttpPostedFileBase file, string type)
             {
                 if (file != null && file.ContentLength > 0)
                 {
+                    var oldFile = existingFiles.FirstOrDefault(f => f.FileType == type);
+                    if (oldFile != null)
+                    {
+                        string oldFullPath = Server.MapPath(oldFile.FilePath);
+                        if (System.IO.File.Exists(oldFullPath))
+                            System.IO.File.Delete(oldFullPath);
+                        db.StudentFiles.Remove(oldFile);
+                    }
                     string fileName = $"{userId}_{type}_{Path.GetFileName(file.FileName)}";
-                    string fullPath =Path.Combine(uploadPath, fileName);
+                    string fullPath = Path.Combine(uploadPath, fileName);
                     file.SaveAs(fullPath);
                     var newFile = new StudentFile
                     {
@@ -45,14 +55,15 @@ namespace KTXSV.Controllers
                     db.StudentFiles.Add(newFile);
                 }
             }
-            SaveFile (CCCD, "CCCD");
+            SaveFile(CCCD, "CCCD");
             SaveFile(BHYT, "BHYT");
             SaveFile(StudentCard, "StudentCard");
             SaveFile(Portrait, "Portrait");
 
             db.SaveChanges();
-            return RedirectToAction("DangKyPhong","Phong");
+            TempData["Success"] = "Cập nhật hồ sơ thành công.";
+            return RedirectToAction("DangKyPhong", "Phong");
         }
-         
+
     }
 }

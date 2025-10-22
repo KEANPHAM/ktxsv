@@ -1,8 +1,9 @@
-﻿@model KTXSV.Models.StudentFile
+﻿@model IEnumerable<KTXSV.Models.StudentFile>
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<link href="~/Content/btn1.css" rel="stylesheet" />
 <style>
 
 
@@ -14,53 +15,51 @@
         padding: 20px;
         transition: 0.3s;
     }
+
         .custom:hover {
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             transform: scale(1.03);
         }
+
     .note-box {
         box-shadow: 0 1px 4px rgba(0,0,0,0.3);
         background-color: #fffbe6;
         margin: 0px 32px;
         padding: 16px;
         border-left: 5px solid #ffc107;
-        border-radius:20px;
+        border-radius: 20px;
     }
+
         .note-box:hover {
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
+
         .custom p,
         .note-box p,
         .note-box ul {
             margin: 0;
         }
+
         .note-box ul {
-            margin-top: 8px; 
-            padding-left: 20px; 
+            margin-top: 8px;
+            padding-left: 20px;
         }
-    .btn1 {
-        border-radius: 20px;
-        border: 0;
-        background-color: #EE6823;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-        color:white;
-        padding: 12px;
-        font-size: 16px;
-    }
-        .btn1:hover {
-            transform: scale(1.15);
-            color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
+
+            .note-box ul li {
+                font-size: 15px;
+            }
+
     .head {
         background-color: #EE6823;
-        border-top-left-radius:20px; 
-        border-top-right-radius:20px; 
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
     }
+
     .upload-files {
-        border-radius:15px;
+        border-radius: 15px;
         box-shadow: 0px 1px 4px rgba(0,0,0,0.3);
     }
+
         .upload-files:hover {
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
@@ -75,7 +74,7 @@
     }
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger text-center" >@TempData["Error"]</div>
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
     }
     @using (Html.BeginForm("UploadFiles", "StudentFiles", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
@@ -109,11 +108,11 @@
                 <p>📸 Ảnh chân dung</p>
             </div>
             <div class="col-2">
-                <input  type="file" name="Portrait" class="form-control upload-files" accept="image/*,.pdf" />
+                <input type="file" name="Portrait" class="form-control upload-files" accept="image/*,.pdf" />
 
             </div>
         </div>
-        <div class="note-box" >
+        <div class="note-box">
             <p>
                 <strong>Lưu ý:</strong>
                 <ul>
@@ -124,7 +123,7 @@
             </p>
         </div>
         <div class="text-end my-4 me-5">
-            <button type="submit" class="btn1 px-5 text-decoration-none">Đăng ký</button>
+            <button type="submit" class="btn1 px-5 py-2">Đăng ký</button>
         </div>
     }
-    </main>
+</main>

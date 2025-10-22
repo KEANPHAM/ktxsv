@@ -19,6 +19,7 @@ namespace KTXSV.Models
         {
             this.Registrations = new HashSet<Registration>();
             this.SupportRequests = new HashSet<SupportRequest>();
+            this.Beds = new HashSet<Bed>();
         }
     
         public int RoomID { get; set; }
@@ -34,5 +35,7 @@ namespace KTXSV.Models
         public virtual ICollection<Registration> Registrations { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SupportRequest> SupportRequests { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Bed> Beds { get; set; }
     }
 }

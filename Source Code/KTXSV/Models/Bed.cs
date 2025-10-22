@@ -12,26 +12,21 @@ namespace KTXSV.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Registration
+    public partial class Bed
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Registration()
+        public Bed()
         {
-            this.Payments = new HashSet<Payment>();
+            this.Registrations = new HashSet<Registration>();
         }
     
-        public int RegID { get; set; }
-        public int UserID { get; set; }
+        public int BedID { get; set; }
         public int RoomID { get; set; }
-        public System.DateTime StartDate { get; set; }
-        public Nullable<System.DateTime> EndDate { get; set; }
-        public string Status { get; set; }
-        public Nullable<int> BedID { get; set; }
+        public int BedNumber { get; set; }
+        public Nullable<bool> IsOccupied { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Payment> Payments { get; set; }
         public virtual Room Room { get; set; }
-        public virtual User User { get; set; }
-        public virtual Bed Bed { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Registration> Registrations { get; set; }
     }
 }

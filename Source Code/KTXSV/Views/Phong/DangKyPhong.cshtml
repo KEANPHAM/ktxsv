@@ -3,38 +3,25 @@
     ViewBag.Title = "Đăng ký phòng ký túc xá";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<link href="~/Content/btn1.css" rel="stylesheet" />
 <style>
-    .btn1 {
-        border-radius: 10px;
-        background-color: #EE6823;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-        color: white;
-        transition: all 0.15s ease-in-out; /* Thêm chuyển động mượt */
+
+
+    .bed-select.active {
+        background-color: #EE6823 !important;
+        color: #fff !important;
+        border: none !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
-        .btn1:hover {
-            background-color: #EE6823;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-            color: white;
-            transform: scale(1.03); /* Phóng to nhẹ khi hover */
-        }
-
-        .btn1:active {
-            background-color: #EE6823 !important;
-            transform: scale(0.95); /* Thu nhỏ khi nhấn */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            color: white !important;
-            border: 0;
-        }
-
-    
     .list-group-item {
         border: none !important;
     }
+
     .card {
         border: none !important;
-        border-radius: 20px !important; 
-        overflow: hidden; 
+        border-radius: 20px !important;
+        overflow: hidden;
     }
 
     .card-header {
@@ -51,6 +38,7 @@
         border: none !important;
         background-color: transparent !important;
     }
+
     .card-header {
         background-color: rgb(239 103 0 / 7%) !important;
     }
@@ -139,7 +127,7 @@
                                         }
                                     </div>
 
-                                    <div class="card-body ">
+                                    <div class="card-body">
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item">
                                                 <i class="bi bi-people-fill text-muted me-2"></i>
@@ -157,6 +145,59 @@
                                                 <i class="bi bi-cash-coin text-muted me-2"></i>
                                                 <strong>Giá:</strong> <span class="fw-bold text-danger">@string.Format("{0:N0}", phong.Price) VNĐ/tháng</span>
                                             </li>
+
+                                            @{
+                                                int perRow;
+                                                if (phong.Capacity == 8)
+                                                {
+                                                    perRow = 4;
+                                                }
+                                                else if (phong.Capacity == 6)
+                                                {
+                                                    perRow = 3;
+                                                }
+                                                else if (phong.Capacity == 4)
+                                                {
+                                                    perRow = 4;
+                                                }
+                                                else
+                                                {
+                                                    perRow = 4;
+                                                }
+
+                                                var bedList = phong.Beds.OrderBy(b => b.BedNumber).ToList();
+                                            }
+
+                                            <div class="mt-2">
+                                                <strong>Giường:</strong>
+
+                                                <div class="d-flex flex-column gap-2 mt-2">
+                                                    @for (int i = 0; i < bedList.Count; i += perRow)
+                                                    {
+                                                        <div class="d-flex justify-content-center flex-wrap gap-2">
+
+                                                            @foreach (var bed in bedList.Skip(i).Take(perRow))
+                                                            {
+                                                                if (bed.IsOccupied ?? false)
+                                                                {
+                                                                    <span class="badge bg-secondary px-3 py-2">@bed.BedNumber</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <button type="button"
+                                                                            class="btn btn-outline-success bed-select  px-3 py-2"
+                                                                            style="font-size:12px !important"
+                                                                            data-bedid="@bed.BedID"
+                                                                            data-roomid="@phong.RoomID">
+                                                                        @bed.BedNumber
+                                                                    </button>
+                                                                }
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+
                                         </ul>
                                     </div>
 
@@ -165,6 +206,8 @@
                                         {
                                             <form action="/Phong/DangKyPhong" method="post" class="registerForm">
                                                 @Html.Hidden("roomId", phong.RoomID)
+                                                <input type="hidden" name="bedId" class="selected-bed-id" />
+
                                                 <button type="button" class="btn btn1 w-100 btnRegister"
                                                         data-room="@phong.RoomNumber"
                                                         data-building="@phong.Building"
@@ -173,6 +216,7 @@
                                                     <i class="bi bi-check-circle"></i> Đăng ký
                                                 </button>
                                             </form>
+
 
                                         }
                                         else
@@ -190,48 +234,43 @@
     </section>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".bed-select").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const card = this.closest(".card");
+                    card.querySelectorAll(".bed-select").forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+                    card.querySelector(".selected-bed-id").value = this.dataset.bedid;
+                });
+            });
+
             document.querySelectorAll(".btnRegister").forEach(btn => {
                 btn.addEventListener("click", function () {
                     const form = this.closest("form");
+                    const bedId = form.querySelector(".selected-bed-id").value;
                     const room = this.dataset.room;
                     const building = this.dataset.building;
                     const capacity = this.dataset.capacity;
                     const available = this.dataset.available;
 
+                    if (!bedId) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Chưa chọn giường!',
+                            text: 'Vui lòng chọn giường trước khi đăng ký.',
+                            confirmButtonColor: '#EE6823'
+                        });
+                        return;
+                    }
+
                     Swal.fire({
-                        title: '<h4 class="mb-3 fw-bold" style="color:#EE6823; font-size:20px;">Xác nhận đăng ký phòng</h4>',
+                        title: `<h4 class="fw-bold" style="color:#EE6823;">Xác nhận đăng ký phòng ${room}</h4>`,
                         html: `
-  <div style="background-color:#fff8f4; border:1px solid #ffe0cc; border-radius:10px; padding:16px; font-size:16px;">
-  <div style="display:flex; justify-content:space-between; gap:20px;">
-
-    <!-- Cột trái -->
-    <div style="flex:1; padding-right:16px;">
-      <p style="margin:0 0 8px 0; display:flex; justify-content:space-between; align-items:center;">
-        <span>🏢 <b>Tòa:</b></span>
-        <span style="font-weight:600; color:#333;margin-right:20px">${building}</span>
-      </p>
-      <p style="margin:0; display:flex; justify-content:space-between; align-items:center;">
-        <span>🚪 <b>Phòng:</b></span>
-        <span style="font-weight:600; color:#333;margin-right:16px">${room}</span>
-      </p>
-    </div>
-
-    <!-- Cột phải -->
-    <div style="flex:1; padding-left:4px;">
-      <p style="margin:0 0 8px 0; display:flex; justify-content:space-between; align-items:center;">
-        <span>👥 <b>Sức chứa:</b></span>
-        <span style="font-weight:600; color:#333;">${capacity} người</span>
-      </p>
-      <p style="margin:0; display:flex; justify-content:space-between; align-items:center;">
-        <span>🛏️ <b>Còn trống:</b></span>
-        <span style="font-weight:600; color:green;">${available} chỗ</span>
-      </p>
-    </div>
-  </div>
-</div>
-
-
-
+                            <div style="background-color:#fff8f4; border:1px solid #ffe0cc; border-radius:10px; padding:16px;">
+                                <p style="margin:0 0 8px 0;">🏢 <b>Tòa:</b> ${building}</p>
+                                <p style="margin:0 0 8px 0;">🚪 <b>Phòng:</b> ${room}</p>
+                                <p style="margin:0 0 8px 0;">🛏️ <b>Giường:</b> G${bedId}</p>
+                                <p style="margin:0;">👥 <b>Sức chứa:</b> ${capacity} người - <b>Còn trống:</b> ${available}</p>
+                            </div>
                         `,
                         showCancelButton: true,
                         confirmButtonText: '<i class="bi bi-send-check-fill me-2"></i>Đăng ký',
@@ -239,28 +278,16 @@
                         buttonsStyling: false,
                         customClass: {
                             confirmButton: 'btn btn1 px-4 me-2',
-                            cancelButton: 'btn btn-secondary rounded-3 ms-2 px-4',
-                            popup: 'rounded-4 shadow-lg border border-light p-3'
-                        },
-                        backdrop: true,
-                        focusConfirm: false,
-                        showClass: {
-                            popup: 'animate__animated animate__zoomIn'
-                        },
-                        hideClass: {
-                            popup: 'animate__animated animate__zoomOut'
+                            cancelButton: 'btn btn-secondary rounded-3 ms-2 px-4'
                         }
-                    })
-
-                        .then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
+                    }).then(result => {
+                        if (result.isConfirmed) form.submit();
                     });
-
                 });
             });
         });
     </script>
+
+
 
 </main>

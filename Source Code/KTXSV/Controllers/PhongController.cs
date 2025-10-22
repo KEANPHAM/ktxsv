@@ -1,6 +1,8 @@
 ﻿using KTXSV.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.EnterpriseServices;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -33,7 +35,6 @@ namespace KTXSV.Controllers
                 .ToList();
 
             var requiredFiles = new List<string> { "CCCD", "BHYT", "StudentCard", "Portrait" };
-
             bool isComplete = requiredFiles.All(t => uploadedTypes.Contains(t));
 
             if (!isComplete)
@@ -41,16 +42,14 @@ namespace KTXSV.Controllers
                 TempData["Error"] = "Vui lòng hoàn tất hồ sơ trước khi đăng ký phòng";
                 return RedirectToAction("Index", "StudentFiles");
             }
-            else
-            {
-                TempData["Success"] = "Đã bổ sung hồ sơ";
-            }
 
             var dangKyHienTai = db.Registrations
-                    .FirstOrDefault(r => r.UserID == userId && (r.Status == "Pending" || r.Status == "Active"));
+                .FirstOrDefault(r => r.UserID == userId && (r.Status == "Pending" || r.Status == "Active"));
             ViewBag.DaDangKy = dangKyHienTai != null;
 
-            var phongTrong = db.Rooms.AsQueryable();
+            var phongTrong = db.Rooms
+                .Include(r => r.Beds)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(gender))
                 phongTrong = phongTrong.Where(p => p.Gender == gender);
@@ -66,7 +65,7 @@ namespace KTXSV.Controllers
 
         // đăng ký phòng
         [HttpPost]
-        public ActionResult DangKyPhong(int roomId)
+        public ActionResult DangKyPhong(int roomId, int bedId)
         {
             int userId = int.Parse(Session["UserID"].ToString());
 
@@ -91,8 +90,8 @@ namespace KTXSV.Controllers
             }
 
             var phong = db.Rooms.Find(roomId);
-
-            if (phong != null && phong.Status == "Available")
+            var bed = db.Beds.FirstOrDefault(b => b.BedID == bedId && (b.IsOccupied ?? false) == false);
+            if (phong != null && phong.Status == "Available" && bed != null)
             {
                 var dangKyMoi = new Registration
                 {
@@ -100,9 +99,13 @@ namespace KTXSV.Controllers
                     RoomID = roomId,
                     StartDate = DateTime.Now,
                     Status = "Pending",
-                    
+                    BedID = bedId,
+
                 };
                 phong.Occupied = (phong.Occupied ?? 0) + 1;
+                bed.IsOccupied = true;
+
+
                 if (phong.Occupied == phong.Capacity)
                 {
                     phong.Status = "Full";
@@ -136,27 +139,55 @@ namespace KTXSV.Controllers
         }
 
         [HttpPost]
-        public ActionResult HuyDangKy(int regId)
+        public ActionResult HuyDangKy(int? regId, int? bedId)
         {
             var reg = db.Registrations.Find(regId);
-            var phong = db.Rooms.Find(reg.RoomID);
-            if (reg != null && reg.Status == "Pending")
+            if (reg == null || bedId == null)
             {
+                TempData["Error"] = "Không tìm thấy đăng ký.";
+                return RedirectToAction("DanhSachPhong");
+            }
+            
+            var phong = db.Rooms.Find(reg.RoomID);
+            var bed = db.Beds.SingleOrDefault(b => b.BedID == bedId);
+
+            if (reg.Status == "Pending" || reg.Status == "Active")
+            {
+                // 🔹 Cập nhật trạng thái đăng ký
                 reg.Status = "Canceled";
-                phong.Occupied = (phong.Occupied ?? 0) - 1;
-                if (phong.Status == "Full" && phong.Occupied < phong.Capacity)
+
+                // 🔹 Cập nhật giường
+                if (bed != null)
                 {
-                    phong.Status = "Available";
-                }    
+                    bed.IsOccupied = false;
+
+                    // Ép EF theo dõi thay đổi
+                    db.Beds.Attach(bed);
+                    db.Entry(bed).Property(b => b.IsOccupied).IsModified = true;
+                }
+
+                // 🔹 Cập nhật phòng
+                if (phong != null)
+                {
+                    phong.Occupied = Math.Max((phong.Occupied ?? 1) - 1, 0);
+                    if (phong.Status == "Full" && phong.Occupied < phong.Capacity)
+                        phong.Status = "Available";
+
+                    db.Rooms.Attach(phong);
+                    db.Entry(phong).Property(p => p.Occupied).IsModified = true;
+                    db.Entry(phong).Property(p => p.Status).IsModified = true;
+                }
+
                 db.SaveChanges();
-                TempData["Success"] = "Đã hủy yêu cầu đăng ký phòng.";
+                TempData["Success"] = "Đã hủy đăng ký phòng và cập nhật giường thành công.";
             }
             else
             {
-                TempData["Error"] = "Không thể hủy đăng ký đã duyệt hoặc không tồn tại.";
+                TempData["Error"] = "Không thể hủy đăng ký đã bị từ chối hoặc không tồn tại.";
             }
 
             return RedirectToAction("DanhSachPhong");
         }
+
     }
 }
