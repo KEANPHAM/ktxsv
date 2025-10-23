@@ -1,0 +1,14 @@
+﻿-- Mở SQL server lên kết nối như bình thường
+-- Chọn NewQuery
+-- chạy đoạn bên dưới
+
+DROP DATABASE KTXSV;
+CREATE DATABASE KTXSV;
+GO
+USE KTXSV;
+
+--copy toàn bộ code ở Bước 2
+--Chạy là sẽ có toàn bộ data của bài
+--
+--Đối với lần dầu  thì add vào Model của dự án (làm như lúc học thực hành), những lần sau chỉ cần copy làm tới bước bên trên là ok ( miễn tên database vẫn là KTXSV)
+--Lưu ý sau khi làm bài xong phải share lại data (xem bước 3)
