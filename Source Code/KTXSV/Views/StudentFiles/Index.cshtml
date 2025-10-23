@@ -68,10 +68,7 @@
     <div class=" head text-white ps-5 py-4 fs-3 fw-bold ">
         <p class="m-0">Các hồ sơ cần thiết trước khi đăng ký</p>
     </div>
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success text-center">@TempData["Success"]</div>
-    }
+    
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger text-center">@TempData["Error"]</div>

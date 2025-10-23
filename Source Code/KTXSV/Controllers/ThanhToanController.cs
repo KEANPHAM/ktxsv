@@ -13,5 +13,9 @@ namespace KTXSV.Controllers
         {
             return View();
         }
+        public ActionResult a()
+        {
+            return View();
+        }
     }
 }

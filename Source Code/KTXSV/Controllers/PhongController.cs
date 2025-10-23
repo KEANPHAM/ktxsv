@@ -99,9 +99,10 @@ namespace KTXSV.Controllers
                     RoomID = roomId,
                     StartDate = DateTime.Now,
                     Status = "Pending",
-                    BedID = bedId,
+                    BedID = bed.BedID,
 
                 };
+                db.Registrations.Add(dangKyMoi);
                 phong.Occupied = (phong.Occupied ?? 0) + 1;
                 bed.IsOccupied = true;
 
@@ -110,7 +111,6 @@ namespace KTXSV.Controllers
                 {
                     phong.Status = "Full";
                 }
-                db.Registrations.Add(dangKyMoi);
                 db.SaveChanges();
 
 
@@ -141,41 +141,32 @@ namespace KTXSV.Controllers
         [HttpPost]
         public ActionResult HuyDangKy(int? regId, int? bedId)
         {
-            var reg = db.Registrations.Find(regId);
+            var reg = db.Registrations
+                           .Include(r => r.Room)
+                           .Include(r => r.Bed)
+                           .FirstOrDefault(r => r.RegID == regId);
+
             if (reg == null || bedId == null)
             {
                 TempData["Error"] = "Không tìm thấy đăng ký.";
                 return RedirectToAction("DanhSachPhong");
             }
             
-            var phong = db.Rooms.Find(reg.RoomID);
-            var bed = db.Beds.SingleOrDefault(b => b.BedID == bedId);
-
             if (reg.Status == "Pending" || reg.Status == "Active")
             {
-                // 🔹 Cập nhật trạng thái đăng ký
                 reg.Status = "Canceled";
 
-                // 🔹 Cập nhật giường
-                if (bed != null)
+                if (reg.Bed != null)
                 {
-                    bed.IsOccupied = false;
+                    reg.Bed.IsOccupied = false;
 
-                    // Ép EF theo dõi thay đổi
-                    db.Beds.Attach(bed);
-                    db.Entry(bed).Property(b => b.IsOccupied).IsModified = true;
                 }
 
-                // 🔹 Cập nhật phòng
-                if (phong != null)
+                if (reg.Room != null)
                 {
-                    phong.Occupied = Math.Max((phong.Occupied ?? 1) - 1, 0);
-                    if (phong.Status == "Full" && phong.Occupied < phong.Capacity)
-                        phong.Status = "Available";
-
-                    db.Rooms.Attach(phong);
-                    db.Entry(phong).Property(p => p.Occupied).IsModified = true;
-                    db.Entry(phong).Property(p => p.Status).IsModified = true;
+                    reg.Room.Occupied = Math.Max((reg.Room.Occupied ?? 1) - 1, 0);
+                    if (reg.Room.Status == "Full" && reg.Room.Occupied < reg.Room.Capacity)
+                        reg.Room.Status = "Available";
                 }
 
                 db.SaveChanges();

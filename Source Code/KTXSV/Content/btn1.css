@@ -11,7 +11,7 @@
         background-color: #EE6823;
         box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         color: white;
-        transform: scale(1.02); 
+        transform: scale(1.02);
     }
 
     .btn1:active {

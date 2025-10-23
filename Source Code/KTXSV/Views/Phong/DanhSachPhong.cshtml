@@ -57,6 +57,15 @@
             background-color: #6c757d !important;
             color: white !important;
         }
+    .label {
+        display: inline-block;
+        width: 120px; 
+    }
+    .badge {
+        margin: 0 0 16px;
+        border-radius: 10px;
+        padding: 6px 12px;
+    }
 </style>
 <main class="container my-5">
     @if (TempData["Success"] != null)
@@ -80,19 +89,20 @@
         foreach (var item in Model)
         {
             <div class="rounded-4 bg-white shadow-sm p-4 mb-3 border-start border-4 border-warning-subtle">
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Tòa nhà:</strong> @item.Room.Building</p>
-                        <p><strong>Số phòng:</strong> @item.Room.RoomNumber</p>
-                        <p><strong>Ngày đăng ký:</strong> @item.StartDate.ToString("dd/MM/yyyy")</p>
+                <div class="row align-items-stretch">
+                    <div class="col-md-5 d-flex flex-column justify-content-between">
+                        <p><strong class="label">Tòa nhà:</strong> <span class="value">@item.Room.Building</span></p>
+                        <p><strong class="label">Số phòng:</strong> <span class="value">@item.Room.RoomNumber</span></p>
+                        <p style="margin-bottom:0"><strong class="label">Ngày đăng ký:</strong> <span class="value">@item.StartDate.ToString("dd/MM/yyyy")</span></p>
                     </div>
 
-                    <div class="col-md-4">
-                        <p><strong>Sức chứa:</strong> @item.Room.Capacity người</p>
-                        <p><strong>Đã ở:</strong> @(item.Room.Occupied ?? 0)</p>
+                    <div class="col-md-5 d-flex flex-column justify-content-between">
+                        <p><strong class="label">Sức chứa:</strong><span class="value"> @item.Room.Capacity </span></p>
+                        <p><strong class="label">Đã ở:</strong><span class="value"> @(item.Room.Occupied ?? 0)/@item.Room.Capacity</span></p>
+                        <p style="margin-bottom:0"><strong class="label">Giường:</strong><span class="value"> @(item.BedID)</span></p>
                     </div>
 
-                    <div class="col-md-4 text-md-end">
+                    <div class="col-md-2  text-md-end">
                         <p><strong>Trạng thái:</strong></p>
 
                         @if (item.Status == "Pending")
@@ -113,7 +123,7 @@
                         }
                         else if (item.Status == "Canceled")
                         {
-                            <span class="badge bg-danger-subtle">Đã hủy</span>
+                            <span  class="badge bg-danger-subtle">Đã hủy</span>
                         }
 
 
@@ -123,7 +133,7 @@
                             <form action="/Phong/HuyDangKy" method="post" class="cancelForm">
                                 @Html.Hidden("regId", item.RegID)
                                 @Html.Hidden("bedId", item.BedID)
-                                <button type="button" class="btn btn-outline-danger btn-sm mt-2 btnCancel">
+                                <button style="border-radius: 12px !important" type="button" class="btn btn-outline-danger btn-sm  btnCancel">
                                     <i class="bi bi-x-circle"></i> Hủy yêu cầu
                                 </button>
                             </form>
