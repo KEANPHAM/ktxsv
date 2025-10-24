@@ -264,7 +264,6 @@
     <Content Include="Views\TaiKhoan\DangXuat.cshtml" />
     <Content Include="Views\StudentFiles\Index.cshtml" />
     <Content Include="Views\Phong\HoSo.cshtml" />
-    <Content Include="Views\ThanhToan\TestHD.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

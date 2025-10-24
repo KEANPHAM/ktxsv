@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KTXSV.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,11 +12,12 @@ namespace KTXSV.Controllers
         // GET: ThanhToan
         public ActionResult HoaDon()
         {
-            return View();
-        }
-        public ActionResult TestHD()
-        {
-            return View();
+            using (var db=new KTXSVEntities())
+            {
+                var payments=db.Payments.ToList(); //get all hoa don
+                return View(payments);
+
+            }
         }
     }
 }
