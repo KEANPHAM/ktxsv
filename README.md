@@ -35,4 +35,4 @@
 - Payments: thanh toán tiền phòng, điện, nước  
 - Notifications: thông báo gửi đến sinh viên/admin  
 - SupportRequests: yêu cầu hỗ trợ của sinh viên  
--ngay 17/10
+- Bed: giường trong từng phòng
