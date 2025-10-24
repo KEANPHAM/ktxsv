@@ -35,5 +35,9 @@
 - Payments: thanh toán tiền phòng, điện, nước  
 - Notifications: thông báo gửi đến sinh viên/admin  
 - SupportRequests: yêu cầu hỗ trợ của sinh viên  
+<<<<<<< HEAD
 
 -vm
+=======
+- Bed: giường trong từng phòng
+>>>>>>> 6b61bb7829879e1631a2f56cd0c718e5466dfd56
