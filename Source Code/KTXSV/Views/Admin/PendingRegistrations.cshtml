@@ -1,0 +1,35 @@
+﻿@model List<KTXSV.Models.Registration>
+@{ 
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Danh sách đăng ký phòng chờ duyệt</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Sinh viên</th>
+            <th>Phòng</th>
+            <th>Tòa nhà</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reg in Model)
+        {
+            <tr>
+                <td>@reg.User.FullName</td>
+                <td>@reg.Room.RoomNumber</td>
+                <td>@reg.Room.Building</td>
+                <td>@reg.StartDate.ToString()</td>
+                <td>@reg.EndDate.ToString()</td>
+                <td>
+                    @Html.ActionLink("Phê duyệt", "Approve", new { id = reg.RegID }, new { @class = "btn btn-success btn-sm" }) |
+                    @Html.ActionLink("Từ chối", "Reject", new { id = reg.RegID }, new { @class = "btn btn-danger btn-sm" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

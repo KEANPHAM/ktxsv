@@ -103,7 +103,6 @@ namespace KTXSV.Controllers
 
                 };
                 db.Registrations.Add(dangKyMoi);
-                phong.Occupied = (phong.Occupied ?? 0) + 1;
                 bed.IsOccupied = true;
 
 

@@ -132,6 +132,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HoTroController.cs" />
     <Compile Include="Controllers\PhongController.cs" />
@@ -265,6 +266,8 @@
     <Content Include="Views\StudentFiles\Index.cshtml" />
     <Content Include="Views\Phong\HoSo.cshtml" />
     <Content Include="Views\ThanhToan\TestHD.cshtml" />
+    <Content Include="Views\Admin\PendingRegistrations.cshtml" />
+    <Content Include="Views\Shared\_AdminLayout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

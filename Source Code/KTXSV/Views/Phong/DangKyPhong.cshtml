@@ -58,13 +58,12 @@
     }
 
     <section class="bg-white p-4 rounded-4 shadow-sm mb-4">
-        <h4 class="fw-bold mb-3">Lọc phòng trống</h4>
 
         @using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Get))
         {
             <div class="row g-3">
                 <div class="col-md-5">
-                    <label class="form-label">Giới tính</label>
+                    <label class="form-label"><strong>Giới tính</strong></label>
                     <select name="gender" class="form-select">
                         <option value="">--Tất cả--</option>
                         <option value="Male">Nam</option>
@@ -80,7 +79,7 @@
                         </select>
                     </div>*@
                 <div class="col-md-5">
-                    <label class="form-label">Loại phòng</label>
+                    <label class="form-label"><strong>Loại phòng</strong></label>
                     <select class="form-select" name="capacity">
                         <option value="">--Tất cả--</option>
                         <option value="4">Phòng 4 người</option>
@@ -180,18 +179,24 @@
                                                             {
                                                                 if (bed.IsOccupied ?? false)
                                                                 {
-                                                                    <span class="badge bg-secondary px-3 py-2">@bed.BedNumber</span>
+                                                                    <button type="button"
+                                                                            class="btn btn-secondary bed-select px-3 py-2"
+                                                                            style="font-size: 12px !important"
+                                                                            disabled>
+                                                                        @bed.BedNumber
+                                                                    </button>
                                                                 }
                                                                 else
                                                                 {
                                                                     <button type="button"
-                                                                            class="btn btn-outline-success bed-select  px-3 py-2"
-                                                                            style="font-size:12px !important"
+                                                                            class="btn btn-outline-success bed-select px-3 py-2"
+                                                                            style="font-size: 12px !important"
                                                                             data-bedid="@bed.BedID"
                                                                             data-roomid="@phong.RoomID">
                                                                         @bed.BedNumber
                                                                     </button>
                                                                 }
+
                                                             }
                                                         </div>
                                                     }

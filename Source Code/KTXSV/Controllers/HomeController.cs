@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KTXSV.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -9,26 +10,34 @@ namespace KTXSV.Controllers
 {
     public class HomeController : Controller
     {
+        KTXSVEntities db =new KTXSVEntities();
         public ActionResult Index()
         {
-            Session["UserID"] = 1;
+            Session["UserID"] = 7;
             Session["UserName"] = "Kiên Phạm";
-            Session["Role"] = "Student";
-            return View();
-        }
+            Session["Role"] = "Admin";
 
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
+            int user = int.Parse(Session["UserID"].ToString());
+            var role = db.Users
+                .Where(r => r. UserID == user)
+                .Select(r => r.Role)
+                .FirstOrDefault();
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
 
-            return View();
-        }
+            if (role == "Admin")
+            {
+                return RedirectToAction("PendingRegistrations", "Admin"); 
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
 
-            return View();
+
         }
     }
 }
