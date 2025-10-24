@@ -13,7 +13,7 @@ namespace KTXSV.Controllers
         {
             return View();
         }
-        public ActionResult a()
+        public ActionResult TestHD()
         {
             return View();
         }
