@@ -15,7 +15,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>KTXSV</RootNamespace>
     <AssemblyName>KTXSV</AssemblyName>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
@@ -26,6 +26,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -64,6 +65,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
@@ -71,11 +73,8 @@
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
@@ -120,6 +119,7 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -133,13 +133,13 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HoTroController.cs" />
     <Compile Include="Controllers\PhongController.cs" />
     <Compile Include="Controllers\SinhVienController.cs" />
     <Compile Include="Controllers\StudentFilesController.cs" />
-    <Compile Include="Controllers\TaiKhoanController.cs" />
     <Compile Include="Controllers\ThanhToanController.cs" />
     <Compile Include="Controllers\ThongBaoController.cs" />
     <Compile Include="Global.asax.cs">
@@ -207,6 +207,8 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Image\HUFLIT_CLEAN_nobus.png" />
+    <Content Include="Image\HUFLIT_Logo_English_Official.png" />
     <Content Include="Models\Model1.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>Model1.edmx</DependentUpon>
@@ -259,11 +261,17 @@
     <Content Include="Views\SinhVien\ChinhSuaThongTin.cshtml" />
     <Content Include="Views\ThanhToan\HoaDon.cshtml" />
     <Content Include="Views\ThongBao\ThongBao.cshtml" />
+<<<<<<< HEAD
+=======
+    <Content Include="Views\HoTro\YeuCauHoTro.cshtml" />
+    <Content Include="Views\HoTro\LichSu.cshtml" />
+>>>>>>> eec902b (Cập nhật AccountController, Views và HomeController)
     <Content Include="Views\StudentFiles\Index.cshtml" />
     <Content Include="Views\Phong\HoSo.cshtml" />
     <Content Include="Views\ThanhToan\TestHD.cshtml" />
     <Content Include="Views\Admin\PendingRegistrations.cshtml" />
     <Content Include="Views\Shared\_AdminLayout.cshtml" />
+<<<<<<< HEAD
     <Content Include="Views\TaiKhoan\Index.cshtml" />
     <Content Include="Views\TaiKhoan\LoginAdmin.cshtml" />
     <Content Include="Views\TaiKhoan\LoginStudent.cshtml" />
@@ -272,6 +280,13 @@
     <Content Include="Views\SupportRequests\Delete.cshtml" />
     <Content Include="Views\SupportRequests\Details.cshtml" />
     <Content Include="Views\SupportRequests\Index.cshtml" />
+=======
+    <Content Include="Views\Account\Index.cshtml" />
+    <Content Include="Views\Account\LoginAdmin.cshtml" />
+    <Content Include="Views\Account\LoginStudent.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Account\Logout.cshtml" />
+>>>>>>> eec902b (Cập nhật AccountController, Views và HomeController)
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
