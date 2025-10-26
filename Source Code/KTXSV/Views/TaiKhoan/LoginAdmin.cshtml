@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewBag.Title = "Đăng Nhập Với Tư Cách Là Admin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Đăng nhập Quản trị viên</h2>
+
+<form method="post" action="@Url.Action("LoginAdmin", "Account")">
+    <div>
+        <label>Tên đăng nhập:</label>
+        <input type="text" name="username" class="form-control" />
+    </div>
+
+    <div>
+        <label>Mật khẩu:</label>
+        <input type="password" name="password" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-danger" style="margin-top:10px;">Đăng nhập</button>
+</form>
+
+@if (ViewBag.Message != null)
+{
+    <div style="color:red; margin-top:10px;">@ViewBag.Message</div>
+}
+

@@ -17,18 +17,20 @@ namespace KTXSV.Controllers
             Session["UserName"] = "Kiên Phạm";
             Session["Role"] = "Admin";
 
-            int user = int.Parse(Session["UserID"].ToString());
+            var userId = int.Parse(Session["UserID"].ToString()); 
+
             var role = db.Users
-                .Where(r => r. UserID == user)
+                .Where(r => r.UserID == userId)
                 .Select(r => r.Role)
                 .FirstOrDefault();
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-
+            
             if (role == "Admin")
             {
+                if (role == null || role != "Admin")
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
                 return RedirectToAction("PendingRegistrations", "Admin"); 
             }
             else

@@ -38,5 +38,7 @@ namespace KTXSV.Models
         public virtual ICollection<StudentFile> StudentFiles { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SupportRequest> SupportRequests { get; set; }
+
+       
     }
 }
