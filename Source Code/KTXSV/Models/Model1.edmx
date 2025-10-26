@@ -81,6 +81,7 @@
           <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="Status" Type="varchar" MaxLength="20" />
           <Property Name="CreatedAt" Type="datetime" />
+          <Property Name="Reply" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
@@ -150,20 +151,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__SupportRe__UserI__60A75C0F">
-          <End Role="Users" Type="Self.Users" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Role="SupportRequests" Type="Self.SupportRequests" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="UserID" />
-            </Principal>
-            <Dependent Role="SupportRequests">
-              <PropertyRef Name="UserID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_Registrations_Bed">
           <End Role="Bed" Type="Self.Bed" Multiplicity="0..1" />
           <End Role="Registrations" Type="Self.Registrations" Multiplicity="*" />
@@ -173,6 +160,18 @@
             </Principal>
             <Dependent Role="Registrations">
               <PropertyRef Name="BedID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SupportRequests_Rooms">
+          <End Role="Rooms" Type="Self.Rooms" Multiplicity="0..1" />
+          <End Role="SupportRequests" Type="Self.SupportRequests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rooms">
+              <PropertyRef Name="RoomID" />
+            </Principal>
+            <Dependent Role="SupportRequests">
+              <PropertyRef Name="RoomID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -201,13 +200,13 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="StudentFiles" EntitySet="StudentFiles" />
           </AssociationSet>
-          <AssociationSet Name="FK__SupportRe__UserI__60A75C0F" Association="Self.FK__SupportRe__UserI__60A75C0F">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="SupportRequests" EntitySet="SupportRequests" />
-          </AssociationSet>
           <AssociationSet Name="FK_Registrations_Bed" Association="Self.FK_Registrations_Bed">
             <End Role="Bed" EntitySet="Bed" />
             <End Role="Registrations" EntitySet="Registrations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SupportRequests_Rooms" Association="Self.FK_SupportRequests_Rooms">
+            <End Role="Rooms" EntitySet="Rooms" />
+            <End Role="SupportRequests" EntitySet="SupportRequests" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -292,6 +291,7 @@
           <Property Name="CreatedAt" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Room" Relationship="Self.FK__SupportRe__RoomI__619B8048" FromRole="SupportRequests" ToRole="Rooms" />
           <NavigationProperty Name="User" Relationship="Self.FK__SupportRe__UserI__60A75C0F" FromRole="SupportRequests" ToRole="Users" />
+          <Property Name="Reply" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -539,6 +539,7 @@
           <EntitySetMapping Name="SupportRequests">
             <EntityTypeMapping TypeName="KTXSVModel.SupportRequest">
               <MappingFragment StoreEntitySet="SupportRequests">
+                <ScalarProperty Name="Reply" ColumnName="Reply" />
                 <ScalarProperty Name="RequestID" ColumnName="RequestID" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
                 <ScalarProperty Name="RoomID" ColumnName="RoomID" />

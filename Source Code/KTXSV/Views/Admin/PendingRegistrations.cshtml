@@ -1,15 +1,58 @@
 ﻿@model List<KTXSV.Models.Registration>
-@{ 
+@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+<style>
+    h2{
+        color: #ee6823 !important;
+    }
+    table {
+        text-align: center !important;
+    }
+    .btn1-success {
+        background-color: #198754;
+        color: #fff;
+    }
 
-<h2>Danh sách đăng ký phòng chờ duyệt</h2>
+        .btn1-success:hover {
+            background-color: #157347;
+            transform: scale(1.02);
+        }
 
-<table class="table table-bordered">
+        .btn1-success:active {
+            background-color: #146c43 !important;
+            transform: scale(0.95);
+        }
+    .btn1-danger {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+        .btn1-danger:hover {
+            background-color: #bb2d3b;
+            
+            transform: scale(1.02);
+        }
+
+        .btn1-danger:active {
+            background-color: #a52834 !important;
+            transform: scale(0.95);
+        }
+</style>
+<h2 class="m-2 mb-4">Danh sách đăng ký phòng chờ duyệt</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Sinh viên</th>
+            <th>Giới tính</th>
             <th>Phòng</th>
+            <th>Giường</th>
             <th>Tòa nhà</th>
             <th>Ngày bắt đầu</th>
             <th>Ngày kết thúc</th>
@@ -20,14 +63,16 @@
         @foreach (var reg in Model)
         {
             <tr>
-                <td>@reg.User.FullName</td>
-                <td>@reg.Room.RoomNumber</td>
-                <td>@reg.Room.Building</td>
-                <td>@reg.StartDate.ToString()</td>
+                <td>@(reg.User?.FullName ?? "Chưa có")</td>
+                <td>@(reg.Room.Gender == "Male" ? "Nam" : "Nữ")</td>
+                <td>@(reg.Room?.RoomNumber ?? "Chưa có")</td>
+                <td>@(reg.BedID)</td>
+                <td>@(reg.Room?.Building ?? "Chưa có")</td>
+                <td>@reg.StartDate.ToString("dd/MM/yyyy")</td>
                 <td>@reg.EndDate.ToString()</td>
                 <td>
-                    @Html.ActionLink("Phê duyệt", "Approve", new { id = reg.RegID }, new { @class = "btn btn-success btn-sm" }) |
-                    @Html.ActionLink("Từ chối", "Reject", new { id = reg.RegID }, new { @class = "btn btn-danger btn-sm" })
+                    @Html.ActionLink("Phê duyệt", "Approve", new { id = reg.RegID }, new { @class = "btn btn1 btn1-success" })  &nbsp;
+                    @Html.ActionLink("Từ chối", "Reject", new { id = reg.RegID }, new { @class = "btn btn1 btn1-danger " })
                 </td>
             </tr>
         }

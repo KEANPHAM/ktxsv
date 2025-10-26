@@ -9,57 +9,81 @@ namespace KTXSV.Controllers
 {
     public class SupportRequestsController : Controller
     {
-        private KTXSVEntities db = new KTXSVEntities();
+        KTXSVEntities db = new KTXSVEntities();
 
-        // GET: SupportRequests
         public ActionResult Index()
         {
-            Session["UserID"] = 1;
-            Session["UserName"] = "Kiên Phạm";
-            Session["Role"] = "Student";
+            if (Session["UserID"] == null)
+                return RedirectToAction("LoginStudent", "Account");
 
-            var requests = db.SupportRequests.Include(s => s.User).Include(s => s.Room);
-            return View(requests.ToList());
+            int userId = Convert.ToInt32(Session["UserID"]);
+
+            var requests = db.SupportRequests
+                             .Include(s => s.Room)
+                             .Include(s => s.User)
+                             .Where(s => s.UserID == userId)
+                             .OrderByDescending(s => s.CreatedAt)
+                             .ToList();
+
+            return View(requests);
         }
 
-        // GET: SupportRequests/Details/5
         public ActionResult Details(int? id)
         {
-            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (id == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            SupportRequest supportRequest = db.SupportRequests.Find(id);
-            if (supportRequest == null) return HttpNotFound();
+            var supportRequest = db.SupportRequests
+                                   .Include(s => s.Room)
+                                   .Include(s => s.User)
+                                   .FirstOrDefault(s => s.RequestID == id);
+
+            if (supportRequest == null)
+                return HttpNotFound();
 
             return View(supportRequest);
         }
 
-        // GET: SupportRequests/Create
-        // GET: SupportRequests/Create
         public ActionResult Create()
         {
-            // chỉ chọn phòng thôi, user lấy từ session
-            ViewBag.RoomID = new SelectList(db.Rooms, "RoomID", "RoomNumber");
-            return View();
+            if (Session["UserID"] == null)
+                return RedirectToAction("LoginStudent", "Account");
+
+            int userId = Convert.ToInt32(Session["UserID"]);
+
+            var current = db.Registrations
+                .Where(r => r.UserID == userId && r.Status == "Active")
+                .Select(r => new
+                {
+                    r.RoomID,
+                    r.Room.RoomNumber
+                })
+                .FirstOrDefault();
+
+            ViewBag.CurrentRoomNumber = current?.RoomNumber ?? "Chưa có";
+            var model = new SupportRequest { RoomID = current?.RoomID };
+
+            return View(model);
         }
 
-        // POST: SupportRequests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "RoomID,Title,Description")] SupportRequest supportRequest)
+        public ActionResult Create([Bind(Include = "Title,Description")] SupportRequest supportRequest)
         {
             try
             {
-                // ✅ Tạo session tạm (nếu chưa có)
                 if (Session["UserID"] == null)
-                {
-                    Session["UserID"] = 1;
-                    Session["UserName"] = "Kiên Phạm";
-                    Session["Role"] = "Student";
-                }
+                    return RedirectToAction("LoginStudent", "Account");
 
                 int userId = Convert.ToInt32(Session["UserID"]);
 
+                var currentRoomId = db.Registrations
+                    .Where(r => r.UserID == userId && r.Status == "Active")
+                    .Select(r => r.RoomID)
+                    .FirstOrDefault();
+
                 supportRequest.UserID = userId;
+                supportRequest.RoomID = currentRoomId;
                 supportRequest.CreatedAt = DateTime.Now;
                 supportRequest.Status = "Pending";
 
@@ -67,39 +91,34 @@ namespace KTXSV.Controllers
                 {
                     db.SupportRequests.Add(supportRequest);
                     db.SaveChanges();
+                    TempData["Message"] = "Gửi yêu cầu hỗ trợ thành công!";
                     return RedirectToAction("Index");
                 }
             }
-            catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+            catch (Exception ex)
             {
-                var inner = ex.InnerException?.InnerException;
-                ModelState.AddModelError("", "Lỗi lưu CSDL: " + (inner != null ? inner.Message : ex.Message));
+                ModelState.AddModelError("", "Lỗi khi lưu dữ liệu: " + ex.Message);
             }
 
-            ViewBag.RoomID = new SelectList(db.Rooms, "RoomID", "RoomNumber", supportRequest.RoomID);
             return View(supportRequest);
         }
 
-
-
-
-        // GET: SupportRequests/Edit/5
         public ActionResult Edit(int? id)
         {
-            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (id == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            SupportRequest supportRequest = db.SupportRequests.Find(id);
-            if (supportRequest == null) return HttpNotFound();
+            var supportRequest = db.SupportRequests.Find(id);
+            if (supportRequest == null)
+                return HttpNotFound();
 
-            ViewBag.UserID = new SelectList(db.Users, "UserID", "FullName", supportRequest.UserID);
             ViewBag.RoomID = new SelectList(db.Rooms, "RoomID", "RoomNumber", supportRequest.RoomID);
             return View(supportRequest);
         }
 
-        // POST: SupportRequests/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "RequestID,UserID,RoomID,Title,Description,Status,CreatedAt")] SupportRequest supportRequest)
+        public ActionResult Edit([Bind(Include = "RequestID,RoomID,Title,Description,Status,CreatedAt,UserID")] SupportRequest supportRequest)
         {
             if (ModelState.IsValid)
             {
@@ -108,28 +127,27 @@ namespace KTXSV.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.UserID = new SelectList(db.Users, "UserID", "FullName", supportRequest.UserID);
             ViewBag.RoomID = new SelectList(db.Rooms, "RoomID", "RoomNumber", supportRequest.RoomID);
             return View(supportRequest);
         }
 
-        // GET: SupportRequests/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (id == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            SupportRequest supportRequest = db.SupportRequests.Find(id);
-            if (supportRequest == null) return HttpNotFound();
+            var supportRequest = db.SupportRequests.Find(id);
+            if (supportRequest == null)
+                return HttpNotFound();
 
             return View(supportRequest);
         }
 
-        // POST: SupportRequests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            SupportRequest supportRequest = db.SupportRequests.Find(id);
+            var supportRequest = db.SupportRequests.Find(id);
             db.SupportRequests.Remove(supportRequest);
             db.SaveChanges();
             return RedirectToAction("Index");
@@ -137,10 +155,7 @@ namespace KTXSV.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
+            if (disposing) db.Dispose();
             base.Dispose(disposing);
         }
     }

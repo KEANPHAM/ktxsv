@@ -1,37 +1,124 @@
 ﻿@model IEnumerable<KTXSV.Models.SupportRequest>
-
 @{
     ViewBag.Title = "Danh sách yêu cầu hỗ trợ";
 }
 
-<h2>@ViewBag.Title</h2>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color:#EE6328 !important" class=" fw-bold mb-0">
+            <i class="bi bi-life-preserver me-2"></i>@ViewBag.Title
+        </h2>
+        @Html.ActionLink("Tạo yêu cầu mới", "Create", null, new { @class = "btn btn-ee px-4 shadow-sm" })
+    </div>
 
-<p>
-    @Html.ActionLink("Tạo yêu cầu mới", "Create", null, new { @class = "btn btn-primary" })
-</p>
-
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>Người gửi</th>
-        <th>Phòng</th>
-        <th>Tiêu đề</th>
-        <th>Trạng thái</th>
-        <th>Ngày tạo</th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
+    @if (!Model.Any())
     {
-        <tr>
-            <td>@item.User.FullName</td>
-            <td>@item.Room.RoomNumber</td>
-            <td>@item.Title</td>
-            <td>@item.Status</td>
-            <td>@item.CreatedAt.ToString()</td>
-            <td>
-                @Html.ActionLink("Chi tiết", "Details", new { id = item.RequestID }) |
-                @Html.ActionLink("Xóa", "Delete", new { id = item.RequestID })
-            </td>
-        </tr>
+        <div class="alert alert-warning text-center py-4 shadow-sm">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            Bạn chưa gửi yêu cầu hỗ trợ nào.
+        </div>
     }
-</table>
+    else
+    {
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead style="background-color:#EE6823; color:white;">
+                        <tr class="text-center">
+                            <th>Người gửi</th>
+                            <th>Phòng</th>
+                            <th>Tiêu đề</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.User?.FullName ?? "Không rõ"</td>
+                                <td class="text-center">@((item.Room?.RoomNumber) ?? "—")</td>
+                                <td>@item.Title</td>
+                                <td class="text-center">
+                                    @switch (item.Status)
+                                    {
+                                        case "Pending":
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-hourglass-split me-1"></i> Chờ xử lý
+                                            </span>; break;
+                                        case "Resolved":
+                                            <span class="badge" style="background-color:#EE6823; color:white;">
+                                                <i class="bi bi-check-circle me-1"></i> Đã xử lý
+                                            </span>; break;
+                                        case "Rejected":
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle me-1"></i> Từ chối
+                                            </span>; break;
+                                        default:
+                                            <span class="badge bg-secondary">@item.Status</span>; break;
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @(item.CreatedAt.HasValue
+                                        ? item.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                        : "Chưa xác định")
+                                </td>
+                                <td class="text-center">
+                                    @Html.ActionLink("Chi tiết", "Details", new { id = item.RequestID }, new { @class = "btn btn-sm btn-outline-ee me-1 rounded-pill px-3" })
+                                    @Html.ActionLink("Xóa", "Delete", new { id = item.RequestID }, new { @class = "btn btn-sm btn-outline-danger rounded-pill px-3" })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    /* Màu chủ đạo */
+    .btn-ee {
+        background-color: #EE6823;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        transition: 0.2s;
+    }
+
+        .btn-ee:hover {
+            background-color: #d85b1f;
+            color: white;
+            transform: scale(1.05);
+        }
+
+    .btn-outline-ee {
+        border: 1px solid #EE6823;
+        color: #EE6823;
+        background-color: transparent;
+        transition: 0.2s;
+    }
+
+        .btn-outline-ee:hover {
+            background-color: #EE6823;
+            color: white;
+            transform: scale(1.05);
+        }
+
+    .table th {
+        white-space: nowrap;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+</style>

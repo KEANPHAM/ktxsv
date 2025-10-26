@@ -168,7 +168,7 @@
                                             }
 
                                             <div class="mt-2">
-                                                <strong>Giường:</strong>
+                                                <strong class="ms-4">Giường:</strong>
 
                                                 <div class="d-flex flex-column gap-2 mt-2">
                                                     @for (int i = 0; i < bedList.Count; i += perRow)
@@ -270,16 +270,20 @@
                     Swal.fire({
                         title: `<h4 class="fw-bold" style="color:#EE6823;">Xác nhận đăng ký phòng ${room}</h4>`,
                         html: `
-                            <div style="background-color:#fff8f4; border:1px solid #ffe0cc; border-radius:10px; padding:16px;">
-                                <p style="margin:0 0 8px 0;">🏢 <b>Tòa:</b> ${building}</p>
-                                <p style="margin:0 0 8px 0;">🚪 <b>Phòng:</b> ${room}</p>
-                                <p style="margin:0 0 8px 0;">🛏️ <b>Giường:</b> G${bedId}</p>
-                                <p style="margin:0;">👥 <b>Sức chứa:</b> ${capacity} người - <b>Còn trống:</b> ${available}</p>
-                            </div>
-                        `,
+                <div style="display:flex; gap:20px; background-color:#fff8f4; border:1px solid #ffe0cc; border-radius:10px; padding:16px;">
+                    <div style="flex:1;">
+                        <p><b>Tòa:</b> ${building}</p>
+                        <p><b>Phòng:</b> ${room}</p>
+                    </div>
+                    <div style="flex:1;">
+                        <p><b>Giường:</b> G${bedId}</p>
+                        <p><b>Còn trống:</b> ${available} /${capacity}</p>
+                    </div>
+                </div>
+            `,
                         showCancelButton: true,
-                        confirmButtonText: '<i class="bi bi-send-check-fill me-2"></i>Đăng ký',
-                        cancelButtonText: '<i class="bi bi-x-circle"></i> Hủy',
+                        confirmButtonText: 'Đăng ký',
+                        cancelButtonText: 'Hủy',
                         buttonsStyling: false,
                         customClass: {
                             confirmButton: 'btn btn1 px-4 me-2',
@@ -290,6 +294,7 @@
                     });
                 });
             });
+
         });
     </script>
 

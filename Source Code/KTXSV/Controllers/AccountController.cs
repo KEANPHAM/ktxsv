@@ -13,11 +13,11 @@ namespace KTXSV.Controllers
         // GET: Account
         public ActionResult Index()
         {
+
             return View();
         }
-        private KTXSVEntities db = new KTXSVEntities();
+         KTXSVEntities db = new KTXSVEntities();
 
-        // GET: Register
         public ActionResult Register()
         {
             return View();
@@ -48,11 +48,12 @@ namespace KTXSV.Controllers
                     ViewBag.Error = "Giới tính không hợp lệ!";
                     return View(model);
                 }
-
+           
+                
                 // Hash mật khẩu (nếu muốn)
                 model.PasswordHash = model.PasswordHash; // hoặc hash MD5/SHA
                 model.CreatedAt = DateTime.Now;
-
+                model.Role = "Student";
                 db.Users.Add(model);
                 db.SaveChanges();
                 return RedirectToAction("LoginStudent");
@@ -62,7 +63,6 @@ namespace KTXSV.Controllers
         }
 
 
-        // GET: Login
         public ActionResult Login()
         {
             return View();
@@ -98,9 +98,14 @@ namespace KTXSV.Controllers
         [HttpPost]
         public ActionResult LoginAdmin(string username, string password)
         {
-            // Tài khoản admin do máy chủ cấp
-            if (username == "admin" && password == "admin123")
+            var user = db.Users.FirstOrDefault(u => u.Username == username);
+
+            // Kiểm tra user tồn tại + role đúng + mật khẩu đúng
+            if (user != null && user.Role == "Admin" && user.PasswordHash == password)
             {
+                Session["UserID"] = user.UserID;   // ✅ Lưu ID thật
+                Session["Role"] = user.Role;
+
                 ViewBag.Message = "Đăng nhập admin thành công!";
                 return RedirectToAction("PendingRegistrations", "Admin");
             }
@@ -108,6 +113,7 @@ namespace KTXSV.Controllers
             ViewBag.Message = "Sai tài khoản hoặc mật khẩu admin.";
             return View();
         }
+
         [HttpPost]
         public ActionResult Logout()
         {

@@ -23,9 +23,7 @@ namespace KTXSV.Controllers
         }
         public ActionResult DangKyPhong(string gender, string building, int? capacity)
         {
-            Session["UserID"] = 1;
-            Session["UserName"] = "Kiên Phạm";
-            Session["Role"] = "Student";
+          
 
             int userId = int.Parse(Session["UserID"].ToString());
 
@@ -71,7 +69,7 @@ namespace KTXSV.Controllers
 
             var uploadedTypes = db.StudentFiles
                 .Where(f => f.UserID == userId)
-                .Select(f => f.FileType)
+                .Select(f => f.FileType.Trim())
                 .ToList();
 
             var requiredFiles = new List<string> { "CCCD", "BHYT", "StudentCard", "Portrait" };

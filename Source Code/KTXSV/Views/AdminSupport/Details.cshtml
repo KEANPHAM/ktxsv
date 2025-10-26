@@ -1,0 +1,78 @@
+﻿@model KTXSV.Models.SupportRequest
+
+@{
+    ViewBag.Title = "Chi tiết yêu cầu hỗ trợ";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .card-header {
+        background-color: #EE6823 !important;
+        color: white;
+    }
+
+    .badge-status {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header rounded-top-4 px-4 py-3">
+            <h4 class="mb-0">@ViewBag.Title</h4>
+        </div>
+
+        <div class="card-body px-5 py-4">
+            <dl class="row">
+                <dt class="col-sm-3 fw-bold text-secondary">Người gửi:</dt>
+                <dd class="col-sm-9">@Model.User.FullName</dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Phòng:</dt>
+                <dd class="col-sm-9">@Model.Room.RoomNumber</dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Tiêu đề:</dt>
+                <dd class="col-sm-9 text-dark">@Model.Title</dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Nội dung:</dt>
+                <dd class="col-sm-9 text-dark">@Model.Description</dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Phản hồi:</dt>
+                <dd class="col-sm-9 text-dark">
+                    @if (!string.IsNullOrWhiteSpace(Model.Reply))
+                    {
+                        @Html.Raw(Model.Reply.Replace("\n", "<br />"))
+                    }
+                    else
+                    {
+                        <span class="text-muted">Chưa có phản hồi</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Trạng thái:</dt>
+                <dd class="col-sm-9">
+                    @switch (Model.Status)
+                    {
+                        case "Pending":
+                            <span class="badge bg-warning text-dark badge-status">Chờ xử lý</span>; break;
+                        case "Resolved":
+                            <span class="badge bg-success badge-status">Hoàn thành</span>; break;
+                        case "Rejected":
+                            <span class="badge bg-danger badge-status">Từ chối</span>; break;
+                        default:
+                            <span class="badge bg-secondary badge-status">@Model.Status</span>; break;
+                    }
+                </dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Ngày tạo:</dt>
+                <dd class="col-sm-9">@Model.CreatedAt.ToString()</dd>
+            </dl>
+        </div>
+
+        <div class="card-footer bg-light text-end py-3 px-4 rounded-bottom-4">
+            @Html.ActionLink("← Quay lại", "Index", null, new { @class = "btn btn-outline-secondary px-4" })
+            @Html.ActionLink("Phản hồi", "Reply", new { id = Model.RequestID }, new { @class = "btn btn-ee px-4 ms-2" })
+        </div>
+    </div>
+</div>

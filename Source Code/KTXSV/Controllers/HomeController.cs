@@ -6,39 +6,35 @@ namespace KTXSV.Controllers
 {
     public class HomeController : Controller
     {
-<<<<<<< HEAD
-        private readonly KTXSVEntities db = new KTXSVEntities();
 
-        public ActionResult Index()
-        {
-           
-            return View();
-        }
-    }
-}
-=======
         KTXSVEntities db = new KTXSVEntities();
 
         public ActionResult Index()
         {
-            // Kiểm tra xem người dùng đã đăng nhập chưa
-            if (Session["UserID"] != null)
+            if (Session["UserID"] == null)
             {
-                int userID = (int)Session["UserID"];
-                var user = db.Users.Find(userID);
+                return RedirectToAction("LoginStudent", "Account");
+            }
 
-                ViewBag.Username = user.Username;
-                ViewBag.FullName = user.FullName;
-                ViewBag.Email = user.Email;
-            }
-            else
+            int userID;
+            if (!int.TryParse(Session["UserID"].ToString(), out userID))
             {
-                return RedirectToAction("LoginStudent", "Account"); // chưa đăng nhập
+                return RedirectToAction("LoginStudent", "Account");
             }
+
+            var user = db.Users.Find(userID);
+            if (user == null)
+            {
+                return RedirectToAction("LoginStudent", "Account");
+            }
+
+            ViewBag.Username = user.Username;
+            ViewBag.FullName = user.FullName;
+            ViewBag.Email = user.Email;
 
             return View();
         }
-    }
 
+    }
 }
->>>>>>> eec902b (Cập nhật AccountController, Views và HomeController)
+    

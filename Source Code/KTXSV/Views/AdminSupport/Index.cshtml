@@ -1,0 +1,90 @@
+﻿@model IEnumerable<KTXSV.Models.SupportRequest>
+
+@{
+    ViewBag.Title = "Quản lý yêu cầu hỗ trợ";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .btn-ee {
+        background-color: #EE6823;
+        color: #fff;
+        border-radius: 8px;
+    }
+
+        .btn-ee:hover {
+            background-color: #d85b1f;
+            color: #fff;
+        }
+
+    .badge-status {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+</style>
+
+<div class="container py-4">
+    <h2 class="mb-4 fw-bold text-uppercase text-center">Quản lý yêu cầu hỗ trợ</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+
+    <table class="table table-bordered table-striped align-middle text-center shadow-sm">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Người gửi</th>
+                <th>Phòng</th>
+                <th>Tiêu đề</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Phản hồi</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Any())
+            {
+                int i = 1;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@i</td>
+                        <td>@(item.User?.FullName ?? "Không rõ")</td>
+                        <td>@(item.Room?.RoomNumber ?? "Chưa có")</td>
+                        <td>@item.Title</td>
+                        <td>
+                            @switch (item.Status)
+                            {
+                                case "Pending":
+                                    <span class="badge bg-warning text-dark badge-status">Chờ xử lý</span>; break;
+                                case "In Progress":
+                                    <span class="badge bg-info text-dark badge-status">Đang xử lý</span>; break;
+                                case "Resolved":
+                                    <span class="badge bg-success badge-status">Hoàn thành</span>; break;
+                                case "Rejected":
+                                    <span class="badge bg-danger badge-status">Từ chối</span>; break;
+                                default:
+                                    <span class="badge bg-secondary badge-status">@item.Status</span>; break;
+                            }
+                        </td>
+                        <td>@(item.CreatedAt.HasValue ? item.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.Reply) ? "Chưa phản hồi" : item.Reply)</td>
+                        <td>
+                            @Html.ActionLink("Chi tiết", "Details", new { id = item.RequestID }, new { @class = "btn btn-outline-secondary btn-sm me-1" })
+                            @Html.ActionLink("Phản hồi", "Reply", new { id = item.RequestID }, new { @class = "btn btn-ee btn-sm" })
+                        </td>
+                    </tr>
+                    i++;
+                }
+            }
+            else
+            {
+                <tr><td colspan="8" class="text-muted">Không có yêu cầu hỗ trợ nào.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
