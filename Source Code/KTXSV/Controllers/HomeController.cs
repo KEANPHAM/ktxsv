@@ -1,45 +1,46 @@
 ﻿using KTXSV.Models;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace KTXSV.Controllers
 {
     public class HomeController : Controller
     {
-        KTXSVEntities db =new KTXSVEntities();
+        private readonly KTXSVEntities db = new KTXSVEntities();
+
         public ActionResult Index()
         {
-            Session["UserID"] = 7;
-            Session["UserName"] = "Kiên Phạm";
-            Session["Role"] = "Admin";
+            // 🧠 Giả lập đăng nhập (chỉ khi Session chưa có)
+            if (Session["UserID"] == null)
+            {
+                Session["UserID"] = 1;
+                Session["UserName"] = "Kiên Phạm";
+                Session["Role"] = "Student";
+            }
 
-            var userId = int.Parse(Session["UserID"].ToString()); 
-
+            int userId = (int)Session["UserID"];
             var role = db.Users
-                .Where(r => r.UserID == userId)
-                .Select(r => r.Role)
-                .FirstOrDefault();
-            
+                         .Where(u => u.UserID == userId)
+                         .Select(u => u.Role)
+                         .FirstOrDefault();
+
+            if (role == null)
+                return HttpNotFound("Không tìm thấy vai trò người dùng.");
+
+            string currentController = ControllerContext.RouteData.Values["controller"].ToString();
+
             if (role == "Admin")
             {
-                if (role == null || role != "Admin")
-                {
-                    return RedirectToAction("Login", "Account");
-                }
-
-                return RedirectToAction("PendingRegistrations", "Admin"); 
+                if (currentController != "Admin")
+                    return RedirectToAction("PendingRegistrations", "Admin");
             }
             else
             {
-                return RedirectToAction("Index", "Home");
+                if (currentController != "SupportRequests")
+                    return RedirectToAction("Index", "SupportRequests");
             }
 
-
-
+            return View();
         }
     }
 }

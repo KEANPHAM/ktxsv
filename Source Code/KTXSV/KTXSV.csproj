@@ -259,8 +259,6 @@
     <Content Include="Views\SinhVien\ChinhSuaThongTin.cshtml" />
     <Content Include="Views\ThanhToan\HoaDon.cshtml" />
     <Content Include="Views\ThongBao\ThongBao.cshtml" />
-    <Content Include="Views\HoTro\YeuCauHoTro.cshtml" />
-    <Content Include="Views\HoTro\LichSu.cshtml" />
     <Content Include="Views\StudentFiles\Index.cshtml" />
     <Content Include="Views\Phong\HoSo.cshtml" />
     <Content Include="Views\ThanhToan\TestHD.cshtml" />
@@ -270,6 +268,10 @@
     <Content Include="Views\TaiKhoan\LoginAdmin.cshtml" />
     <Content Include="Views\TaiKhoan\LoginStudent.cshtml" />
     <Content Include="Views\TaiKhoan\Register.cshtml" />
+    <Content Include="Views\SupportRequests\Create.cshtml" />
+    <Content Include="Views\SupportRequests\Delete.cshtml" />
+    <Content Include="Views\SupportRequests\Details.cshtml" />
+    <Content Include="Views\SupportRequests\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

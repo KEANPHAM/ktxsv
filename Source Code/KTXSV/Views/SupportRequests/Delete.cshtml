@@ -1,0 +1,20 @@
+﻿@model KTXSV.Models.SupportRequest
+
+@{
+    ViewBag.Title = "Xóa yêu cầu";
+}
+
+<h2>Xóa yêu cầu</h2>
+
+<h3>Bạn có chắc chắn muốn xóa yêu cầu này?</h3>
+<div>
+    <p><strong>Tiêu đề:</strong> @Model.Title</p>
+    <p><strong>Nội dung:</strong> @Model.Description</p>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <input type="submit" value="Xóa" class="btn btn-danger" /> 
+@Html.ActionLink("Hủy", "Index");
+}
+</div>
