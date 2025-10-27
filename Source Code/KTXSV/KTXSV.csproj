@@ -136,6 +136,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\Admin\AdminController.cs" />
     <Compile Include="Controllers\Admin\AdminSupportController.cs" />
+    <Compile Include="Controllers\Admin\ManageStudentsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HoTroController.cs" />
     <Compile Include="Controllers\PhongController.cs" />
@@ -284,6 +285,8 @@
     <Content Include="Views\AdminSupport\Details.cshtml" />
     <Content Include="Views\AdminSupport\UpdateStatus.cshtml" />
     <Content Include="Views\AdminSupport\Reply.cshtml" />
+    <Content Include="Views\ManageStudents\Index.cshtml" />
+    <Content Include="Views\ManageStudents\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
