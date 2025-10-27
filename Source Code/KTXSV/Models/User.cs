@@ -30,6 +30,13 @@ namespace KTXSV.Models
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Role { get; set; }
+        public string CCCD { get; set; }
+
+        public string ConfirmPassword { get; set; }
+
+        public int BirthYear { get; set; }
+
+        public DateTime? BirthDate {  get; set; }
         public Nullable<System.DateTime> CreatedAt { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -38,5 +45,7 @@ namespace KTXSV.Models
         public virtual ICollection<StudentFile> StudentFiles { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SupportRequest> SupportRequests { get; set; }
+
+       
     }
 }
