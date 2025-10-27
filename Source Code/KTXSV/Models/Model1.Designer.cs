@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿// T4 code generation is enabled for model 'D:\KTXSV\ktxsv\Source Code\KTXSV\Models\Model1.edmx'. 
+=======
+﻿// T4 code generation is enabled for model 'C:\Users\thieu\Downloads\ktxsv (1)\Source Code\KTXSV\Models\Model1.edmx'. 
+>>>>>>> 1d24f5c (Trung Kiên)
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.
