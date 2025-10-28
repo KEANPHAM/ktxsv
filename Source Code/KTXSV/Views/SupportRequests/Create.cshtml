@@ -9,34 +9,33 @@
 {
     @Html.AntiForgeryToken()
 
-    <div class="card shadow-sm p-4">
-        <div class="row mb-3">
-            <label class="col-md-2 col-form-label fw-semibold">Phòng</label>
-            <div class="col-md-10">
-                <input type="text" class="form-control bg-light" value="@ViewBag.CurrentRoomNumber" readonly />
-                @Html.HiddenFor(model => model.RoomID)
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <label class="col-md-2 col-form-label fw-semibold">Tiêu đề</label>
-            <div class="col-md-10">
-                @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "Nhập tiêu đề yêu cầu..." })
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <label class="col-md-2 col-form-label fw-semibold">Mô tả</label>
-            <div class="col-md-10">
-                @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 4, placeholder = "Mô tả chi tiết vấn đề..." })
-            </div>
-        </div>
-
-        <div class="text-end">
-            <button type="submit" class="btn btn-success px-4">Gửi yêu cầu</button>
-            <a href="@Url.Action("Index")" class="btn btn-secondary px-4 ms-2">Hủy</a>
+<div class="card shadow-sm p-4">
+    <div class="row mb-3">
+        <label class="col-md-2 col-form-label fw-semibold">Phòng</label>
+        <div class="col-md-10">
+            @Html.DropDownListFor(m => m.RoomID, (SelectList)ViewBag.RoomList, "Chọn phòng", new { @class = "form-control" })
         </div>
     </div>
+
+    <div class="row mb-3">
+        <label class="col-md-2 col-form-label fw-semibold">Tiêu đề</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "Nhập tiêu đề yêu cầu..." })
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-md-2 col-form-label fw-semibold">Mô tả</label>
+        <div class="col-md-10">
+            @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 4, placeholder = "Mô tả chi tiết vấn đề..." })
+        </div>
+    </div>
+
+    <div class="text-end">
+        <button type="submit" class="btn btn-success px-4">Gửi yêu cầu</button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary px-4 ms-2">Hủy</a>
+    </div>
+</div>
 }
 
 @if (TempData["Message"] != null)

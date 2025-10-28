@@ -11,7 +11,7 @@ namespace KTXSV.Models
 {
     using System;
     using System.Collections.Generic;
-    
+
     public partial class User
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -21,7 +21,7 @@ namespace KTXSV.Models
             this.StudentFiles = new HashSet<StudentFile>();
             this.SupportRequests = new HashSet<SupportRequest>();
         }
-    
+
         public int UserID { get; set; }
         public string Username { get; set; }
         public string PasswordHash { get; set; }
@@ -30,13 +30,22 @@ namespace KTXSV.Models
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Role { get; set; }
+        public string CCCD { get; set; }
+
+        public string ConfirmPassword { get; set; }
+
+        public int BirthYear { get; set; }
+
+        public DateTime? BirthDate { get; set; }
         public Nullable<System.DateTime> CreatedAt { get; set; }
-    
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Registration> Registrations { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<StudentFile> StudentFiles { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SupportRequest> SupportRequests { get; set; }
+
+
     }
 }

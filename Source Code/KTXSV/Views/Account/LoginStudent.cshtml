@@ -1,7 +1,8 @@
 ﻿
 @{
-    Layout = null;
     ViewBag.Title = "Đăng Nhập Với Tư Cách Là Sinh Viên";
+    Layout = null;
+
 }
 
 <!DOCTYPE html>
@@ -34,18 +35,20 @@
             .login-container h2 {
                 margin-bottom: 20px;
                 color: #007bff;
-                font-weight: 500;
+                font-weight: 600;
             }
 
             .login-container input[type="text"],
             .login-container input[type="password"] {
                 width: 100%;
-                padding: 12px;
+                padding: 10px 12px; /* padding top/bottom 10px, left/right 12px */
                 margin: 10px 0;
                 border: 1px solid #ccc;
                 border-radius: 10px;
                 outline: none;
                 transition: all 0.3s;
+                box-sizing: border-box; /* thêm dòng này để không bị tràn */
+            }
             }
 
             .login-container input:focus {
@@ -102,6 +105,16 @@
 
         @using (Html.BeginForm("LoginStudent", "Account", FormMethod.Post))
         {
+            if (ViewBag.Error != null)
+            {
+                <div class="alert" style="color: red;">@ViewBag.Error</div>
+            }
+
+            if (ViewBag.Message != null)
+            {
+                <div class="alert" style="color: red;">@ViewBag.Message</div>
+            }
+
             <input type="text" name="Username" placeholder="Tên đăng nhập" required />
             <input type="password" name="Password" placeholder="Mật khẩu" required />
             <button type="submit">Đăng nhập</button>

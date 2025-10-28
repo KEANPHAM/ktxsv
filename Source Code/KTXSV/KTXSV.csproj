@@ -136,6 +136,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\Admin\AdminController.cs" />
     <Compile Include="Controllers\Admin\AdminSupportController.cs" />
+    <Compile Include="Controllers\Admin\ManageStudentsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HoTroController.cs" />
     <Compile Include="Controllers\PhongController.cs" />
@@ -264,7 +265,6 @@
     <Content Include="Views\ThongBao\ThongBao.cshtml" />
     <Content Include="Views\StudentFiles\Index.cshtml" />
     <Content Include="Views\Phong\HoSo.cshtml" />
-    <Content Include="Views\ThanhToan\TestHD.cshtml" />
     <Content Include="Views\Admin\PendingRegistrations.cshtml" />
     <Content Include="Views\Shared\_AdminLayout.cshtml" />
     <Content Include="Views\TaiKhoan\Index.cshtml" />
@@ -275,15 +275,20 @@
     <Content Include="Views\SupportRequests\Delete.cshtml" />
     <Content Include="Views\SupportRequests\Details.cshtml" />
     <Content Include="Views\SupportRequests\Index.cshtml" />
-    <Content Include="Views\Account\Index.cshtml" />
-    <Content Include="Views\Account\LoginAdmin.cshtml" />
-    <Content Include="Views\Account\LoginStudent.cshtml" />
-    <Content Include="Views\Account\Register.cshtml" />
-    <Content Include="Views\Account\Logout.cshtml" />
     <Content Include="Views\AdminSupport\Index.cshtml" />
     <Content Include="Views\AdminSupport\Details.cshtml" />
     <Content Include="Views\AdminSupport\UpdateStatus.cshtml" />
     <Content Include="Views\AdminSupport\Reply.cshtml" />
+    <Content Include="Views\ManageStudents\Index.cshtml" />
+    <Content Include="Views\ManageStudents\Details.cshtml" />
+    <Content Include="Views\Account\ForgotPassword.cshtml" />
+    <Content Include="Views\Account\Index.cshtml" />
+    <Content Include="Views\Account\LoginAdmin.cshtml" />
+    <Content Include="Views\Account\LoginStudent.cshtml" />
+    <Content Include="Views\Account\Logout.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Account\ResetPassword.cshtml" />
+    <Content Include="Views\Account\VerifyOTP.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -44,6 +44,7 @@ namespace KTXSV.Controllers
             return View(supportRequest);
         }
 
+        // ===== CREATE =====
         public ActionResult Create()
         {
             if (Session["UserID"] == null)
@@ -51,24 +52,16 @@ namespace KTXSV.Controllers
 
             int userId = Convert.ToInt32(Session["UserID"]);
 
-            var current = db.Registrations
-                .Where(r => r.UserID == userId && r.Status == "Active")
-                .Select(r => new
-                {
-                    r.RoomID,
-                    r.Room.RoomNumber
-                })
-                .FirstOrDefault();
+            // Lấy tất cả các phòng để chọn
+            ViewBag.RoomList = new SelectList(db.Rooms, "RoomID", "RoomNumber");
 
-            ViewBag.CurrentRoomNumber = current?.RoomNumber ?? "Chưa có";
-            var model = new SupportRequest { RoomID = current?.RoomID };
-
+            var model = new SupportRequest();
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Title,Description")] SupportRequest supportRequest)
+        public ActionResult Create([Bind(Include = "RoomID,Title,Description")] SupportRequest supportRequest)
         {
             try
             {
@@ -77,13 +70,7 @@ namespace KTXSV.Controllers
 
                 int userId = Convert.ToInt32(Session["UserID"]);
 
-                var currentRoomId = db.Registrations
-                    .Where(r => r.UserID == userId && r.Status == "Active")
-                    .Select(r => r.RoomID)
-                    .FirstOrDefault();
-
                 supportRequest.UserID = userId;
-                supportRequest.RoomID = currentRoomId;
                 supportRequest.CreatedAt = DateTime.Now;
                 supportRequest.Status = "Pending";
 
@@ -100,9 +87,11 @@ namespace KTXSV.Controllers
                 ModelState.AddModelError("", "Lỗi khi lưu dữ liệu: " + ex.Message);
             }
 
+            ViewBag.RoomList = new SelectList(db.Rooms, "RoomID", "RoomNumber", supportRequest.RoomID);
             return View(supportRequest);
         }
 
+        // ===== EDIT =====
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -112,7 +101,7 @@ namespace KTXSV.Controllers
             if (supportRequest == null)
                 return HttpNotFound();
 
-            ViewBag.RoomID = new SelectList(db.Rooms, "RoomID", "RoomNumber", supportRequest.RoomID);
+            ViewBag.RoomList = new SelectList(db.Rooms, "RoomID", "RoomNumber", supportRequest.RoomID);
             return View(supportRequest);
         }
 
@@ -127,10 +116,11 @@ namespace KTXSV.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.RoomID = new SelectList(db.Rooms, "RoomID", "RoomNumber", supportRequest.RoomID);
+            ViewBag.RoomList = new SelectList(db.Rooms, "RoomID", "RoomNumber", supportRequest.RoomID);
             return View(supportRequest);
         }
 
+        // ===== DELETE =====
         public ActionResult Delete(int? id)
         {
             if (id == null)

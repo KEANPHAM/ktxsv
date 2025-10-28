@@ -1,7 +1,7 @@
 ﻿
 @{
-    Layout = null;
     ViewBag.Title = "Đăng Nhập Với Tư Cách Là Admin";
+    Layout = null;
 }
 
 
@@ -42,12 +42,13 @@
             .login-container input[type="text"],
             .login-container input[type="password"] {
                 width: 100%;
-                padding: 12px;
+                padding: 10px 12px; /* padding top/bottom 10px, left/right 12px */
                 margin: 10px 0;
                 border: 1px solid #ccc;
                 border-radius: 10px;
                 outline: none;
                 transition: all 0.3s;
+                box-sizing: border-box; /* thêm dòng này để không bị tràn */
             }
 
             .login-container input:focus {
@@ -109,9 +110,7 @@
             <button type="submit">Đăng nhập</button>
         }
 
-        <div class="links">
-            <a href="@Url.Action("ForgotPassword", "Account")">Quên mật khẩu?</a>
-        </div>
+       
 
         <div class="switch">
             <p>Đăng nhập với tư cách <a href="@Url.Action("LoginStudent", "Account")">Sinh viên</a></p>

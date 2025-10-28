@@ -69,7 +69,7 @@
                 <dd class="col-sm-9">@Model.User.FullName</dd>
 
                 <dt class="col-sm-3 fw-bold text-secondary">Phòng:</dt>
-                <dd class="col-sm-9">@Model.Room.RoomNumber</dd>
+                <dd class="col-sm-9">@Model.Room?.RoomNumber ?? "—"</dd>
 
                 <dt class="col-sm-3 fw-bold text-secondary">Tiêu đề:</dt>
                 <dd class="col-sm-9 text-dark">@Model.Title</dd>
