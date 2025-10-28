@@ -1,0 +1,89 @@
+﻿
+@{
+<<<<<<< HEAD
+    Layout = null;
+    ViewBag.Title = "Đăng Nhập";
+=======
+    ViewBag.Title = "Đăng Nhập";
+    Layout = null;
+>>>>>>> 1d24f5c (Trung Kiên)
+}
+
+<style>
+    body {
+        background: url('') no-repeat center center fixed;
+        background-image: url('../../image/huflit_clean_nobus.png');
+        background-size: cover;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
+    }
+
+    .login-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        padding: 40px 50px;
+        box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        width: 400px;
+        backdrop-filter: blur(10px);
+    }
+
+        .login-card img {
+            height: 80px;
+            margin-bottom: 20px;
+        }
+
+        .login-card h2 {
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+    .btn-custom {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 8px;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+    .footer-text {
+        margin-top: 25px;
+        color: #777;
+        font-size: 13px;
+        border-radius: 20px;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+
+        <img src="~/Image/HUFLIT_Logo_English_Official.png" / />
+        <h2>HỆ THỐNG ĐĂNG NHẬP</h2>
+
+        <form action="@Url.Action("LoginStudent", "Account")" method="get" style="margin-bottom: 20px;">
+            <button type="submit" class="btn btn-warning btn-custom">🎓 Đăng nhập Sinh viên</button>
+        </form>
+
+        <form action="@Url.Action("LoginAdmin", "Account")" method="get">
+            <button type="submit" class="btn btn-danger btn-custom">🛡️ Đăng nhập Admin</button>
+        </form>
+
+        <div class="footer-text">
+            <p>© 2025 Huflit Dormitory | Thiết kế bởi <b>Puskien & KEANPHAM</b></p>
+        </div>
+    </div>
+</div>
+

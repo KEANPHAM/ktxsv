@@ -1,0 +1,196 @@
+﻿@model List<KTXSV.Models.User>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    h2 {
+        color: #ee6823 !important;
+    }
+
+    table {
+        text-align: center !important;
+    }
+
+    .btn-outline-success {
+        border: 2px solid #198754;
+        color: #198754;
+        background-color: #fff;
+    }
+
+        .btn-outline-success:hover {
+            background-color: #198754;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+    .btn-outline-danger {
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        background-color: #fff;
+    }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        background-color: #fff;
+    }
+
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+    .btn1-cancel {
+        background-color: #6c757d;
+        color: #fff;
+    }
+
+        .btn1-cancel:hover {
+            background-color: #5a6268;
+            transform: scale(1.02);
+        }
+
+    .jconfirm-box {
+        border-radius: 20px !important;
+        border: 2px solid #ee6823 !important;
+    }
+
+    .jconfirm-buttons button {
+        border-radius: 10px;
+        padding: 5px 15px;
+    }
+
+    .jconfirm-title-c {
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .jconfirm-content {
+        font-size: 16px;
+    }
+</style>
+
+<h2 class="m-2 mb-4">Quản lý sinh viên</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<!-- Form tìm kiếm + lọc -->
+@using (Html.BeginForm("Index", "ManageStudents", FormMethod.Get))
+{
+    <div class="mb-3 d-flex gap-2">
+        <input type="text" name="search" value="@Request.QueryString["search"]" class="form-control" placeholder="Tìm kiếm theo tên hoặc username" />
+        <select name="gender" class="form-select">
+            <option value="">-- Giới tính --</option>
+            <option value="Male" @(Request.QueryString["gender"] == "Male" ? "selected" : "")>Nam</option>
+            <option value="Female" @(Request.QueryString["gender"] == "Female" ? "selected" : "")>Nữ</option>
+        </select>
+        <select name="status" class="form-select">
+            <option value="">-- Trạng thái --</option>
+            <option value="Active" @(Request.QueryString["status"] == "Active" ? "selected" : "")>Đang ở</option>
+            <option value="Ended" @(Request.QueryString["status"] == "Ended" ? "selected" : "")>Đã kết thúc</option>
+            <option value="Pending" @(Request.QueryString["status"] == "Pending" ? "selected" : "")>Chờ duyệt</option>
+            <option value="Rejected" @(Request.QueryString["status"] == "Rejected" ? "selected" : "")>Bị từ chối</option>
+            <option value="Canceled" @(Request.QueryString["status"] == "Canceled" ? "selected" : "")>Đã hủy</option>
+        </select>
+        <select name="sort" class="form-select">
+            <option value="">-- Sắp xếp --</option>
+            <option value="name_asc" @(Request.QueryString["sort"] == "name_asc" ? "selected" : "")>Tên A-Z</option>
+            <option value="name_desc" @(Request.QueryString["sort"] == "name_desc" ? "selected" : "")>Tên Z-A</option>
+            <option value="date_asc" @(Request.QueryString["sort"] == "date_asc" ? "selected" : "")>Ngày tạo tăng dần</option>
+            <option value="date_desc" @(Request.QueryString["sort"] == "date_desc" ? "selected" : "")>Ngày tạo giảm dần</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </div>
+}
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>Username</th>
+            <th>Họ tên</th>
+            <th>Giới tính</th>
+            <th>Email</th>
+            <th>Điện thoại</th>
+            <th>Status</th>
+            <th>Ngày tạo</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int stt = 1;
+        }
+        @foreach (var student in Model)
+        {
+            var lastReg = student.Registrations.OrderByDescending(r => r.StartDate).FirstOrDefault();
+            string statusText = "Chưa có";
+            string badgeClass = "secondary";
+
+            if (lastReg != null)
+            {
+                switch (lastReg.Status)
+                {
+                    case "Active": statusText = "Đang ở"; badgeClass = "success"; break;
+                    case "Ended": statusText = "Đã kết thúc"; badgeClass = "dark"; break;
+                    case "Pending": statusText = "Chờ duyệt"; badgeClass = "info"; break;
+                    case "Rejected": statusText = "Bị từ chối"; badgeClass = "danger"; break;
+                    case "Canceled": statusText = "Đã hủy"; badgeClass = "warning"; break;
+                }
+            }
+            <tr>
+                <td>@stt</td>
+                <td>@student.Username</td>
+                <td>@student.FullName</td>
+                <td>@(student.Gender=="Male"?"Nam":"Nữ")</td>
+                <td>@student.Email</td>
+                <td>@student.Phone</td>
+                <td><span class="badge bg-@badgeClass">@statusText</span></td>
+                <td>@(student.CreatedAt.HasValue ? student.CreatedAt.Value.ToString("dd/MM/yyyy") : "Chưa có")</td>
+                <td>
+                    <a href="@Url.Action("Details","ManageStudents", new { id=student.UserID })" class="btn btn-outline-secondary">Chi tiết</a>
+                    <a href="@Url.Action("Edit","ManageStudents", new { id=student.UserID })" class="btn btn-outline-success">Sửa</a>
+                    @using (Html.BeginForm("Delete", "ManageStudents", new { id = student.UserID }, FormMethod.Post, new { @class = "d-inline" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger btnConfirm">Xóa</button>
+                    }
+                </td>
+            </tr>
+            stt++;
+        }
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".btnConfirm").click(function (e) {
+            e.preventDefault();
+            var btn = $(this);
+            var form = btn.closest("form");
+
+            $.confirm({
+                title: 'Xác nhận xóa',
+                content: 'Bạn có chắc muốn xóa sinh viên này?',
+                buttons: {
+                    confirm: { text: 'Xác nhận', action: function () { form.submit(); } },
+                    cancel: { text: 'Hủy', btnClass: 'btn1-cancel' }
+                }
+            });
+        });
+    });
+</script>

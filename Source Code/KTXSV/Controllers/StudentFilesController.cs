@@ -14,9 +14,7 @@ namespace KTXSV.Controllers
         // GET: StudentFiles
         public ActionResult Index()
         {
-            Session["UserID"] = 1;
-            Session["UserName"] = "Kiên Phạm";
-            Session["Role"] = "Student";
+            
             return View();
         }
         [HttpPost]

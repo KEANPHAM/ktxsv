@@ -1,0 +1,169 @@
+﻿@model List<KTXSV.Models.Registration>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    h2 {
+        color: #ee6823 !important;
+    }
+
+    table {
+        text-align: center !important;
+    }
+
+    .btn1-success {
+        background-color: #198754;
+        color: #fff;
+    }
+
+        .btn1-success:hover {
+            background-color: #157347;
+            transform: scale(1.02);
+        }
+
+        .btn1-success:active {
+            background-color: #146c43 !important;
+            transform: scale(0.95);
+        }
+                .btn1-danger
+
+                    {
+                        background-color: #dc3545;
+                        color: #fff;
+                    }
+
+    .btn1-danger:hover {
+        background-color: #bb2d3b;
+        
+        transform: scale(1.02);
+    }
+
+    .btn1-danger:active {
+        background-color: #a52834 !important;
+        transform: scale(0.95);
+    }
+    .btn1-cancel {
+        background-color: #6c757d;
+        color: #fff;
+        border-radius:15px !important;
+    }
+
+        .btn1-cancel:hover {
+            background-color: #5a6268;
+            transform: scale(1.02);
+        }
+
+        .btn1-cancel:active {
+            background-color: #545b62 !important;
+            transform: scale(0.95);
+        }
+
+    .jconfirm-box {
+        border-radius: 20px !important;
+        border: 2px solid #ee6823 !important;
+    }
+
+    .jconfirm-buttons button.btn1-success {
+        border-radius: 15px !important;
+        padding: 5px 15px;
+    }
+
+    .jconfirm-buttons button.btn1-danger {
+        border-radius: 15px !important;
+        padding: 5px 15px;
+    }
+
+    .jconfirm-title-c {
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .jconfirm-content {
+        font-size: 16px;
+    }
+</style>
+
+<h2 class="m-2 mb-4">Danh sách đăng ký phòng chờ duyệt</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Sinh viên</th>
+            <th>Giới tính</th>
+            <th>Phòng</th>
+            <th>Giường</th>
+            <th>Tòa nhà</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reg in Model)
+        {
+            <tr>
+                <td>@(reg.User?.FullName ?? "Chưa có")</td>
+                <td>@(reg.Room.Gender == "Male" ? "Nam" : "Nữ")</td>
+                <td>@(reg.Room?.RoomNumber ?? "Chưa có")</td>
+                <td>@(reg.BedID)</td>
+                <td>@(reg.Room?.Building ?? "Chưa có")</td>
+                <td>@reg.StartDate.ToString("dd/MM/yyyy")</td>
+                <td>@(reg.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa có")</td>
+                <td>
+                    <form action="@Url.Action("Approve", new { id = reg.RegID })" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn1 btn1-success btnConfirm" data-title="Phê duyệt đăng ký" data-content="Xác nhận phê duyệt đăng ký phòng này?">Phê duyệt</button>
+                    </form>
+
+                    <form action="@Url.Action("Reject", new { id = reg.RegID })" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn1 btn1-danger btnConfirm" data-title="Từ chối đăng ký" data-content="Xác nhận từ chối đăng ký phòng này?">Từ chối</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- jQuery + jquery-confirm -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $(".btnConfirm").on("click", function (e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            var title = $(this).data("title");
+            var content = $(this).data("content");
+            var btnClass = $(this).hasClass("btn1-success") ? "btn1 btn1-success" : "btn1 btn1-danger";
+
+            $.confirm({
+                title: title,
+                content: content,
+                columnClass: 'small',
+                backgroundDismiss: true,
+                buttons: {
+                    confirm: {
+                        text: 'Xác nhận',
+                        btnClass: btnClass,
+                        action: function () {
+                            form.submit();
+                        }
+                    },
+                    cancel: {
+                        text: 'Hủy',
+                        btnClass: 'btn1 btn1-cancel'
+                    }
+                }
+            });
+        });
+    });
+</script>

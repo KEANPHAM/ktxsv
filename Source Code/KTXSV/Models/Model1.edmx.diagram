@@ -22,6 +22,7 @@
         <EntityTypeShape EntityType="KTXSVModel.Bed" Width="1.5" PointX="22.875" PointY="1.5" />
         <AssociationConnector Association="KTXSVModel.FK__Bed__RoomID__367C1819" />
         <AssociationConnector Association="KTXSVModel.FK_Registrations_Bed" />
+        <EntityTypeShape EntityType="KTXSVModel.sysdiagram" Width="1.5" PointX="0.75" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

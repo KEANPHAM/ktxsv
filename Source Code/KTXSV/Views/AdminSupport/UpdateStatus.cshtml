@@ -1,0 +1,56 @@
+﻿@model KTXSV.Models.SupportRequest
+
+@{
+    ViewBag.Title = "Phản hồi yêu cầu hỗ trợ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .btn-ee {
+        background-color: #EE6823;
+        color: white;
+        border-radius: 8px;
+    }
+
+        .btn-ee:hover {
+            background-color: #d85b1f;
+            color: white;
+        }
+
+    .card-header {
+        background-color: #EE6823 !important;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header text-white rounded-top-4 px-4 py-3">
+            <h4 class="mb-0">@ViewBag.Title</h4>
+        </div>
+
+        <div class="card-body px-5 py-4">
+            <h5 class="mb-3 text-secondary">Tiêu đề: @Model.Title</h5>
+            <p><strong>Người gửi:</strong> @Model.User?.FullName</p>
+            <p><strong>Phòng:</strong> @Model.Room?.RoomNumber</p>
+            <p><strong>Nội dung yêu cầu:</strong> @Model.Description</p>
+
+            <hr />
+
+            @using (Html.BeginForm("Reply", "AdminSupport", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("id", Model.RequestID)
+
+                <div class="form-group mb-3">
+                    <label class="fw-bold">Nội dung phản hồi:</label>
+                    <textarea name="replyContent" class="form-control" rows="4" placeholder="Nhập nội dung phản hồi..." required></textarea>
+                </div>
+
+                <div class="text-end">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary px-4">Hủy</a>
+                    <button type="submit" class="btn btn-ee px-4 ms-2">Gửi phản hồi</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

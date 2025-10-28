@@ -31,7 +31,7 @@
                     <li class="nav-item"><a class="nav-link text-dark" href="/Phong/DanhSachPhong">Phòng đã đăng ký</a></li>
                     <li class="nav-item"><a class="nav-link text-dark" href="/ThanhToan/HoaDon">Thanh toán</a></li>
                     <li class="nav-item"><a class="nav-link text-dark" href="/ThongBao/ThongBao">Thông báo</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="/HoTro/LichSu">Hỗ trợ</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="/SupportRequests/Index">Hỗ trợ</a></li>
 
                     @if (Session["UserID"] != null)
                     {
@@ -44,14 +44,14 @@
                                 <li><a class="dropdown-item" href="/SinhVien/ThongTinCaNhan">Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="/SinhVien/ChinhSuaThongTin">Chỉnh sửa thông tin</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="/TaiKhoan/DangXuat">Đăng xuất</a></li>
+                                <li><a class="dropdown-item text-danger" href="/Account/Index">Đăng xuất</a></li>
                             </ul>
                         </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            <a href="/TaiKhoan/DangNhap" class="btn btn-dark ms-2 m-o" style="border-radius: 20px; font-size: 20px">Đăng nhập</a>
+                            <a href="/Account/Index" class="btn btn-dark ms-2 m-o" style="border-radius: 20px; font-size: 20px">Đăng nhập</a>
                         </li>
                     }
                 </ul>

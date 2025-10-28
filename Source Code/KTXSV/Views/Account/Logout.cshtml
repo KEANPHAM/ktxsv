@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "DangXuat";
+<<<<<<< HEAD
+=======
+    Layout = null;
+
+>>>>>>> 1d24f5c (Trung Kiên)
+}
+
+<h2>Đăng xuất</h2>
+
+@if (Session["Username"] != null)
+{
+    <form action="@Url.Action("Logout", "Account")" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-danger">Đăng xuất</button>
+    </form>
+}

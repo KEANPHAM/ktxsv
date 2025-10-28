@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewBag.Title = "Đăng Nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Chọn Hình Thức Đăng Nhập</h2>
+<div style="text-align:center; margin-top:80px;">
+    <img src="~/Content/huflit_logo.png" style="height:80px;" />
+    <h2>HỆ THỐNG ĐĂNG NHẬP</h2>
+
+    <a href="@Url.Action("LoginStudent", "Account")" class="btn btn-warning" style="width:220px; margin:10px;">Đăng nhập Sinh viên</a>
+    <br />
+    <a href="@Url.Action("LoginAdmin", "Account")" class="btn btn-danger" style="width:220px; margin:10px;">Đăng nhập Admin</a>
+</div>
+

@@ -1,0 +1,232 @@
+<<<<<<< HEAD
+﻿
+@{
+    Layout = null;
+    ViewBag.Title = "Register";
+=======
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Đăng Ký Tài Khoản Cho Sinh Viên";
+>>>>>>> 1d24f5c (Trung Kiên)
+    @model KTXSV.Models.User
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<<<<<<< HEAD
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('') no-repeat center center fixed;
+            background-image: url('../../image/huflit_clean_nobus.png');
+=======
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('../../image/huflit_clean_nobus.png') no-repeat center center fixed;
+>>>>>>> 1d24f5c (Trung Kiên)
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .register-box {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 40px;
+            border-radius: 20px;
+            width: 420px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+
+            .register-box h2 {
+                text-align: center;
+                color: #fff;
+                margin-bottom: 25px;
+                font-weight: bold;
+            }
+
+        .form-control {
+            border-radius: 12px;
+            border: none;
+            padding: 10px 14px;
+        }
+
+        .btn-register {
+            background-color: #2e86de;
+            border: none;
+            border-radius: 12px;
+            width: 100%;
+            padding: 12px;
+            color: #fff;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+            .btn-register:hover {
+                background-color: #1e3799;
+            }
+
+        a {
+<<<<<<< HEAD
+            color: #a4b0be;
+=======
+            color: #cf0b0b;
+>>>>>>> 1d24f5c (Trung Kiên)
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+            a:hover {
+                color: #fff;
+            }
+
+        label {
+            color: rgba(#000000);
+            font-weight: 500;
+        }
+<<<<<<< HEAD
+    </style>
+</head>
+
+=======
+
+        .text-danger {
+            font-size: 0.875em;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+>>>>>>> 1d24f5c (Trung Kiên)
+<body>
+    <div class="register-box">
+        <h2>Đăng ký tài khoản</h2>
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post))
+        {
+            <div class="mb-3">
+                <label>Họ tên đầy đủ</label>
+                @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Nhập họ tên" })
+<<<<<<< HEAD
+            </div>
+
+
+            <div>
+                @Html.LabelFor(m => m.Gender, "Giới tính")
+                @Html.DropDownListFor(m => m.Gender,
+                    new SelectList(new[] { "Male", "Female" }),
+                    "-- Chọn giới tính --")
+            </div>
+
+            <div class="mb-3">
+                <label>Số CCCD</label>
+                @Html.TextBoxFor(m => m.UserID, new { @class = "form-control", placeholder = "Nhập số CCCD" })
+=======
+                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.Gender, "Giới tính")
+                    @Html.DropDownListFor(m => m.Gender,
+                       new SelectList(new[] { "Male", "Female" }),
+                       "-- Chọn giới tính --",
+                       new { @class = "form-control" }
+                    )
+                    @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6">
+                    <label>Ngày sinh</label>
+                    @Html.TextBoxFor(m => m.BirthDate, new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(m => m.BirthDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+
+            <div class="mb-3">
+                <label>Số CCCD</label>
+                @Html.TextBoxFor(m => m.CCCD, new { @class = "form-control", placeholder = "Nhập số CCCD" })
+                @Html.ValidationMessageFor(m => m.CCCD, "", new { @class = "text-danger" })
+>>>>>>> 1d24f5c (Trung Kiên)
+            </div>
+
+            <div class="mb-3">
+                <label>Mã số sinh viên (Username)</label>
+                @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Nhập MSSV" })
+<<<<<<< HEAD
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = "Nhập email" })
+            </div>
+
+            <div class="form-group">
+                <label>Số điện thoại</label>
+                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "Nhập số điện thoại" })
+            </div>
+            <div class="mb-3">
+                <label>Mật khẩu</label>
+                @Html.PasswordFor(m => m.PasswordHash, new { @class = "form-control", placeholder = "Nhập mật khẩu" })
+=======
+                @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label>Email</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = "Nhập email" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label>Số điện thoại</label>
+                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "Nhập số điện thoại" })
+                @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label>Mật khẩu</label>
+                @Html.PasswordFor(m => m.PasswordHash, new { @class = "form-control", placeholder = "Nhập mật khẩu" })
+                @Html.ValidationMessageFor(m => m.PasswordHash, "", new { @class = "text-danger" })
+>>>>>>> 1d24f5c (Trung Kiên)
+            </div>
+
+            <div class="mb-3">
+                <label>Xác nhận mật khẩu</label>
+                <input type="password" name="ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" required />
+            </div>
+
+            <button type="submit" class="btn-register mt-3">Tạo tài khoản</button>
+
+<<<<<<< HEAD
+            <div class="text-center mt-3">
+                <a href="@Url.Action("LoginStudent", "Account")">Đã có tài khoản? Đăng nhập</a>
+            </div>
+
+            if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger mt-3 text-center">@ViewBag.Error</div>
+            }
+
+=======
+            <div class="text-center mb-3">
+                <a href="@Url.Action("LoginStudent", "Account")">Đã có tài khoản? Đăng nhập</a>
+            </div>
+>>>>>>> 1d24f5c (Trung Kiên)
+        }
+    </div>
+</body>
+</html>
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 1d24f5c (Trung Kiên)

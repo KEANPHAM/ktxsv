@@ -1,0 +1,140 @@
+﻿@model KTXSV.Models.SupportRequest
+
+@{
+    ViewBag.Title = "Xóa yêu cầu hỗ trợ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .btn1 {
+        border-radius: 16px;
+        background-color: #EE6823;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        color: white;
+        transition: all 0.15s ease-in-out;
+        border: 0 !important;
+    }
+
+        .btn1:hover {
+            background-color: #e65d1f;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            transform: scale(1.02);
+        }
+
+        .btn1:active {
+            background-color: #EE6823 !important;
+            transform: scale(0.95);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+    .btn-cancel {
+        border-radius: 16px;
+        border: 1px solid #6c757d;
+        background-color: white;
+        color: #6c757d;
+        transition: all 0.15s ease-in-out;
+    }
+
+        .btn-cancel:hover {
+            background-color: #f8f9fa;
+            border-color: #5c636a;
+            color: #5c636a;
+        }
+
+    .card-header {
+        background-color: #EE6823 !important;
+        color: white;
+    }
+
+    .badge-status {
+        font-size: 0.9rem;
+        padding: 5px 12px;
+        border-radius: 10px;
+        color: white;
+    }
+
+    .badge-pending {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .badge-resolved {
+        background-color: #198754;
+    }
+
+    .badge-rejected {
+        background-color: #dc3545;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Header -->
+        <div class="card-header rounded-top-4 px-4 py-3">
+            <h4 class="mb-0">Xác nhận xóa yêu cầu hỗ trợ</h4>
+        </div>
+
+        <!-- Nội dung -->
+        <div class="card-body px-5 py-4">
+            <p class="fs-5">Bạn có chắc chắn muốn xóa yêu cầu sau không?</p>
+
+            <dl class="row mt-4">
+                <dt class="col-sm-3 fw-bold text-secondary">Tiêu đề:</dt>
+                <dd class="col-sm-9">@Model.Title</dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Nội dung:</dt>
+                <dd class="col-sm-9">@Html.Raw(Model.Description?.Replace("\n", "<br />"))</dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Phản hồi:</dt>
+                <dd class="col-sm-9">
+                    @if (!string.IsNullOrWhiteSpace(Model.Reply))
+                    {
+                        @Html.Raw(Model.Reply.Replace("\n", "<br />"))
+                    }
+                    else
+                    {
+                        <span class="text-muted">Chưa phản hồi</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Trạng thái:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge-status
+                        @(Model.Status == "Pending" ? "badge-pending" :
+                          Model.Status == "Resolved" ? "badge-resolved" :
+                          Model.Status == "Rejected" ? "badge-rejected" : "badge-secondary")">
+                        @(Model.Status == "Pending" ? "Chờ xử lý" :
+                          Model.Status == "Resolved" ? "Đã xử lý" :
+                          Model.Status == "Rejected" ? "Từ chối" : Model.Status)
+                    </span>
+                </dd>
+
+                <dt class="col-sm-3 fw-bold text-secondary">Ngày tạo:</dt>
+                <dd class="col-sm-9">
+                    @((Model.CreatedAt != null)
+                        ? Model.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                        : "Không rõ")
+                </dd>
+            </dl>
+
+            <div class="alert alert-warning mt-4 rounded-3">
+                <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>
+                <strong>Lưu ý:</strong> Hành động này không thể hoàn tác!
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer bg-light d-flex justify-content-end align-items-center py-3 px-4 rounded-bottom-4">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger px-4 me-2">
+                    <i class="bi bi-trash-fill me-1"></i> Xóa
+                </button>
+            }
+            @Html.ActionLink("Hủy", "Index", null, new { @class = "btn btn-cancel px-4" })
+        </div>
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />

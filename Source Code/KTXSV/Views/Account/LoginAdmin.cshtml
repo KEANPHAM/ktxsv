@@ -1,0 +1,134 @@
+﻿
+@{
+<<<<<<< HEAD
+    Layout = null;
+    ViewBag.Title = "Đăng Nhập Với Tư Cách Là Admin";
+=======
+    ViewBag.Title = "Đăng Nhập Với Tư Cách Là Admin";
+    Layout = null;
+>>>>>>> 1d24f5c (Trung Kiên)
+}
+
+
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('') no-repeat center center fixed;
+            background-image: url('../../image/huflit_clean_nobus.png');
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            width: 380px;
+            text-align: center;
+        }
+
+            .login-container h2 {
+                margin-bottom: 20px;
+                color: #ff6600;
+                font-weight: 600;
+            }
+
+            .login-container input[type="text"],
+            .login-container input[type="password"] {
+                width: 100%;
+<<<<<<< HEAD
+                padding: 12px;
+=======
+                padding: 10px 12px; /* padding top/bottom 10px, left/right 12px */
+>>>>>>> 1d24f5c (Trung Kiên)
+                margin: 10px 0;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                outline: none;
+                transition: all 0.3s;
+<<<<<<< HEAD
+=======
+                box-sizing: border-box; /* thêm dòng này để không bị tràn */
+>>>>>>> 1d24f5c (Trung Kiên)
+            }
+
+            .login-container input:focus {
+                border-color: #ff6600;
+                box-shadow: 0 0 5px #ff6600;
+            }
+
+            .login-container button {
+                width: 100%;
+                background: #ff6600;
+                color: white;
+                border: none;
+                padding: 12px;
+                border-radius: 10px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+                .login-container button:hover {
+                    background: #e65c00;
+                }
+
+            .login-container .links {
+                margin-top: 15px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+                .login-container .links a {
+                    text-decoration: none;
+                    color: #ff6600;
+                    font-size: 14px;
+                }
+
+                    .login-container .links a:hover {
+                        text-decoration: underline;
+                    }
+
+        .switch {
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+            .switch a {
+                color: #00a86b;
+                font-weight: 500;
+            }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Đăng nhập Quản trị viên</h2>
+
+        @using (Html.BeginForm("LoginAdmin", "Account", FormMethod.Post))
+        {
+            <input type="text" name="Username" placeholder="Tên đăng nhập" required />
+            <input type="password" name="Password" placeholder="Mật khẩu" required />
+            <button type="submit">Đăng nhập</button>
+        }
+
+        <div class="links">
+            <a href="@Url.Action("ForgotPassword", "Account")">Quên mật khẩu?</a>
+        </div>
+
+        <div class="switch">
+            <p>Đăng nhập với tư cách <a href="@Url.Action("LoginStudent", "Account")">Sinh viên</a></p>
+        </div>
+    </div>
+</body>
+</html>

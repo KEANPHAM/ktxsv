@@ -21,3 +21,35 @@
         color: white !important;
         border: 0;
     }
+/*
+   .btn1-success {
+    background-color: #198754;
+    color: #fff;
+}
+    .btn1-success:hover {
+        background-color: #157347;
+        transform: scale(1.02);
+    }
+
+    .btn1-success:active {
+        background-color: #146c43 !important;
+        transform: scale(0.95);
+  
+------------------------------------------
+
+        .btn1-danger {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+        .btn1-danger:hover {
+            background-color: #bb2d3b;
+            ;
+            transform: scale(1.02);
+        }
+
+        .btn1-danger:active {
+            background-color: #a52834 !important;
+            transform: scale(0.95);
+        }
+*/
