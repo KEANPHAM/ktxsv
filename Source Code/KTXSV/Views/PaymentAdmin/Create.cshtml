@@ -1,0 +1,73 @@
+﻿@model KTXSV.Models.Payment
+
+@{
+    ViewBag.Title = "Thêm hóa đơn mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">🧾 Thêm hóa đơn mới</h4>
+            <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-light btn-sm">⬅ Quay lại</a>
+        </div>
+
+        <div class="card-body">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Sinh viên - Phòng</label>
+                    @Html.DropDownList("RegID", null, "Chọn sinh viên & phòng...", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(model => model.RegID, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số tiền (VNĐ)</label>
+                    @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập số tiền..." } })
+                    @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Loại thanh toán</label>
+                    @Html.EditorFor(model => model.Type, new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: Tiền phòng, Điện, Nước..." } })
+                    @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Ngày tạo hóa đơn</label>
+                    @Html.EditorFor(model => model.PaymentDate, new { htmlAttributes = new { @class = "form-control", type = "date" } })
+                    @Html.ValidationMessageFor(model => model.PaymentDate, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Trạng thái</label>
+                    @Html.DropDownListFor(model => model.Status, new SelectList(
+                        new[] {
+                            new { Value = "Unpaid", Text = "Chưa thanh toán" },
+                            new { Value = "Paid", Text = "Đã thanh toán" },
+                            new { Value = "Overdue", Text = "Quá hạn" }
+                        }, "Value", "Text"
+                    ), "-- Chọn trạng thái --", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-success px-4">
+                        💾 Lưu hóa đơn
+                    </button>
+                    <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-outline-secondary px-4">
+                        ❌ Hủy
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

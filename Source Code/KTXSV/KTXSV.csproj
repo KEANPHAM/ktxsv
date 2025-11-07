@@ -155,6 +155,7 @@
     <Compile Include="Controllers\Admin\AdminRoomsController.cs" />
     <Compile Include="Controllers\Admin\AdminSupportController.cs" />
     <Compile Include="Controllers\Admin\ManageStudentsController.cs" />
+    <Compile Include="Controllers\Admin\PaymentAdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HoTroController.cs" />
     <Compile Include="Controllers\PhongController.cs" />
@@ -325,6 +326,11 @@
     <Content Include="Views\SinhVien\ThemSinhVienMoi.cshtml" />
     <Content Include="Views\ManageStudents\Edit.cshtml" />
     <Content Include="Views\ManageStudents\Create.cshtml" />
+    <Content Include="Views\PaymentAdmin\Create.cshtml" />
+    <Content Include="Views\PaymentAdmin\Delete.cshtml" />
+    <Content Include="Views\PaymentAdmin\Details.cshtml" />
+    <Content Include="Views\PaymentAdmin\Edit.cshtml" />
+    <Content Include="Views\PaymentAdmin\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

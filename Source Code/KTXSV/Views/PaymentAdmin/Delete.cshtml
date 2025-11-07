@@ -1,0 +1,30 @@
+﻿@model KTXSV.Models.Payment
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Xóa hóa đơn</h2>
+
+<h3>Bạn có chắc muốn xóa hóa đơn này?</h3>
+<div>
+    <h4>Payment</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Mã hóa đơn</dt>
+        <dd class="col-sm-9">@Model.PaymentID</dd>
+        <dt class="col-sm-3">Sinh viên</dt>
+        <dd class="col-sm-9">@Model.Registration?.User?.FullName</dd>
+        <dt class="col-sm-3">Số tiền</dt>
+        <dd class="col-sm-9">@String.Format("{0:N0}", Model.Amount) VNĐ</dd>
+    </dl>
+
+    @using (Html.BeginForm("Delete", "PaymentAdmin", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.PaymentID)
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-secondary ms-2" })
+    }
+</div>

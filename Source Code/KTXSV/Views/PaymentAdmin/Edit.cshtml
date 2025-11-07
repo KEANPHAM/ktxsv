@@ -1,0 +1,58 @@
+﻿@model KTXSV.Models.Payment
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @Html.HiddenFor(model => model.PaymentID)
+
+        <div class="mb-3">
+            @Html.LabelFor(model => model.RegID, "Đăng ký (Sinh viên - Phòng)", htmlAttributes: new { @class = "form-label" })
+            @Html.DropDownList("RegID", (SelectList)ViewBag.RegID, "-- Chọn --", new { @class = "form-select" })
+            @Html.ValidationMessageFor(model => model.RegID, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "form-label" })
+            @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(model => model.Type, htmlAttributes: new { @class = "form-label" })
+            @Html.EditorFor(model => model.Type, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(model => model.PaymentDate, htmlAttributes: new { @class = "form-label" })
+            @Html.EditorFor(model => model.PaymentDate, new { htmlAttributes = new { @class = "form-control", type = "date" } })
+            @Html.ValidationMessageFor(model => model.PaymentDate, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "form-label" })
+            @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            <input type="submit" value="Save" class="btn btn-primary" />
+            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary ms-2" })
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

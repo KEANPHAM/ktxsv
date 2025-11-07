@@ -1,0 +1,106 @@
+﻿@model IEnumerable<KTXSV.Models.Payment>
+
+@{
+    ViewBag.Title = "Quản lý hóa đơn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Quản lý thanh toán ký túc xá</h2>
+        <div>
+            @Html.ActionLink("➕ Thêm mới", "Create", null, new { @class = "btn btn-success me-2" })
+            <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-secondary">🔁 Làm mới</a>
+        </div>
+    </div>
+
+    <form method="get" action="@Url.Action("Index", "PaymentAdmin")" class="row g-2 align-items-end mb-4">
+        <div class="col-md-3">
+            <input type="text" name="search" class="form-control" placeholder="Tên sinh viên..." />
+        </div>
+        <div class="col-md-2">
+            <select name="type" class="form-select">
+                <option value="">Loại thanh toán</option>
+                <option>Rent</option>
+                <option>Electricity</option>
+                <option>Water</option>
+                <option>Other</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">Trạng thái</option>
+                <option>Paid</option>
+                <option>Unpaid</option>
+                <option>Overdue</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="date" class="form-control" />
+        </div>
+        <div class="col-md-3 text-end">
+            <button type="submit" class="btn btn-primary me-2">Lọc</button>
+            <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>#</th>
+                <th>Mã hóa đơn</th>
+                <th>Sinh viên</th>
+                <th>Phòng</th>
+                <th>Loại thanh toán</th>
+                <th>Số tiền (VNĐ)</th>
+                <th>Ngày thanh toán</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="9" class="text-center text-muted">Không có dữ liệu hóa đơn.</td>
+                </tr>
+            }
+            else
+            {
+                var index = 1;
+                foreach (var p in Model)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@p.PaymentID</td>
+                        <td>@p.Registration?.User?.FullName</td>
+                        <td>@(p.Registration?.Room != null ? p.Registration.Room.RoomNumber : "-")</td>
+                        <td>@p.Type</td>
+                        <td class="text-end">@String.Format("{0:N0}", p.Amount)</td>
+                        <td>@(p.PaymentDate.HasValue ? p.PaymentDate.Value.ToString("dd/MM/yyyy") : "-")</td>
+                        <td class="text-center">
+                            @if (p.Status == "Paid")
+                            {
+                                <span class="badge bg-success">Đã thanh toán</span>
+                            }
+                            else if (p.Status == "Overdue")
+                            {
+                                <span class="badge bg-danger">Quá hạn</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Chưa thanh toán</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @Html.ActionLink("👁", "Details", new { id = p.PaymentID }, new { @class = "btn btn-info btn-sm me-1" })
+                            @Html.ActionLink("✏️", "Edit", new { id = p.PaymentID }, new { @class = "btn btn-warning btn-sm me-1" })
+                            @Html.ActionLink("❌", "Delete", new { id = p.PaymentID }, new { @class = "btn btn-danger btn-sm" })
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+        </tbody>
+    </table>
+</div>
