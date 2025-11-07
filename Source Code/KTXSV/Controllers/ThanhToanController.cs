@@ -9,13 +9,57 @@ namespace KTXSV.Controllers
 {
     public class ThanhToanController : Controller
     {
-        // GET: ThanhToan
-        public ActionResult HoaDon()
+        KTXSVEntities db = new KTXSVEntities();
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+
+            if (Session["UserID"] != null)
+            {
+                int userId;
+                if (int.TryParse(Session["UserID"].ToString(), out userId))
+                {
+                    var user = db.Users.Find(userId);
+                    if (user != null)
+                    {
+                        ViewBag.Username = user.Username;
+                        ViewBag.FullName = user.FullName;
+                        ViewBag.Email = user.Email;
+                    }
+                }
+            }
+        }
+
+        public ActionResult Index()
         {
             if (Session["UserID"] == null)
             {
-                return RedirectToAction("DangNhap", "TaiKhoan");
+                return RedirectToAction("LoginStudent", "Account");
             }
+
+            int userID;
+            if (!int.TryParse(Session["UserID"].ToString(), out userID))
+            {
+                return RedirectToAction("LoginStudent", "Account");
+            }
+
+            var user = db.Users.Find(userID);
+            if (user == null)
+            {
+                return RedirectToAction("LoginStudent", "Account");
+            }
+
+            ViewBag.Username = user.Username;
+            ViewBag.FullName = user.FullName;
+            ViewBag.Email = user.Email;
+
+            return View();
+        }
+
+        // GET: ThanhToan
+        public ActionResult HoaDon()
+        {
+            
             int userId = (int)Session["UserID"];  // Lấy ID người đang đăng nhập
             using (var db = new KTXSVEntities())
             {

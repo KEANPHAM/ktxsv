@@ -20,7 +20,6 @@ namespace KTXSV.Controllers
         {
             if (!IsAdmin())
             {
-                //  về trang Login nếu chưa đăng nhập hoặc không phải admin
                 filterContext.Result = RedirectToAction("Index", "Account");
                 return;
             }

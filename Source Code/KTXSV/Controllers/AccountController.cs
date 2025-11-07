@@ -14,25 +14,21 @@ namespace KTXSV.Controllers
     {
         private KTXSVEntities db = new KTXSVEntities();
 
-        // ===== Trang chính =====
         public ActionResult Index()
         {
             return View();
         }
 
-        // ===== GET: Register =====
         public ActionResult Register()
         {
             return View();
         }
 
-        // ===== POST: Register =====
         [HttpPost]
         public ActionResult Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                // ===== Kiểm tra họ tên =====
                 if (string.IsNullOrWhiteSpace(model.FullName))
                 {
                     ViewBag.Error = "Họ tên không được để trống";
@@ -59,7 +55,6 @@ namespace KTXSV.Controllers
                     }
                 }
 
-                // ===== Kiểm tra mật khẩu =====
                 if (string.IsNullOrWhiteSpace(model.PasswordHash))
                 {
                     ViewBag.Error = "Mật khẩu không được để trống";
@@ -95,7 +90,6 @@ namespace KTXSV.Controllers
                     return View(model);
                 }
 
-                // ===== Kiểm tra trùng Username / Email =====
                 if (db.Users.Any(u => u.Username == model.Username))
                 {
                     ViewBag.Error = "Mã số sinh viên đã tồn tại!";
@@ -107,14 +101,12 @@ namespace KTXSV.Controllers
                     return View(model);
                 }
 
-                // ===== Kiểm tra giới tính =====
                 if (model.Gender != "Male" && model.Gender != "Female")
                 {
                     ViewBag.Error = "Giới tính không hợp lệ!";
                     return View(model);
                 }
 
-                // ===== Kiểm tra CCCD =====
                 if (string.IsNullOrEmpty(model.CCCD) || model.CCCD.Length != 12)
                 {
                     ViewBag.Error = "Số CCCD phải gồm 12 chữ số.";
@@ -137,7 +129,6 @@ namespace KTXSV.Controllers
                     return View(model);
                 }
 
-                // ===== Kiểm tra số điện thoại =====
                 string[] validPrefixes = { "032","033","034","035","036","037","038","039",
                                            "086","096","097","098","070","076","077","078","079",
                                            "090","093","089","056","058","092","059","099" };
@@ -147,7 +138,6 @@ namespace KTXSV.Controllers
                     return View(model);
                 }
 
-                // ===== Lưu vào DB =====
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.PasswordHash);
 
                 var user = new User
@@ -188,13 +178,11 @@ namespace KTXSV.Controllers
             return View(model);
         }
 
-        // ===== GET: Login Student =====
         public ActionResult LoginStudent()
         {
             return View();
         }
 
-        // ===== POST: Login Student =====
         [HttpPost]
         public ActionResult LoginStudent(string username, string password)
         {
@@ -211,7 +199,6 @@ namespace KTXSV.Controllers
             return View();
         }
 
-        // ===== GET: Login Admin =====
         public ActionResult LoginAdmin()
         {
             return View();
@@ -233,7 +220,6 @@ namespace KTXSV.Controllers
             return View();
         }
 
-        // ===== POST: Logout =====
         [HttpPost]
         public ActionResult Logout()
         {
@@ -241,7 +227,6 @@ namespace KTXSV.Controllers
             return RedirectToAction("LoginStudent", "Account");
         }
 
-        // ===== Quên mật khẩu =====
         public ActionResult ForgotPassword()
         {
             return View();

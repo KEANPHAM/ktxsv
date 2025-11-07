@@ -11,9 +11,49 @@ namespace KTXSV.Controllers
     public class PhongController : Controller
     {
         KTXSVEntities db = new KTXSVEntities();
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+
+            if (Session["UserID"] != null)
+            {
+                int userId;
+                if (int.TryParse(Session["UserID"].ToString(), out userId))
+                {
+                    var user = db.Users.Find(userId);
+                    if (user != null)
+                    {
+                        ViewBag.Username = user.Username;
+                        ViewBag.FullName = user.FullName;
+                        ViewBag.Email = user.Email;
+                    }
+                }
+            }
+        }
 
         public ActionResult Index()
         {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("LoginStudent", "Account");
+            }
+
+            int userID;
+            if (!int.TryParse(Session["UserID"].ToString(), out userID))
+            {
+                return RedirectToAction("LoginStudent", "Account");
+            }
+
+            var user = db.Users.Find(userID);
+            if (user == null)
+            {
+                return RedirectToAction("LoginStudent", "Account");
+            }
+
+            ViewBag.Username = user.Username;
+            ViewBag.FullName = user.FullName;
+            ViewBag.Email = user.Email;
+
             return View();
         }
 
@@ -23,8 +63,7 @@ namespace KTXSV.Controllers
         }
         public ActionResult DangKyPhong(string gender, string building, int? capacity)
         {
-          
-
+            
             int userId = int.Parse(Session["UserID"].ToString());
 
             var uploadedTypes = db.StudentFiles
@@ -102,15 +141,25 @@ namespace KTXSV.Controllers
                 };
                 db.Registrations.Add(dangKyMoi);
                 bed.IsOccupied = true;
+                db.SaveChanges();
 
 
+
+
+                var thanhToanMoi = new Payment
+                {
+                    RegID = dangKyMoi.RegID,
+                    Amount = dangKyMoi.Room.Price,
+                    PaymentDate = DateTime.Now,
+                    Type = "Rent",
+                    Status = "Unpaid"
+                };
+                db.Payments.Add(thanhToanMoi);
                 if (phong.Occupied == phong.Capacity)
                 {
                     phong.Status = "Full";
                 }
                 db.SaveChanges();
-
-
                 TempData["Success"] = "Đăng ký phòng thành công. Vui lòng chờ duyệt.";
                 return RedirectToAction("DanhSachPhong");
 
