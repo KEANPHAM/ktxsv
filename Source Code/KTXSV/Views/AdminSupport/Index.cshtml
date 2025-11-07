@@ -24,7 +24,7 @@
     }
 </style>
 
-<div class="container py-4">
+<div class="container py-4 px-3">
     <h2 class="mb-4 fw-bold text-uppercase text-center">Quản lý yêu cầu hỗ trợ</h2>
 
     @if (TempData["Message"] != null)
@@ -32,7 +32,7 @@
         <div class="alert alert-success">@TempData["Message"]</div>
     }
 
-    <table class="table table-bordered table-striped align-middle text-center shadow-sm">
+    <table class="table table-bordered  align-middle text-center shadow-sm">
         <thead class="table-light">
             <tr>
                 <th>#</th>
@@ -75,7 +75,7 @@
                         <td>@(string.IsNullOrWhiteSpace(item.Reply) ? "Chưa phản hồi" : item.Reply)</td>
                         <td>
                             @Html.ActionLink("Chi tiết", "Details", new { id = item.RequestID }, new { @class = "btn btn-outline-secondary btn-sm me-1" })
-                            @Html.ActionLink("Phản hồi", "Reply", new { id = item.RequestID }, new { @class = "btn btn-ee btn-sm" })
+                            @Html.ActionLink("Phản hồi", "Reply", new { id = item.RequestID }, new { @class = "btn btn-outline-warning btn-sm" })
                         </td>
                     </tr>
                     i++;

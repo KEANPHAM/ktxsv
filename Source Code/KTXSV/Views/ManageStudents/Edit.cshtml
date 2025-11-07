@@ -1,0 +1,55 @@
+﻿@model KTXSV.Models.User
+@{
+    ViewBag.Title = "Chỉnh sửa thông tin sinh viên";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">📝 Chỉnh sửa thông tin sinh viên</h2>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.UserID)
+
+        <div class="card shadow p-4 rounded-3">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Họ và tên</label>
+                    @Html.TextBoxFor(model => model.FullName, new { @class = "form-control", placeholder = "Nhập họ tên" })
+                    @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6">
+                    <label>Tên đăng nhập</label>
+                    @Html.TextBoxFor(model => model.Username, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Email</label>
+                    @Html.TextBoxFor(model => model.Email, new { @class = "form-control", placeholder = "Nhập email" })
+                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6">
+                    <label>Số điện thoại</label>
+                    @Html.TextBoxFor(model => model.Phone, new { @class = "form-control", placeholder = "Nhập số điện thoại" })
+                    @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label>Giới tính</label>
+                @Html.DropDownListFor(model => model.Gender,
+                    new SelectList(new[] { "Nam", "Nữ" }, Model.Gender),
+                    "Chọn giới tính",
+                    new { @class = "form-select" })
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success px-4">💾 Lưu thay đổi</button>
+                @Html.ActionLink("⬅ Quay lại", "Index", null, new { @class = "btn btn-secondary px-4" })
+            </div>
+        </div>
+    }
+</div>

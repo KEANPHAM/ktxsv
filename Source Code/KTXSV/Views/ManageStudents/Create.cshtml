@@ -1,0 +1,93 @@
+﻿@model KTXSV.Models.User
+@{
+    ViewBag.Title = "Thêm Sinh Viên Mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div style="background-color:#ee6823" class="card-header text-white text-center rounded-top-4 py-3">
+            <h3 class="mb-0 fw-bold">Thêm Sinh Viên Mới</h3>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            @using (Html.BeginForm("Create", "ManageStudents", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <!-- ✅ Hiển thị lỗi tổng quát -->
+                @Html.ValidationSummary(true, "Vui lòng kiểm tra lại các thông tin bên dưới:", new { @class = "alert alert-danger" })
+
+                <div class="row">
+                    <!-- Cột bên trái -->
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.Username, "Tên đăng nhập", new { @class = "form-label fw-semibold" })
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Nhập tên đăng nhập" })
+                            @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.FullName, "Họ và tên", new { @class = "form-label fw-semibold" })
+                            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Nhập họ và tên" })
+                            @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.Email, "Email", new { @class = "form-label fw-semibold" })
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Nhập email" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.PasswordHash, "Mật khẩu", new { @class = "form-label fw-semibold" })
+                            @Html.PasswordFor(m => m.PasswordHash, new { @class = "form-control", placeholder = "Nhập mật khẩu" })
+                            @Html.ValidationMessageFor(m => m.PasswordHash, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <!-- Cột bên phải -->
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.Gender, "Giới tính", new { @class = "form-label fw-semibold" })
+                            @Html.DropDownListFor(m => m.Gender,
+                                new SelectList(new[]
+                                {
+                                    new { Value = "Male", Text = "Nam" },
+                                    new { Value = "Female", Text = "Nữ" }
+                                }, "Value", "Text"),
+                                "Chọn giới tính",
+                                new { @class = "form-select" })
+                            @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.Phone, "Số điện thoại", new { @class = "form-label fw-semibold" })
+                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "Nhập số điện thoại" })
+                            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.CCCD, "CCCD", new { @class = "form-label fw-semibold" })
+                            @Html.TextBoxFor(m => m.CCCD, new { @class = "form-control", placeholder = "Nhập CCCD" })
+                            @Html.ValidationMessageFor(m => m.CCCD, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.BirthDate, "Ngày sinh", new { @class = "form-label fw-semibold" })
+                            @Html.TextBoxFor(m => m.BirthDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                            @Html.ValidationMessageFor(m => m.BirthDate, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success px-4 py-2 me-2 shadow-sm">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary px-4 py-2 shadow-sm" })
+                </div>
+            }
+        </div>
+    </div>
+</div>

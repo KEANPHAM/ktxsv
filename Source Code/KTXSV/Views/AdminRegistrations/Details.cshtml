@@ -1,0 +1,69 @@
+﻿@model KTXSV.Models.Room
+@{
+    ViewBag.Title = "Chi tiết phòng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Chi tiết phòng @Model.RoomNumber - @Model.Building</h2>
+
+<table class="table table-bordered">
+    <tr><th>Giới tính</th><td>@Model.Gender</td></tr>
+    <tr><th>Sức chứa</th><td>@Model.Capacity</td></tr>
+    <tr><th>Đang ở</th><td>@Model.Occupied</td></tr>
+    <tr><th>Giá phòng</th><td>@String.Format("{0:N0} đ", Model.Price)</td></tr>
+    <tr><th>Trạng thái</th><td>@Model.Status</td></tr>
+</table>
+
+<h4>Danh sách sinh viên đang ở</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Họ tên</th>
+            <th>SĐT</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in ViewBag.CurrentStudents)
+        {
+            <tr>
+                <td>@s.FullName</td>
+                <td>@s.Phone</td>
+                <td>@String.Format("{0:dd/MM/yyyy}", s.StartDate)</td>
+                <td>@String.Format("{0:dd/MM/yyyy}", s.EndDate)</td>
+                <td>@s.Status</td>
+                <td>
+                    <a href="@Url.Action("Transfer", "AdminStudents", new { regId = s.RegID })" class="btn btn-sm btn-outline-primary">
+                        Chuyển phòng
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4>Lịch sử đăng ký</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Họ tên</th>
+            <th>Ngày vào</th>
+            <th>Ngày rời</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var h in ViewBag.History)
+        {
+            <tr>
+                <td>@h.FullName</td>
+                <td>@h.StartDate.ToString("dd/MM/yyyy")</td>
+                <td>@h.EndDate?.ToString("dd/MM/yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>

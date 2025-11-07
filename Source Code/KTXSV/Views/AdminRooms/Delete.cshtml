@@ -1,0 +1,70 @@
+﻿@model KTXSV.Models.Room
+
+@{
+    ViewBag.Title = "Xóa phòng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.css" />
+
+<h2 class="text-danger mb-4 fw-bold">Xóa phòng</h2>
+
+<div class="alert alert-warning">
+    <strong>Bạn có chắc chắn muốn xóa phòng @Model.RoomNumber - @Model.Building không?</strong>
+</div>
+
+<table class="table table-bordered">
+    <tr><th>Tòa</th><td>@Model.Building</td></tr>
+    <tr><th>Số phòng</th><td>@Model.RoomNumber</td></tr>
+    <tr><th>Sức chứa</th><td>@Model.Capacity</td></tr>
+    <tr><th>Đang ở</th><td>@Model.Occupied</td></tr>
+    <tr><th>Trạng thái</th><td>@Model.Status</td></tr>
+</table>
+
+@using (Html.BeginForm("Delete", "AdminRooms", FormMethod.Post, new { id = "deleteForm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.RoomID)
+
+    <button type="button" id="btnDeleteConfirm" class="btn btn-danger">
+        <i class="bi bi-trash"></i> Xóa
+    </button>
+
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy</a>
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btnDelete = document.getElementById("btnDeleteConfirm");
+        const form = document.getElementById("deleteForm");
+
+        btnDelete.addEventListener("click", function () {
+            $.confirm({
+                title: 'Xác nhận xóa',
+                content: `Bạn có chắc chắn muốn xóa phòng <strong>@Model.RoomNumber - @Model.Building</strong> không?`,
+                type: 'red',
+                theme: 'modern',
+                buttons: {
+                    confirm: {
+                        text: 'Xóa',
+                        btnClass: 'btn btn-danger',
+                        action: function () {
+                            form.submit();
+                        }
+                    },
+                    cancel: {
+                        text: 'Hủy',
+                        btnClass: 'btn btn-secondary'
+                    }
+                },
+                backgroundDismiss: true,
+                animation: 'scale',
+                closeAnimation: 'scale',
+                columnClass: 'small'
+            });
+        });
+    });
+</script>

@@ -1,8 +1,17 @@
-﻿
+﻿@model KTXSV.Models.User
 @{
-    ViewBag.Title = "ThongTinCaNhan";
+    ViewBag.Title = "Thông Tin Cá Nhân";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>ThongTinCaNhan</h2>
+<h2 class="text-center mt-3">Thông Tin Cá Nhân</h2>
+<div class="container mt-4">
+    <table class="table table-bordered">
+        <tr><th>Họ tên</th><td>@Model.FullName</td></tr>
+        <tr><th>Giới tính</th><td>@Model.Gender</td></tr>
+        <tr><th>Email</th><td>@Model.Email</td></tr>
+        <tr><th>Số điện thoại</th><td>@Model.Phone</td></tr>
+    </table>
 
+    <a href="@Url.Action("ChinhSuaThongTin", "SinhVien")" class="btn btn-primary">Chỉnh sửa</a>
+</div>

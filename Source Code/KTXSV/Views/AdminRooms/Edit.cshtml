@@ -1,0 +1,44 @@
+﻿@model KTXSV.Models.Room
+@{
+    ViewBag.Title = "Chỉnh sửa phòng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<main>
+    <h2 class="text-warning mb-4">Chỉnh sửa thông tin phòng</h2>
+    <div>
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.RoomID)
+
+            <div class="card p-4 shadow-sm">
+                <div class="form-group mb-3">
+                    <label>Tòa nhà</label>
+                    @Html.TextBoxFor(m => m.Building, new { @class = "form-control" })
+                </div>
+                <div class="form-group mb-3">
+                    <label>Số phòng</label>
+                    @Html.TextBoxFor(m => m.RoomNumber, new { @class = "form-control" })
+                </div>
+                <div class="form-group mb-3">
+                    <label>Giới tính</label>
+                    @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female" }, Model.Gender), new { @class = "form-select" })
+                </div>
+                <div class="form-group mb-3">
+                    <label>Sức chứa</label>
+                    @Html.TextBoxFor(m => m.Capacity, new { @class = "form-control", type = "number", min = "1" })
+                </div>
+                <div class="form-group mb-3">
+                    <label>Giá phòng (VNĐ)</label>
+                    @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", step = "1000" })
+                </div>
+                <div class="form-group mb-3">
+                    <label>Trạng thái</label>
+                    @Html.DropDownListFor(m => m.Status, new SelectList(new[] { "Available", "Full", "Maintenance" }, Model.Status), new { @class = "form-select" })
+                </div>
+
+                <button type="submit" class="btn btn-warning mb-2">Lưu thay đổi</button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+            </div>
+        }</div>
+</main>

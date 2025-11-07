@@ -1,0 +1,101 @@
+﻿@model IEnumerable<KTXSV.Models.Room>
+@{
+    ViewBag.Title = "Quản lý phòng ký túc xá";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="text-center text-primary mb-4">Danh sách phòng ký túc xá</h2>
+
+<p>
+    <a href="@Url.Action("Create")" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Thêm phòng mới
+    </a>
+</p>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<!-- Form lọc -->
+<form method="get" action="@Url.Action("Index")" class="row g-2 mb-4">
+    <!-- Tòa nhà -->
+    <div class="col-md-3">
+        <select name="building" class="form-select">
+            <option value=""> Chọn tòa </option>
+            <option value="A" @(Request.QueryString["building"] == "A" ? "selected" : "")>A</option>
+            <option value="B" @(Request.QueryString["building"] == "B" ? "selected" : "")>B</option>
+        </select>
+    </div>
+    @*sức chứa*@
+    <div class="col-md-3">
+        <select name="capacity" class="form-select">
+            <option value=""> Sức chứa </option>
+            <option value="4" @(Request.QueryString["capacity"] == "4" ? "selected" : "")>Phòng 4 giường</option>
+            <option value="6" @(Request.QueryString["capacity"] == "6" ? "selected" : "")>Phòng 6 giường</option>
+            <option value="8" @(Request.QueryString["capacity"] == "8" ? "selected" : "")>Phòng 8 giường</option>
+        </select>
+    </div>
+    <!-- Trạng thái -->
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value=""> Tình trạng </option>
+            <option value="Available" @(Request.QueryString["status"] == "Available" ? "selected" : "")>Còn trống</option>
+            <option value="Full" @(Request.QueryString["status"] == "Full" ? "selected" : "")>Đầy</option>
+            <option value="Maintenance" @(Request.QueryString["status"] == "Maintenance" ? "selected" : "")>Bảo trì</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-search"></i> Lọc
+        </button>
+    </div>
+</form>
+
+<table class="table table-bordered table-hover align-middle text-center">
+    <thead class="table-light">
+        <tr>
+            <th>STT</th>
+            <th>Tòa</th>
+            <th>Số phòng</th>
+            <th>Giới tính</th>
+            <th>Sức chứa</th>
+            <th>Đang ở</th>
+            <th>Giá</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int stt = 1;
+        }
+        @foreach (var room in Model)
+        {
+            <tr>
+                <td>@stt</td>
+                <td>@room.Building</td>
+                <td>@room.RoomNumber</td>
+                <td>@(room.Gender == "Male" ? "Nam" : "Nữ")</td>
+                <td>@room.Capacity</td>
+                <td>@room.Occupied</td>
+                <td class="text-end">@String.Format("{0:N0} đ", room.Price)</td>
+                <td>
+                    @if (room.Status == "Available")
+                    {<span class="badge bg-success">Còn trống</span> }
+                    else if (room.Status == "Full" || room.Status == "full")
+                    { <span class="badge bg-danger">Đầy</span> }
+                    else
+                    { <span class="badge bg-secondary">Bảo trì</span>}
+                </td>
+                <td>
+                    <a href="@Url.Action("Details", new { id = room.RoomID })" class="btn btn-outline-info btn-sm">Chi tiết</a>
+                    <a href="@Url.Action("Edit", new { id = room.RoomID })" class="btn btn-outline-warning btn-sm">Sửa</a>
+                    <a href="@Url.Action("Delete", new { id = room.RoomID })" class="btn btn-outline-danger btn-sm">Xóa</a>
+                </td>
+            </tr>
+            stt++;
+        }
+    </tbody>
+</table>

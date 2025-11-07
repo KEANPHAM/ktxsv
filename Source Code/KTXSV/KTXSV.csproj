@@ -47,6 +47,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BCrypt.Net-Next, Version=4.0.3.0, Culture=neutral, PublicKeyToken=1e11be04b6288443, processorArchitecture=MSIL">
+      <HintPath>..\packages\BCrypt.Net-Next.4.0.3\lib\net48\BCrypt.Net-Next.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -64,9 +67,22 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
@@ -135,6 +151,8 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\Admin\AdminController.cs" />
+    <Compile Include="Controllers\Admin\AdminRegistrationsController.cs" />
+    <Compile Include="Controllers\Admin\AdminRoomsController.cs" />
     <Compile Include="Controllers\Admin\AdminSupportController.cs" />
     <Compile Include="Controllers\Admin\ManageStudentsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -171,16 +189,21 @@
     <Compile Include="Models\Payment.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Models\Registration.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Room.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\RoomMetadata.cs" />
     <Compile Include="Models\StudentFile.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SupportRequest.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\sysdiagram.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\User.cs">
@@ -289,6 +312,19 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\ResetPassword.cshtml" />
     <Content Include="Views\Account\VerifyOTP.cshtml" />
+    <Content Include="Views\AdminRegistrations\Index.cshtml" />
+    <Content Include="Views\AdminRegistrations\Details.cshtml" />
+    <Content Include="Views\AdminRooms\Index.cshtml" />
+    <Content Include="Views\AdminRooms\Details.cshtml" />
+    <Content Include="Views\AdminRooms\Create.cshtml" />
+    <Content Include="Views\AdminRooms\Edit.cshtml" />
+    <Content Include="Views\AdminRooms\Delete.cshtml" />
+    <Content Include="Views\ManageStudents\Active.cshtml" />
+    <Content Include="Views\AdminRooms\TransferRoom.cshtml" />
+    <Content Include="Views\SinhVien\DanhSachSinhVien.cshtml" />
+    <Content Include="Views\SinhVien\ThemSinhVienMoi.cshtml" />
+    <Content Include="Views\ManageStudents\Edit.cshtml" />
+    <Content Include="Views\ManageStudents\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

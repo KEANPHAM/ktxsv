@@ -1,0 +1,103 @@
+﻿@model KTXSV.Models.Room
+@{
+    ViewBag.Title = "Chi tiết phòng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    table{
+        text-align:center;
+    }
+</style>
+<h2 class=" mb-4" style="color:#EE6823">Phòng @Model.RoomNumber - Tòa @Model.Building</h2>
+
+<table class="table table-bordered text-start" >
+    <tr><th>Tòa</th><td>@Model.Building</td></tr>
+    <tr><th>Số phòng</th><td>@Model.RoomNumber</td></tr>
+    <tr><th>Giới tính</th><td>@Model.Gender</td></tr>
+    <tr><th>Sức chứa</th><td>@Model.Capacity</td></tr>
+    <tr><th>Đang ở</th><td>@Model.Occupied</td></tr>
+    <tr><th>Giá phòng</th><td>@String.Format("{0:N0} đ", Model.Price)</td></tr>
+    <tr><th>Trạng thái</th><td>@Model.Status</td></tr>
+</table>
+
+<h4 class="mt-4" style="color:#EE6823">Danh sách sinh viên đang ở</h4>
+<table class="table table-bordered table-sm" >
+    <thead style="background-color:#EE6823">
+        <tr>
+            <th>Họ tên</th>
+            <th>SĐT</th>
+            <th>Ngày bắt đầu</th>
+            <th>Trạng thái</th>
+            <th>Chức năng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (ViewBag.CurrentStudents != null)
+        {
+            foreach (var s in ViewBag.CurrentStudents)
+            {
+                <tr>
+                    <td>@s.User.FullName</td>
+                    <td>@s.User.Phone</td>
+                    <td>@String.Format("{0:dd/MM/yyyy}", s.StartDate)</td>
+                    <td>@s.Status</td>
+                    <td>
+                        <a href="@Url.Action("TransferRoom", "AdminRooms", new { id = s.RegID })"
+                           class="btn btn-outline-primary btn-sm">
+                            Chuyển phòng
+                        </a>
+
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="6" class="text-center text-muted">Không có sinh viên nào ở phòng này</td></tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="mt-4" style="color:#EE6823">Lịch sử đăng ký phòng</h4>
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>Họ tên</th>
+            <th>Ngày vào</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Ghi chú</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (ViewBag.History != null && ViewBag.History.Count > 0)
+        {
+            foreach (var h in ViewBag.History)
+            {
+                <tr>
+                    <td>@h.User.FullName</td>
+                    <td>@h.StartDate.ToString("dd/MM/yyyy")</td>
+                    <td>@h.EndDate.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (h.Status == "Ended")
+                        {
+                            <span class="badge badge-secondary">Đã kết thúc</span>
+                        }
+                        else if (h.Status == "Transferred")
+                        {
+                            <span class="badge bg-warning text-dark">Đã chuyển phòng</span>
+                        }
+                    </td>
+                    <td>@h.Note</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="3" class="text-center text-muted">Chưa có lịch sử đăng ký</td></tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>

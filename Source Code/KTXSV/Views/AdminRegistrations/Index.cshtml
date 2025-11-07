@@ -1,0 +1,72 @@
+﻿@model IEnumerable<KTXSV.Models.Registration>
+@{
+    ViewBag.Title = "Danh sách phòng và sinh viên đăng ký";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<body>
+<h2>Danh sách đăng ký phòng ký túc xá</h2>
+<p>
+    <a href="@Url.Action("Create", "AdminRooms")" class="btn btn-primary">Thêm phòng mới</a>
+</p>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Sinh viên</th>
+            <th>Phòng</th>
+            <th>Tòa</th>
+            <th>Giới tính</th>
+            <th>Giá phòng</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái đăng ký</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reg in Model)
+        {
+            <tr>
+                <td>@reg.User.FullName</td>
+                <td>@reg.Room.RoomNumber</td>
+                <td>@reg.Room.Building</td>
+                <td>@reg.Room.Gender</td>
+                <td>@String.Format("{0:N0} đ", reg.Room.Price)</td>
+                <td>@reg.StartDate.ToString("dd/MM/yyyy")</td>
+                <td>@(reg.EndDate.HasValue ? reg.EndDate.Value.ToString("dd/MM/yyyy") : "-")</td>
+                <td>
+                    @if (reg.Status == "Pending")
+                    {
+                        <span class="badge bg-warning">Chờ duyệt</span>
+                    }
+                    else if (reg.Status == "Approved" || reg.Status == "Active")
+                    {
+                        <span class="badge bg-success">Đang ở</span>
+                    }
+                    else if (reg.Status == "Rejected")
+                    {
+                        <span class="badge bg-danger">Từ chối</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">@reg.Status</span>
+                    }
+                </td>
+                <td>
+                    <a href="@Url.Action("Details", "AdminRegistrations", new { id = reg.RegID })" class="btn btn-info btn-sm">Chi tiết</a>
+
+                    @if (reg.Status == "Pending")
+                    {
+                        <form action="@Url.Action("Approve", "AdminRegistrations", new { id = reg.RegID })" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-success btn-sm">Duyệt</button>
+                        </form>
+                        <form action="@Url.Action("Reject", "AdminRegistrations", new { id = reg.RegID })" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Từ chối</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+    </body>

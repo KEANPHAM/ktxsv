@@ -1,0 +1,62 @@
+﻿@model KTXSV.Models.Registration
+@{
+    ViewBag.Title = "Chuyển Phòng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="text-center mt-3">Chuyển Phòng Cho Sinh Viên</h2>
+
+<div class="card p-4 shadow mt-4" style="max-width:600px;margin:auto;">
+    <p><b>Sinh viên:</b> @Model.User.FullName</p>
+    <p><b>Phòng hiện tại:</b> @Model.Room.RoomNumber</p>
+    <p><b>Ngày vào:</b> @Model.StartDate.ToString("dd/MM/yyyy")</p>
+
+    <form method="post">
+        <div class="form-group mt-3">
+            <label>Phòng mới:</label>
+            @Html.DropDownList("newRoomID", (SelectList)ViewBag.RoomID, " Chọn phòng ", new { @class = "form-control", id = "roomSelect" })
+        </div>
+        <div class="form-group mt-3">
+            <label>Giường mới:</label>
+            @Html.DropDownList("newBedID", (SelectList)ViewBag.BedID, " Chọn giường ", new { @class = "form-control", id = "bedSelect" })
+        </div>
+        <div class="form-group mt-3">
+            <label>Ghi chú</label>
+            <textarea name="note" class="form-control text-secondary" rows="3" placeholder="Ghi rõ chuyển từ phòng + giường + thời gian"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-warning mt-3 w-100">Xác nhận chuyển phòng</button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary mt-2 w-100">Quay lại</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#roomSelect').change(function () {
+                var roomId = $(this).val();
+                $('#bedSelect').empty();
+                $('#bedSelect').append('<option>Đang tải...</option>');
+
+                if (roomId) {
+                    $.getJSON('@Url.Action("GetAvailableBeds", "AdminRooms")', { roomId: roomId }, function (data) {
+                        $('#bedSelect').empty();
+                        if (data.length > 0) {
+                            $('#bedSelect').append('<option value=""> Chọn giường </option>');
+                            $.each(data, function (i, item) {
+                                $('#bedSelect').append($('<option>', {
+                                    value: item.BedID,
+                                    text: 'Giường ' + item.BedNumber
+                                }));
+                            });
+                        } else {
+                            $('#bedSelect').append('<option>Không còn giường trống</option>');
+                        }
+                    });
+                } else {
+                    $('#bedSelect').empty().append('<option value=""> Chọn giường </option>');
+                }
+            });
+        });
+    </script>
+}

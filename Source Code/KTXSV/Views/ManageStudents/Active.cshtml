@@ -78,7 +78,7 @@
     }
 </style>
 
-<h2 class="  m-2 mb-4">Quản lý sinh viên</h2>
+<h2 class="m-2 mb-4">Quản lý sinh viên</h2>
 <p>
     <a href="@Url.Action("Create")" class="btn btn-success">
         <i class="bi bi-plus-circle"></i> Thêm sinh viên mới
@@ -86,8 +86,8 @@
 </p>
 
 <div class="text-end">
-    <button onclick="location.href='@Url.Action("Active", "ManageStudents")'" class="btn text-end btn-primary m-2 mb-4">
-        Các sinh viên đang ở
+    <button onclick="location.href='@Url.Action("Index", "ManageStudents")'" class="btn  btn-primary  m-2 mb-4">
+        Tất cả lịch sử
     </button>
 </div>
 @if (TempData["Message"] != null)

@@ -1,38 +1,37 @@
 ﻿using KTXSV.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
-
+using BCrypt.Net;
 
 namespace KTXSV.Controllers
 {
     public class AccountController : Controller
     {
-        // GET: Account
+        private KTXSVEntities db = new KTXSVEntities();
+
+        // ===== Trang chính =====
         public ActionResult Index()
         {
             return View();
         }
-        private KTXSVEntities db = new KTXSVEntities();
 
-        // GET: Register
+        // ===== GET: Register =====
         public ActionResult Register()
         {
             return View();
         }
 
+        // ===== POST: Register =====
         [HttpPost]
-        public ActionResult Register(User model)
+        public ActionResult Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-
                 // ===== Kiểm tra họ tên =====
                 if (string.IsNullOrWhiteSpace(model.FullName))
                 {
@@ -41,177 +40,147 @@ namespace KTXSV.Controllers
                 }
 
                 string[] nameParts = model.FullName.Trim().Split(' ');
-
-                // Kiểm tra ít nhất 2 thành phần
                 if (nameParts.Length < 2)
                 {
                     ViewBag.Error = "Họ tên phải có ít nhất 2 thành phần";
                     return View(model);
                 }
-
-                // Kiểm tra không chứa ký tự đặc biệt hoặc số
                 if (!Regex.IsMatch(model.FullName, @"^[a-zA-ZÀ-ỹ\s]+$"))
                 {
                     ViewBag.Error = "Họ tên không được chứa ký tự đặc biệt hoặc số";
                     return View(model);
                 }
-
-                // Kiểm tra chữ cái đầu mỗi thành phần phải viết hoa
                 foreach (var part in nameParts)
                 {
-                    if (string.IsNullOrWhiteSpace(part)) continue; // bỏ qua khoảng trắng
-                    if (!char.IsUpper(part[0]))
+                    if (!string.IsNullOrWhiteSpace(part) && !char.IsUpper(part[0]))
                     {
                         ViewBag.Error = "Chữ cái đầu mỗi thành phần trong họ tên phải viết hoa";
                         return View(model);
                     }
                 }
+
                 // ===== Kiểm tra mật khẩu =====
                 if (string.IsNullOrWhiteSpace(model.PasswordHash))
                 {
                     ViewBag.Error = "Mật khẩu không được để trống";
                     return View(model);
                 }
-
-                if (model.PasswordHash.Length < 8)
+                if (model.PasswordHash.Length < 8 ||
+                    !Regex.IsMatch(model.PasswordHash, @"[A-Z]") ||
+                    !Regex.IsMatch(model.PasswordHash, @"\d") ||
+                    !Regex.IsMatch(model.PasswordHash, @"[!@#$%^&*(),.?""':{}|<>]"))
                 {
-                    ViewBag.Error = "Mật khẩu phải có ít nhất 8 ký tự";
+                    ViewBag.Error = "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, số và ký tự đặc biệt";
                     return View(model);
                 }
-
-                // Kiểm tra ít nhất 1 chữ hoa, 1 số, 1 ký tự đặc biệt
-                if (!Regex.IsMatch(model.PasswordHash, @"[A-Z]"))
-                {
-                    ViewBag.Error = "Mật khẩu phải chứa ít nhất 1 chữ cái viết hoa";
-                    return View(model);
-                }
-
-                if (!Regex.IsMatch(model.PasswordHash, @"\d"))
-                {
-                    ViewBag.Error = "Mật khẩu phải chứa ít nhất 1 chữ số";
-                    return View(model);
-                }
-
-                if (!Regex.IsMatch(model.PasswordHash, @"[!@#$%^&*(),.?""':{}|<>]"))
-                {
-                    ViewBag.Error = "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt";
-                    return View(model);
-                }
-
-                // Kiểm tra xác nhận mật khẩu
                 if (model.PasswordHash != model.ConfirmPassword)
                 {
                     ViewBag.Error = "Xác nhận mật khẩu không khớp";
                     return View(model);
                 }
-                try
-                {
-                    if (model.BirthDate != null)
-                    {
-                        DateTime birthDate = model.BirthDate.Value;
-                        DateTime today = DateTime.Today;
 
-                        int age = today.Year - birthDate.Year;
-                        // Nếu chưa tới sinh nhật trong năm nay thì trừ thêm 1
-                        if (birthDate.Date > today.AddYears(-age)) age--;
-
-                        if (age < 18)
-                        {
-                            ViewBag.Error = "Bạn phải đủ 18 tuổi trở lên để đăng ký.";
-                            return View(model);
-                        }
-                    }
-                    else if (model.BirthYear > 0)
-                    {
-                        int ageByYear = DateTime.Today.Year - model.BirthYear;
-                        if (ageByYear < 18)
-                        {
-                            ViewBag.Error = "Bạn phải đủ 18 tuổi trở lên để đăng ký.";
-                            return View(model);
-                        }
-                    }
-                    else
-                    {
-                        ViewBag.Error = "Vui lòng nhập ngày sinh hoặc năm sinh.";
-                        return View(model);
-                    }
-                }
-                catch
+                // ===== Kiểm tra ngày sinh =====
+                if (!model.BirthDate.HasValue)
                 {
-                    ViewBag.Error = "Ngày sinh không hợp lệ.";
+                    ViewBag.Error = "Vui lòng nhập ngày sinh.";
                     return View(model);
                 }
 
-                // =====  Kiểm tra trùng MSSV (Username) =====
+                DateTime birthDate = model.BirthDate.Value;
+                int age = DateTime.Today.Year - birthDate.Year;
+                if (birthDate > DateTime.Today.AddYears(-age)) age--;
+                if (age < 18)
+                {
+                    ViewBag.Error = "Bạn phải đủ 18 tuổi trở lên để đăng ký.";
+                    return View(model);
+                }
+
+                // ===== Kiểm tra trùng Username / Email =====
                 if (db.Users.Any(u => u.Username == model.Username))
                 {
                     ViewBag.Error = "Mã số sinh viên đã tồn tại!";
                     return View(model);
                 }
-
-                // =====  Kiểm tra trùng Email =====
                 if (db.Users.Any(u => u.Email == model.Email))
                 {
                     ViewBag.Error = "Email đã được đăng ký!";
                     return View(model);
                 }
 
-                // =====  Kiểm tra giới tính =====
+                // ===== Kiểm tra giới tính =====
                 if (model.Gender != "Male" && model.Gender != "Female")
                 {
                     ViewBag.Error = "Giới tính không hợp lệ!";
                     return View(model);
                 }
 
-                // =====  Kiểm tra CCCD =====
-                string[] validProvinces = { "001", "002", "004", "006", "008", "010", "011", "012", "014", "015", "017", "019", "020", "022", "024", "025", "026", "027", "030", "031", "033", "034", "035", "036", "037", "038", "040", "042", "044", "045", "046", "048", "049", "051", "052", "054", "056", "058", "060", "062", "064", "066", "067", "068", "070", "072", "074", "075", "077", "079", "080", "082", "083", "084", "086", "087", "089", "091", "092", "093", "094", "095", "096"
-
- /* ... thêm các mã tỉnh khác */ };
-                if (!Regex.IsMatch(model.CCCD ?? "", @"^\d{12}$"))
+                // ===== Kiểm tra CCCD =====
+                if (string.IsNullOrEmpty(model.CCCD) || model.CCCD.Length != 12)
                 {
-                    ViewBag.Error = "Số CCCD phải gồm 12 chữ số";
+                    ViewBag.Error = "Số CCCD phải gồm 12 chữ số.";
                     return View(model);
                 }
-                else if (!validProvinces.Contains(model.CCCD.Substring(0, 3)))
+
+                string[] validProvinces = { "001", "002", "004", "006", "008", "010", "011", "012", "014", "015", "017", "019", "020", "022", "024", "025", "026", "027", "030", "031", "033", "034", "035", "036", "037", "038", "040", "042", "044", "045", "046", "048", "049", "051", "052", "054", "056", "058", "060", "062", "064", "066", "067", "068", "070", "072", "074", "075", "077", "079", "080", "082", "083", "084", "086", "087", "089", "091", "092", "093", "094", "095", "096" };
+                if (!validProvinces.Contains(model.CCCD.Substring(0, 3)))
                 {
-                    ViewBag.Error = "Mã tỉnh/thành phố trong CCCD không hợp lệ";
+                    ViewBag.Error = "Mã tỉnh/thành phố trong CCCD không hợp lệ.";
                     return View(model);
                 }
-                else
-                {
-                    // Kiểm tra mã thế kỷ + giới tính nếu có năm sinh
-                    if (model.BirthYear > 0)
-                    {
-                        int centuryCode = (model.BirthYear / 100) - 19; // 19xx -> 0, 20xx -> 1 ...
-                        int expectedDigit = (model.Gender == "Male") ? (centuryCode * 2) : (centuryCode * 2 + 1);
 
-                        if (int.Parse(model.CCCD.Substring(3, 1)) != expectedDigit)
-                        {
-                            ViewBag.Error = "Số CCCD không khớp với giới tính hoặc năm sinh";
-                            return View(model);
-                        }
-                    }
+                int birthYear = model.BirthDate.Value.Year;
+                int centuryCode = (birthYear / 100) - 19;
+                int expectedDigit = (model.Gender == "Male") ? (centuryCode * 2) : (centuryCode * 2 + 1);
+                if (int.Parse(model.CCCD.Substring(3, 1)) != expectedDigit)
+                {
+                    ViewBag.Error = "Số CCCD không khớp với giới tính hoặc năm sinh.";
+                    return View(model);
                 }
 
                 // ===== Kiểm tra số điện thoại =====
                 string[] validPrefixes = { "032","033","034","035","036","037","038","039",
-                                   "086","096","097","098","070","076","077","078","079",
-                                   "090","093","089","056","058","092","059","099" };
-
+                                           "086","096","097","098","070","076","077","078","079",
+                                           "090","093","089","056","058","092","059","099" };
                 if (!Regex.IsMatch(model.Phone ?? "", @"^\d{10}$") || !validPrefixes.Contains(model.Phone.Substring(0, 3)))
                 {
-                    ViewBag.Error = "Số điện thoại không hợp lệ";
+                    ViewBag.Error = "Số điện thoại không hợp lệ.";
                     return View(model);
                 }
 
+                // ===== Lưu vào DB =====
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.PasswordHash);
 
-                // ===== 7️⃣ Lưu dữ liệu =====
-                model.Role = "Student";
-                model.PasswordHash = model.PasswordHash; // hoặc hash nếu muốn
-                model.CreatedAt = DateTime.Now;
+                var user = new User
+                {
+                    Username = model.Username,
+                    PasswordHash = hashedPassword,
+                    FullName = model.FullName,
+                    Gender = model.Gender,
+                    Email = model.Email,
+                    Phone = model.Phone,
+                    Role = "Student",
+                    CreatedAt = DateTime.Now,
+                    BirthDate = model.BirthDate,
+                    CCCD = model.CCCD
+                };
 
-                db.Users.Add(model);
-                db.SaveChanges();
+                try
+                {
+                    db.Users.Add(user);
+                    db.SaveChanges();
+                }
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                {
+                    foreach (var eve in ex.EntityValidationErrors)
+                    {
+                        foreach (var ve in eve.ValidationErrors)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Lỗi: {ve.PropertyName} - {ve.ErrorMessage}");
+                        }
+                    }
+                    ViewBag.Error = "Có lỗi xảy ra khi lưu dữ liệu. Vui lòng kiểm tra lại.";
+                    return View(model);
+                }
 
                 return RedirectToAction("LoginStudent", "Account");
             }
@@ -219,35 +188,30 @@ namespace KTXSV.Controllers
             return View(model);
         }
 
-
-        // GET: Login
-        public ActionResult Login()
-        {
-            return View();
-        }
-
-
+        // ===== GET: Login Student =====
         public ActionResult LoginStudent()
         {
             return View();
         }
 
+        // ===== POST: Login Student =====
         [HttpPost]
         public ActionResult LoginStudent(string username, string password)
         {
-            var userID = db.Users.Where(u => u.Username == username).FirstOrDefault();
-            if (userID.Role == "Student" && userID.PasswordHash == password)
-            {
-                Session["UserID"] = userID.UserID;           // ID trong database
-                Session["Role"] = userID.Role;           // Role
+            var user = db.Users.FirstOrDefault(u => u.Username == username);
 
-                ViewBag.Message = "Đăng nhập sinh viên thành công!";
+            if (user != null && user.Role == "Student" && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            {
+                Session["UserID"] = user.UserID;
+                Session["Role"] = user.Role;
                 return RedirectToAction("Index", "Home");
             }
 
             ViewBag.Message = "Sai tài khoản hoặc mật khẩu sinh viên.";
             return View();
         }
+
+        // ===== GET: Login Admin =====
         public ActionResult LoginAdmin()
         {
             return View();
@@ -257,7 +221,8 @@ namespace KTXSV.Controllers
         public ActionResult LoginAdmin(string username, string password)
         {
             var admin = db.Users.FirstOrDefault(u => u.Username == username && u.Role == "Admin");
-            if (admin != null && admin.PasswordHash == password)
+
+            if (admin != null && BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
             {
                 Session["UserID"] = admin.UserID;
                 Session["Role"] = admin.Role;
@@ -267,15 +232,16 @@ namespace KTXSV.Controllers
             ViewBag.Message = "Sai tài khoản hoặc mật khẩu admin.";
             return View();
         }
+
+        // ===== POST: Logout =====
         [HttpPost]
         public ActionResult Logout()
         {
-            Session.Clear(); // hoặc Session.Abandon();
-            return RedirectToAction("Index", "Account"); // trả về trang đăng nhập sinh viên
+            Session.Clear();
+            return RedirectToAction("LoginStudent", "Account");
         }
 
-
-
+        // ===== Quên mật khẩu =====
         public ActionResult ForgotPassword()
         {
             return View();
@@ -291,34 +257,22 @@ namespace KTXSV.Controllers
                 return RedirectToAction("ForgotPassword");
             }
 
-            // Các xử lý tiếp theo nếu email hợp lệ
-            TempData["Message"] = "Mã xác minh đã được gửi đến email của bạn.";
-
-
-
-            // Tạo mã xác minh ngẫu nhiên 6 chữ số
             string otp = new Random().Next(100000, 999999).ToString();
-
-            // Lưu mã OTP và thời gian hết hạn (5 phút)
             Session["OTP"] = otp;
             Session["EmailReset"] = Email;
             Session["OTPExpire"] = DateTime.Now.AddMinutes(5);
 
-            // Gửi email xác minh
             SendEmail(Email, "Mã xác nhận đặt lại mật khẩu",
                 $"<h3>Mã xác nhận của bạn là: <b>{otp}</b></h3><p>Có hiệu lực trong 5 phút.</p>");
 
+            TempData["Message"] = "Mã xác minh đã được gửi đến email của bạn.";
             return RedirectToAction("VerifyOTP");
         }
 
-        // GET: VerifyOTP
+        // ===== Xác minh OTP =====
         [HttpGet]
-        public ActionResult VerifyOTP()
-        {
-            return View();
-        }
+        public ActionResult VerifyOTP() => View();
 
-        // POST: VerifyOTP
         [HttpPost]
         public ActionResult VerifyOTP(string otp)
         {
@@ -340,14 +294,10 @@ namespace KTXSV.Controllers
             return RedirectToAction("ResetPassword");
         }
 
-        // GET: ResetPassword
+        // ===== Đặt lại mật khẩu =====
         [HttpGet]
-        public ActionResult ResetPassword()
-        {
-            return View();
-        }
+        public ActionResult ResetPassword() => View();
 
-        // POST: ResetPassword
         [HttpPost]
         public ActionResult ResetPassword(string NewPassword, string ConfirmPassword)
         {
@@ -365,10 +315,9 @@ namespace KTXSV.Controllers
                 return View();
             }
 
-            user.PasswordHash = NewPassword; // hoặc mã hóa lại nếu có
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(NewPassword);
             db.SaveChanges();
 
-            // Xóa session
             Session.Remove("OTP");
             Session.Remove("EmailReset");
             Session.Remove("OTPExpire");
@@ -376,13 +325,13 @@ namespace KTXSV.Controllers
             return RedirectToAction("LoginStudent", "Account");
         }
 
-        // Hàm gửi email xác minh
+        // ===== Hàm gửi email =====
         private bool SendEmail(string toEmail, string subject, string body)
         {
             try
             {
-                string fromEmail = "thieutrungkien59@gmail.com"; // Gmail gửi đi
-                string appPassword = "tcyh ukgf ugys ochz";    // App password 16 ký tự
+                string fromEmail = "thieutrungkien59@gmail.com";
+                string appPassword = "dgmy jntq fyix zmgu";
 
                 MailMessage mail = new MailMessage();
                 mail.From = new MailAddress(fromEmail, "Ban quản lý KTX");
@@ -409,7 +358,7 @@ namespace KTXSV.Controllers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("General Error: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Email Error: " + ex.Message);
                 return false;
             }
         }

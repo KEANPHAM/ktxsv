@@ -27,6 +27,7 @@ namespace KTXSV.Models
         public Nullable<System.DateTime> EndDate { get; set; }
         public string Status { get; set; }
         public Nullable<int> BedID { get; set; }
+        public string Note { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Payment> Payments { get; set; }

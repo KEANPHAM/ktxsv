@@ -1,6 +1,37 @@
-﻿
+﻿@model KTXSV.Models.User
 @{
-    ViewBag.Title = "ChinhSuaThongTin";
+    ViewBag.Title = "Chỉnh Sửa Thông Tin";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h2> chỉnh sửa thông tin</h2>
+
+<h2 class="text-center mt-3">Chỉnh Sửa Thông Tin Cá Nhân</h2>
+<div class="container mt-4">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.UserID)
+
+        <div class="form-group">
+            <label>Họ tên</label>
+            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group mt-3">
+            <label>Giới tính</label>
+            @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female" }), "-- Chọn giới tính --", new { @class = "form-control" })
+        </div>
+
+        <div class="form-group mt-3">
+            <label>Email</label>
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group mt-3">
+            <label>Số điện thoại</label>
+            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+        </div>
+
+        <button type="submit" class="btn btn-success mt-4">Lưu thay đổi</button>
+        <a href="@Url.Action("ThongTinCaNhan", "SinhVien")" class="btn btn-secondary mt-4">Hủy</a>
+    }
+</div>

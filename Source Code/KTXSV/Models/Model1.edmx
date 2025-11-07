@@ -46,6 +46,7 @@
           <Property Name="EndDate" Type="date" />
           <Property Name="Status" Type="varchar" MaxLength="20" />
           <Property Name="BedID" Type="int" />
+          <Property Name="Note" Type="nvarchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="Rooms">
           <Key>
@@ -83,6 +84,16 @@
           <Property Name="CreatedAt" Type="datetime" />
           <Property Name="Reply" Type="nvarchar(max)" />
         </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
+        </EntityType>
         <EntityType Name="Users">
           <Key>
             <PropertyRef Name="UserID" />
@@ -97,6 +108,7 @@
           <Property Name="Role" Type="varchar" MaxLength="20" />
           <Property Name="CreatedAt" Type="datetime" />
           <Property Name="CCCD" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="BirthDate" Type="date" />
         </EntityType>
         <Association Name="FK__Bed__RoomID__66603565">
           <End Role="Rooms" Type="Self.Rooms" Multiplicity="1" />
@@ -198,6 +210,7 @@
           <EntitySet Name="Rooms" EntityType="Self.Rooms" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StudentFiles" EntityType="Self.StudentFiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SupportRequests" EntityType="Self.SupportRequests" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__Bed__RoomID__66603565" Association="Self.FK__Bed__RoomID__66603565">
             <End Role="Rooms" EntitySet="Rooms" />
@@ -269,6 +282,7 @@
           <NavigationProperty Name="User" Relationship="Self.FK__Registrat__UserI__48CFD27E" FromRole="Registrations" ToRole="Users" />
           <Property Name="BedID" Type="Int32" />
           <NavigationProperty Name="Bed" Relationship="KTXSVModel.FK_Registrations_Bed" FromRole="Registration" ToRole="Bed" />
+          <Property Name="Note" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Room">
           <Key>
@@ -329,6 +343,7 @@
           <NavigationProperty Name="StudentFiles" Relationship="Self.FK__StudentFi__UserI__5AEE82B9" FromRole="Users" ToRole="StudentFiles" />
           <NavigationProperty Name="SupportRequests" Relationship="Self.FK__SupportRe__UserI__60A75C0F" FromRole="Users" ToRole="SupportRequests" />
           <Property Name="CCCD" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="BirthDate" Type="DateTime" Precision="0" />
         </EntityType>
         <Association Name="FK__Payments__RegID__5165187F">
           <End Role="Registrations" Type="Self.Registration" Multiplicity="1">
@@ -453,6 +468,7 @@
             <End Role="Bed" EntitySet="Beds" />
             <End Role="Registration" EntitySet="Registrations" />
           </AssociationSet>
+          <EntitySet Name="sysdiagrams" EntityType="KTXSVModel.sysdiagram" />
         </EntityContainer>
         <EntityType Name="Bed">
           <Key>
@@ -489,6 +505,16 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -521,6 +547,7 @@
           <EntitySetMapping Name="Registrations">
             <EntityTypeMapping TypeName="KTXSVModel.Registration">
               <MappingFragment StoreEntitySet="Registrations">
+                <ScalarProperty Name="Note" ColumnName="Note" />
                 <ScalarProperty Name="BedID" ColumnName="BedID" />
                 <ScalarProperty Name="RegID" ColumnName="RegID" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
@@ -573,6 +600,7 @@
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="KTXSVModel.User">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="BirthDate" ColumnName="BirthDate" />
                 <ScalarProperty Name="CCCD" ColumnName="CCCD" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
                 <ScalarProperty Name="Username" ColumnName="Username" />
@@ -593,6 +621,17 @@
                 <ScalarProperty Name="BedNumber" ColumnName="BedNumber" />
                 <ScalarProperty Name="RoomID" ColumnName="RoomID" />
                 <ScalarProperty Name="BedID" ColumnName="BedID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="KTXSVModel.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="definition" ColumnName="definition" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

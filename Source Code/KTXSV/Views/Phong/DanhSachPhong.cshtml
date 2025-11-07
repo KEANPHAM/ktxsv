@@ -57,10 +57,12 @@
             background-color: #6c757d !important;
             color: white !important;
         }
+
     .label {
         display: inline-block;
-        width: 120px; 
+        width: 120px;
     }
+
     .badge {
         margin: 0 0 16px;
         border-radius: 10px;
@@ -123,7 +125,7 @@
                         }
                         else if (item.Status == "Canceled")
                         {
-                            <span  class="badge bg-danger-subtle">Đã hủy</span>
+                            <span class="badge bg-danger-subtle">Đã hủy</span>
                         }
 
 
@@ -173,3 +175,37 @@
         });
     });
 </script>
+@*<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".btnCancel").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const form = this.closest("form");
+                    const room = this.getAttribute("data-room") || "";
+
+                    $.confirm({
+                        title: 'Xác nhận hủy',
+                        content: room ?
+                            `Bạn có chắc chắn muốn hủy đăng ký phòng <strong>${room}</strong>?` :
+                            'Bạn có chắc chắn muốn hủy đăng ký phòng này không?',
+                        type: 'orange',
+                        buttons: {
+                            confirm: {
+                                text: 'Hủy đăng ký',
+                                btnClass: 'btn1 btn1-danger',
+                                action: function () {
+                                    form.submit();
+                                }
+                            },
+                            cancel: {
+                                text: 'Không',
+                                btnClass: 'btn1 btn1-cancel'
+                            }
+                        },
+                        columnClass: 'small',
+                        backgroundDismiss: true
+                    });
+                });
+            });
+        });
+    </script>
+*@
