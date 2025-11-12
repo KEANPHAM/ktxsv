@@ -33,64 +33,109 @@ namespace KTXSV.Controllers.Admin
             }
         }
 
-        public ActionResult Index()
+        //public ActionResult Index()
+        //{
+        //    if (Session["UserID"] == null)
+        //    {
+        //        return RedirectToAction("LoginStudent", "Account");
+        //    }
+
+        //    int userID;
+        //    if (!int.TryParse(Session["UserID"].ToString(), out userID))
+        //    {
+        //        return RedirectToAction("LoginStudent", "Account");
+        //    }
+
+        //    var user = db.Users.Find(userID);
+        //    if (user == null)
+        //    {
+        //        return RedirectToAction("LoginStudent", "Account");
+        //    }
+
+        //    ViewBag.Username = user.Username;
+        //    ViewBag.FullName = user.FullName;
+        //    ViewBag.Email = user.Email;
+
+        //    return View();
+        //}
+
+        // GET: PaymentAdmin
+        //public ActionResult Index(string search, string type, string status, DateTime? date)
+        //{
+        //    var payments = db.Payments
+        //        .Include(p => p.Registration.User)
+        //        .Include(p => p.Registration.Room)
+        //        .AsQueryable();
+
+        //    if (!string.IsNullOrEmpty(search))
+        //    {
+        //        payments = payments.Where(p => p.Registration.User.FullName.Contains(search));
+        //    }
+
+        //    if (!string.IsNullOrEmpty(type))
+        //    {
+        //        payments = payments.Where(p => p.Type == type);
+        //    }
+
+        //    if (!string.IsNullOrEmpty(status))
+        //    {
+        //        payments = payments.Where(p => p.Status == status);
+        //    }
+
+        //    if (date.HasValue)
+        //    {
+        //        payments = payments.Where(p => DbFunctions.TruncateTime(p.PaymentDate) == date.Value.Date);
+        //    }
+
+        //    return View(payments.OrderByDescending(p => p.PaymentDate).ToList());
+        //}
+
+        // GET: PaymentAdmin/Details/5
+
+        // GET: PaymentAdmin
+
+        // GET: PaymentAdmin
+        [HttpGet]
+        public ActionResult Index(string search = "", string type = "", string status = "", DateTime? date = null)
         {
             if (Session["UserID"] == null)
-            {
                 return RedirectToAction("LoginStudent", "Account");
-            }
 
             int userID;
             if (!int.TryParse(Session["UserID"].ToString(), out userID))
-            {
                 return RedirectToAction("LoginStudent", "Account");
-            }
 
+            // (Tuỳ chọn) kiểm tra có phải Admin không, nếu cần
             var user = db.Users.Find(userID);
-            if (user == null)
-            {
+            if (user == null /* || user.Role != "Admin" */)
                 return RedirectToAction("LoginStudent", "Account");
-            }
 
+            // Fill thông tin header (bạn đã có trong OnActionExecuting nên đoạn dưới thực ra không bắt buộc)
             ViewBag.Username = user.Username;
             ViewBag.FullName = user.FullName;
             ViewBag.Email = user.Email;
 
-            return View();
-        }
-
-        // GET: PaymentAdmin
-        public ActionResult Index(string search, string type, string status, DateTime? date)
-        {
             var payments = db.Payments
                 .Include(p => p.Registration.User)
                 .Include(p => p.Registration.Room)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(search))
-            {
+            if (!string.IsNullOrWhiteSpace(search))
                 payments = payments.Where(p => p.Registration.User.FullName.Contains(search));
-            }
 
-            if (!string.IsNullOrEmpty(type))
-            {
+            if (!string.IsNullOrWhiteSpace(type))
                 payments = payments.Where(p => p.Type == type);
-            }
 
-            if (!string.IsNullOrEmpty(status))
-            {
+            if (!string.IsNullOrWhiteSpace(status))
                 payments = payments.Where(p => p.Status == status);
-            }
 
             if (date.HasValue)
-            {
                 payments = payments.Where(p => DbFunctions.TruncateTime(p.PaymentDate) == date.Value.Date);
-            }
 
             return View(payments.OrderByDescending(p => p.PaymentDate).ToList());
         }
 
-        // GET: PaymentAdmin/Details/5
+
         public ActionResult Details(int? id)
         {
             if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);

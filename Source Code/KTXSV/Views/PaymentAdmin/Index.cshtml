@@ -70,34 +70,34 @@
                 var index = 1;
                 foreach (var p in Model)
                 {
-                    <tr>
-                        <td>@index</td>
-                        <td>@p.PaymentID</td>
-                        <td>@p.Registration?.User?.FullName</td>
-                        <td>@(p.Registration?.Room != null ? p.Registration.Room.RoomNumber : "-")</td>
-                        <td>@p.Type</td>
-                        <td class="text-end">@String.Format("{0:N0}", p.Amount)</td>
-                        <td>@(p.PaymentDate.HasValue ? p.PaymentDate.Value.ToString("dd/MM/yyyy") : "-")</td>
-                        <td class="text-center">
-                            @if (p.Status == "Paid")
-                            {
-                                <span class="badge bg-success">Đã thanh toán</span>
-                            }
-                            else if (p.Status == "Overdue")
-                            {
-                                <span class="badge bg-danger">Quá hạn</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">Chưa thanh toán</span>
-                            }
-                        </td>
-                        <td class="text-center">
-                            @Html.ActionLink("👁", "Details", new { id = p.PaymentID }, new { @class = "btn btn-info btn-sm me-1" })
-                            @Html.ActionLink("✏️", "Edit", new { id = p.PaymentID }, new { @class = "btn btn-warning btn-sm me-1" })
-                            @Html.ActionLink("❌", "Delete", new { id = p.PaymentID }, new { @class = "btn btn-danger btn-sm" })
-                        </td>
-                    </tr>
+        <tr>
+            <td>@index</td>
+            <td>@p.PaymentID</td>
+            <td>@(p.Registration != null && p.Registration.User != null ? p.Registration.User.FullName : "-")</td>
+            <td>@(p.Registration?.Room != null ? p.Registration.Room.RoomNumber : "-")</td>
+            <td>@p.Type</td>
+            <td class="text-end">@String.Format("{0:N0}", p.Amount)</td>
+            <td>@(p.PaymentDate.HasValue ? p.PaymentDate.Value.ToString("dd/MM/yyyy") : "-")</td>
+            <td class="text-center">
+                @if (p.Status == "Paid")
+                {
+                    <span class="badge bg-success">Đã thanh toán</span>
+                }
+                else if (p.Status == "Overdue")
+                {
+                    <span class="badge bg-danger">Quá hạn</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark">Chưa thanh toán</span>
+                }
+            </td>
+            <td class="text-center">
+                @Html.ActionLink("Details", "Details", new { id = p.PaymentID }, new { @class = "btn btn-info btn-sm me-1" })
+                @Html.ActionLink("Edit", "Edit", new { id = p.PaymentID }, new { @class = "btn btn-warning btn-sm me-1" })
+                @Html.ActionLink("Delete", "Delete", new { id = p.PaymentID }, new { @class = "btn btn-danger btn-sm" })
+            </td>
+        </tr>
                     index++;
                 }
             }
