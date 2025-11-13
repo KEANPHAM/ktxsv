@@ -19,5 +19,10 @@ namespace KTXSV.Models
         public string Content { get; set; }
         public Nullable<System.DateTime> CreatedAt { get; set; }
         public string TargetRole { get; set; }
+        public Nullable<int> UserID { get; set; }
+        public bool IsRead { get; set; }
+        public string Url { get; set; }
+    
+        public virtual User User { get; set; }
     }
 }

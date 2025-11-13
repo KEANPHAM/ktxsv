@@ -15,7 +15,11 @@
         <dt class="col-sm-3">Mã hóa đơn</dt>
         <dd class="col-sm-9">@Model.PaymentID</dd>
         <dt class="col-sm-3">Sinh viên</dt>
-        <dd class="col-sm-9">@Model.Registration?.User?.FullName</dd>
+        <dd class="col-sm-9">
+            @((Model.Registration != null && Model.Registration.User != null)
+        ? Model.Registration.User.FullName
+        : "-")
+        </dd>
         <dt class="col-sm-3">Số tiền</dt>
         <dd class="col-sm-9">@String.Format("{0:N0}", Model.Amount) VNĐ</dd>
     </dl>
