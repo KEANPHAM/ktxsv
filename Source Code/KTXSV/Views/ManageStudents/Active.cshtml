@@ -81,7 +81,7 @@
 <h2 class="m-2 mb-4">Quản lý sinh viên</h2>
 <p>
     <a href="@Url.Action("Create")" class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Thêm sinh viên mới
+       Thêm sinh viên mới
     </a>
 </p>
 
@@ -124,7 +124,7 @@
     </div>
 }
 
-<table class="table table-bordered table-striped">
+<table class="table table-bordered ">
     <thead>
         <tr>
             <th>STT</th>
@@ -170,7 +170,7 @@
                 <td>@(student.CreatedAt.HasValue ? student.CreatedAt.Value.ToString("dd/MM/yyyy") : "Chưa có")</td>
                 <td>
                     <a href="@Url.Action("Details","ManageStudents", new { id=student.UserID })" class="btn btn-outline-secondary">Chi tiết</a>
-                    <a href="@Url.Action("Edit","ManageStudents", new { id=student.UserID })" class="btn btn-outline-success">Sửa</a>
+                    <a href="@Url.Action("Edit","ManageStudents", new { id=student.UserID })" class="btn btn-outline-secondary">Sửa</a>
                     @using (Html.BeginForm("Delete", "ManageStudents", new { id = student.UserID }, FormMethod.Post, new { @class = "d-inline" }))
                     {
                         @Html.AntiForgeryToken()

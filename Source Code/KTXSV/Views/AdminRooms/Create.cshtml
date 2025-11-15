@@ -59,7 +59,7 @@
         <!-- Số phòng -->
         <div class="form-group mb-3">
             @Html.LabelFor(m => m.RoomNumber)
-            @Html.TextBoxFor(m => m.RoomNumber, new { @class = "form-control", placeholder = "VD: 101" })
+            @Html.TextBoxFor(m => m.RoomNumber, new { @class = "form-control", placeholder = "VD: A0101" })
             @Html.ValidationMessageFor(m => m.RoomNumber, "", new { @class = "text-danger small" })
         </div>
 
@@ -73,9 +73,9 @@
         <!-- Giá phòng -->
         <div class="form-group mb-3">
             @Html.LabelFor(m => m.Price)
-            @Html.TextBoxFor(m => m.Price, new { @class = "form-control", placeholder = "VD: 1500000" })
+            @Html.TextBoxFor(m => m.Price, new { @class = "form-control", placeholder = "VD: 1000000" })
             @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger small" })
-        </div>
+        </div>      
 
         <!-- Trạng thái -->
         <div class="form-group mb-4">

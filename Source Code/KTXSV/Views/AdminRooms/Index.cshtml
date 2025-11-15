@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2 class="text-center text-primary mb-4">Danh sách phòng ký túc xá</h2>
+<h2 class="text-center fw-bold  mb-4" style="color: #EE6328">Danh sách phòng ký túc xá</h2>
 
 <p>
     <a href="@Url.Action("Create")" class="btn btn-success">
@@ -80,7 +80,7 @@
                 <td>@(room.Gender == "Male" ? "Nam" : "Nữ")</td>
                 <td>@room.Capacity</td>
                 <td>@room.Occupied</td>
-                <td class="text-end">@String.Format("{0:N0} đ", room.Price)</td>
+                <td class="text-end">@String.Format("{0:N0} VNĐ", room.Price)</td>
                 <td>
                     @if (room.Status == "Available")
                     {<span class="badge bg-success">Còn trống</span> }
@@ -90,8 +90,8 @@
                     { <span class="badge bg-secondary">Bảo trì</span>}
                 </td>
                 <td>
-                    <a href="@Url.Action("Details", new { id = room.RoomID })" class="btn btn-outline-info btn-sm">Chi tiết</a>
-                    <a href="@Url.Action("Edit", new { id = room.RoomID })" class="btn btn-outline-warning btn-sm">Sửa</a>
+                    <a href="@Url.Action("Details", new { id = room.RoomID })" class="btn btn-outline-secondary btn-sm">Chi tiết</a>
+                    <a href="@Url.Action("Edit", new { id = room.RoomID })" class="btn btn-outline-secondary btn-sm">Sửa</a>
                     <a href="@Url.Action("Delete", new { id = room.RoomID })" class="btn btn-outline-danger btn-sm">Xóa</a>
                 </td>
             </tr>

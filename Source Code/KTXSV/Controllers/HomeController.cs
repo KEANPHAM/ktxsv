@@ -32,8 +32,12 @@ namespace KTXSV.Controllers
             ViewBag.FullName = user.FullName;
             ViewBag.Email = user.Email;
 
-            return View();
+            var thongBao = db.Notifications.Where(n => n.TargetRole == "All" || n.TargetRole == user.Role)
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(4).ToList();
+            return View(thongBao);
         }
+        
 
     }
 }

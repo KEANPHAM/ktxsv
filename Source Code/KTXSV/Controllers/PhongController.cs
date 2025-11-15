@@ -143,8 +143,15 @@ namespace KTXSV.Controllers
                 bed.IsOccupied = true;
                 db.SaveChanges();
 
-
-
+                var thongBao = new Notification
+                {
+                    Title = "Đăng ký phòng thành công",
+                    Content = $"Đăng ký thành công phòng {dangKyMoi.Room.RoomNumber}, Tòa {dangKyMoi.Room.Building}, Giường  {dangKyMoi.Bed.BedNumber}",
+                    CreatedAt = DateTime.Now,
+                    TargetRole = "Student"
+                };
+                db.Notifications.Add(thongBao);
+                db.SaveChanges();
 
                 var thanhToanMoi = new Payment
                 {
@@ -222,7 +229,15 @@ namespace KTXSV.Controllers
             {
                 TempData["Error"] = "Không thể hủy đăng ký đã bị từ chối hoặc không tồn tại.";
             }
-
+            var thongBao = new Notification
+            {
+                Title = "Hủy đăng ký phòng ",
+                Content = $"Hủy đăng ký phòng {reg.Room.RoomNumber}, Tòa {reg.Room.Building}, Giường  {reg.Bed.BedNumber}",
+                CreatedAt = DateTime.Now,
+                TargetRole = "Student"
+            };
+            db.Notifications.Add(thongBao);
+            db.SaveChanges();
             return RedirectToAction("DanhSachPhong");
         }
 
