@@ -8,8 +8,8 @@
 <div class="container mt-4">
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">🧾 Thêm hóa đơn mới</h4>
-            <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-light btn-sm">⬅ Quay lại</a>
+            <h4 class="mb-0"> Thêm hóa đơn mới</h4>
+            <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-light btn-sm">Quay lại</a>
         </div>
 
         <div class="card-body">
@@ -33,9 +33,22 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Loại thanh toán</label>
-                    @Html.EditorFor(model => model.Type, new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: Tiền phòng, Điện, Nước..." } })
+                    @Html.DropDownListFor(model => model.Type,
+                        new SelectList(
+                            new[] {
+                                new { Value = "Rent",        Text = "Tiền phòng" },
+                                new { Value = "Electricity", Text = "Tiền điện" },
+                                new { Value = "Water",       Text = "Tiền nước" },
+                                new { Value = "Other",       Text = "Khác" }
+                            },
+                            "Value", "Text"
+                        ),
+                        "-- Chọn loại thanh toán --",
+                        new { @class = "form-select" }
+                    )
                     @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
                 </div>
+
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Ngày tạo hóa đơn</label>
@@ -57,10 +70,10 @@
 
                 <div class="text-end mt-4">
                     <button type="submit" class="btn btn-success px-4">
-                        💾 Lưu hóa đơn
+                        Lưu hóa đơn
                     </button>
                     <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-outline-secondary px-4">
-                        ❌ Hủy
+                        Hủy
                     </a>
                 </div>
             }

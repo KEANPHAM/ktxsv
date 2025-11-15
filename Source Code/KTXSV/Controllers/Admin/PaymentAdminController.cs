@@ -33,64 +33,47 @@ namespace KTXSV.Controllers.Admin
             }
         }
 
-        public ActionResult Index()
+        [HttpGet]
+        public ActionResult Index(string search = "", string type = "", string status = "", DateTime? date = null)
         {
             if (Session["UserID"] == null)
-            {
                 return RedirectToAction("LoginStudent", "Account");
-            }
 
             int userID;
             if (!int.TryParse(Session["UserID"].ToString(), out userID))
-            {
                 return RedirectToAction("LoginStudent", "Account");
-            }
 
+            // (Tuỳ chọn) kiểm tra có phải Admin không, nếu cần
             var user = db.Users.Find(userID);
-            if (user == null)
-            {
+            if (user == null /* || user.Role != "Admin" */)
                 return RedirectToAction("LoginStudent", "Account");
-            }
 
+            // Fill thông tin header (bạn đã có trong OnActionExecuting nên đoạn dưới thực ra không bắt buộc)
             ViewBag.Username = user.Username;
             ViewBag.FullName = user.FullName;
             ViewBag.Email = user.Email;
 
-            return View();
-        }
-
-        // GET: PaymentAdmin
-        public ActionResult Index(string search, string type, string status, DateTime? date)
-        {
             var payments = db.Payments
                 .Include(p => p.Registration.User)
                 .Include(p => p.Registration.Room)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(search))
-            {
+            if (!string.IsNullOrWhiteSpace(search))
                 payments = payments.Where(p => p.Registration.User.FullName.Contains(search));
-            }
 
-            if (!string.IsNullOrEmpty(type))
-            {
+            if (!string.IsNullOrWhiteSpace(type))
                 payments = payments.Where(p => p.Type == type);
-            }
 
-            if (!string.IsNullOrEmpty(status))
-            {
+            if (!string.IsNullOrWhiteSpace(status))
                 payments = payments.Where(p => p.Status == status);
-            }
 
             if (date.HasValue)
-            {
                 payments = payments.Where(p => DbFunctions.TruncateTime(p.PaymentDate) == date.Value.Date);
-            }
 
             return View(payments.OrderByDescending(p => p.PaymentDate).ToList());
         }
 
-        // GET: PaymentAdmin/Details/5
+
         public ActionResult Details(int? id)
         {
             if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -120,16 +103,87 @@ namespace KTXSV.Controllers.Admin
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "PaymentID,RegID,Amount,Type,PaymentDate,Status")] Payment payment)
         {
+            // 1. Validate theo CHECK constraint trong DB
+            var validTypes = new[] { "Rent", "Electricity", "Water", "Other" };
+            var validStatuses = new[] { "Paid", "Unpaid", "Overdue", "owe" };
+
+            if (!validTypes.Contains(payment.Type))
+                ModelState.AddModelError("Type", "Loại thanh toán không hợp lệ.");
+
+            if (!validStatuses.Contains(payment.Status))
+                ModelState.AddModelError("Status", "Trạng thái không hợp lệ.");
+
+            if (payment.Amount < 0)
+                ModelState.AddModelError("Amount", "Số tiền phải >= 0.");
+
+            if (!payment.PaymentDate.HasValue)
+                payment.PaymentDate = DateTime.Now;   // nếu để trống thì tự lấy ngày hôm nay
+
             if (ModelState.IsValid)
             {
-                db.Payments.Add(payment);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                try
+                {
+                    // 2. Lưu hóa đơn vào bảng Payments
+                    db.Payments.Add(payment);
+                    db.SaveChanges();   // lúc này PaymentID đã có
+
+                    // 3. Lấy thông tin đăng ký để biết sinh viên + phòng
+                    var reg = db.Registrations
+                                .Include(r => r.User)
+                                .Include(r => r.Room)
+                                .FirstOrDefault(r => r.RegID == payment.RegID);
+
+                    // 4. Tạo thông báo cho đúng sinh viên
+                    if (reg != null && reg.User != null)
+                    {
+                        var noti = new Notification
+                        {
+                            Title = "Hóa đơn ký túc xá mới",
+                            Content = string.Format(
+                                "Bạn có hóa đơn {0} phòng {1} tòa {2}, số tiền {3:N0} VND, ngày thanh toán {4}.",
+                                payment.Type,
+                                reg.Room?.RoomNumber,
+                                reg.Room?.Building,
+                                payment.Amount,
+                                payment.PaymentDate.Value.ToString("dd/MM/yyyy")
+                            ),
+                            CreatedAt = DateTime.Now,
+                            TargetRole = "Student",
+
+                            // 3 cột mới của bảng Notifications
+                            UserID = reg.UserID,       // gửi cho đúng sinh viên
+                            IsRead = false,            // mặc định chưa đọc
+                            Url = "/ThanhToan/Index"   // khi bấm thông báo sẽ dẫn tới trang thanh toán
+                        };
+
+                        db.Notifications.Add(noti);
+                        db.SaveChanges();
+                    }
+
+                    // 5. Thông báo lại cho admin
+                    TempData["SuccessMessage"] = "Lưu hóa đơn và gửi thông báo cho sinh viên thành công.";
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Không lưu được hóa đơn. Lý do: " + ex.Message);
+                }
             }
 
-            ViewBag.RegID = new SelectList(db.Registrations, "RegID", "RegID", payment.RegID);
+            // Nếu có lỗi, load lại dropdown RegID và trả về view
+            ViewBag.RegID = new SelectList(
+                db.Registrations.Include(r => r.User).Include(r => r.Room)
+                .Select(r => new
+                {
+                    RegID = r.RegID,
+                    DisplayText = r.User.FullName + " - Phòng " + r.Room.RoomNumber + " (" + r.Room.Building + ")"
+                }).ToList(),
+                "RegID", "DisplayText", payment.RegID
+            );
+
             return View(payment);
         }
+
 
         // GET: PaymentAdmin/Edit/5
         public ActionResult Edit(int? id)

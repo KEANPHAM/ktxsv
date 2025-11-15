@@ -6,14 +6,18 @@
 }
 
 <div class="container mt-4">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Quản lý thanh toán ký túc xá</h2>
-        <div>
-            @Html.ActionLink(" Thêm mới", "Create", null, new { @class = "btn btn-success me-2" })
-            <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-secondary"> Làm mới</a>
-        </div>
     </div>
-
     <form method="get" action="@Url.Action("Index", "PaymentAdmin")" class="row g-2 align-items-end mb-4">
         <div class="col-md-3">
             <input type="text" name="search" class="form-control" placeholder="Tên sinh viên..." />
@@ -41,6 +45,11 @@
         <div class="col-md-3 text-end">
             <button type="submit" class="btn btn-primary me-2">Lọc</button>
             <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+        </div>
+
+
+        <div class="mb-3">
+            @Html.ActionLink("Thêm mới hóa đơn", "Create", null, new { @class = "btn btn-success" })
         </div>
     </form>
 
@@ -73,7 +82,7 @@
                     <tr>
                         <td>@index</td>
                         <td>@p.PaymentID</td>
-                        <td>@p.Registration?.User?.FullName</td>
+                        <td>@(p.Registration != null && p.Registration.User != null ? p.Registration.User.FullName : "-")</td>
                         <td>@(p.Registration?.Room != null ? p.Registration.Room.RoomNumber : "-")</td>
                         <td>@p.Type</td>
                         <td class="text-end">@String.Format("{0:N0}", p.Amount)</td>
@@ -93,9 +102,9 @@
                             }
                         </td>
                         <td class="text-center">
-                            @Html.ActionLink("👁", "Details", new { id = p.PaymentID }, new { @class = "btn btn-info btn-sm me-1" })
-                            @Html.ActionLink("✏️", "Edit", new { id = p.PaymentID }, new { @class = "btn btn-warning btn-sm me-1" })
-                            @Html.ActionLink("❌", "Delete", new { id = p.PaymentID }, new { @class = "btn btn-danger btn-sm" })
+                            @Html.ActionLink("Details", "Details", new { id = p.PaymentID }, new { @class = "btn btn-info btn-sm me-1" })
+                            @Html.ActionLink("Edit", "Edit", new { id = p.PaymentID }, new { @class = "btn btn-warning btn-sm me-1" })
+                            @Html.ActionLink("Delete", "Delete", new { id = p.PaymentID }, new { @class = "btn btn-danger btn-sm" })
                         </td>
                     </tr>
                     index++;

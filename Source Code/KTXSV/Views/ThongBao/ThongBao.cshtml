@@ -1,9 +1,44 @@
-﻿@model KTXSV.Models.Notification
+﻿@model IEnumerable<KTXSV.Models.Notification>
 
 @{
-    ViewBag.Title = "ThongBao";
+    ViewBag.Title = "Thông báo";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>ThongBao</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">Thông báo</h2>
 
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Hiện tại bạn chưa có thông báo nào.
+        </div>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var n in Model)
+            {
+                <div class="list-group-item mb-2">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="mb-1">@n.Title</h5>
+                        <small class="text-muted">
+                            @(n.CreatedAt.HasValue ? n.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                        </small>
+
+                    </div>
+
+                    <p class="mb-1">@n.Content</p>
+
+                    @* Nếu có Url (VD: /ThanhToan/Index) thì hiện nút “Xem chi tiết” *@
+                    @if (!string.IsNullOrEmpty(n.Url))
+                    {
+                        <a href="@n.Url" class="btn btn-sm btn-outline-primary">
+                            Xem chi tiết
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
