@@ -42,51 +42,44 @@
     @Html.AntiForgeryToken()
 
     <div class="bg-b shadow-sm p-4 bg-white">
-        <!-- Tòa nhà -->
         <div class="form-group mb-3">
-            @Html.LabelFor(m => m.Building)
-            <input type="text" id="Building" name="Building" class="form-control" placeholder="VD: A/B"  />
+            <label class="form-label fw-semibold">Tòa nhà</label>
+            <input type="text" id="Building" name="Building" class="form-control" placeholder="VD: A/B" />
             @Html.ValidationMessageFor(m => m.Building, "", new { @class = "text-danger small" })
         </div>
 
-        <!-- Giới tính -->
         <div class="form-group mb-3">
             <label class="form-label fw-semibold">Giới tính</label>
             <input type="text" id="GenderDisplay" class="form-control" value="@((Model?.Building?.Trim().ToUpper() == "A") ? "Nam" : "Nữ")" readonly />
             <input type="hidden" id="Gender" name="Gender" value="@((Model?.Building?.Trim().ToUpper() == "A") ? "Male" : "Female")" />
         </div>
 
-        <!-- Số phòng -->
         <div class="form-group mb-3">
-            @Html.LabelFor(m => m.RoomNumber)
+            <label class="form-label fw-semibold">Số phòng</label>
             @Html.TextBoxFor(m => m.RoomNumber, new { @class = "form-control", placeholder = "VD: A0101" })
             @Html.ValidationMessageFor(m => m.RoomNumber, "", new { @class = "text-danger small" })
         </div>
 
-        <!-- Số giường tối đa -->
         <div class="form-group mb-3">
-            @Html.LabelFor(m => m.Capacity)
+            <label class="form-label fw-semibold">Sức chứa tối đa</label>
             @Html.TextBoxFor(m => m.Capacity, new { @class = "form-control", placeholder = "VD: 4" })
             @Html.ValidationMessageFor(m => m.Capacity, "", new { @class = "text-danger small" })
         </div>
 
-        <!-- Giá phòng -->
         <div class="form-group mb-3">
-            @Html.LabelFor(m => m.Price)
+            <label class="form-label fw-semibold">Giá phòng</label>
             @Html.TextBoxFor(m => m.Price, new { @class = "form-control", placeholder = "VD: 1000000" })
             @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger small" })
         </div>      
 
-        <!-- Trạng thái -->
         <div class="form-group mb-4">
-            @Html.LabelFor(m => m.Status)
+            <label class="form-label fw-semibold">Trạng thái</label>
             @Html.DropDownListFor(m => m.Status,
                 new SelectList(new[] { "Available", "Full", "Maintenance" }),
                 "Chọn trạng thái", new { @class = "form-select" })
             @Html.ValidationMessageFor(m => m.Status, "", new { @class = "text-danger small" })
         </div>
 
-        <!-- Nút submit / hủy -->
         <div class="text-start">
             <button type="submit" class="btn btn1 px-4 me-2">
                 <i class="bi bi-plus-circle"></i> Thêm phòng

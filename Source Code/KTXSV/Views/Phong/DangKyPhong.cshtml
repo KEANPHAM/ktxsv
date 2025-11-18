@@ -2,11 +2,11 @@
 @{
     ViewBag.Title = "Đăng ký phòng ký túc xá";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var pendingBedIds = ViewBag.PendingBedIds as List<int> ?? new List<int>();
 }
 <link href="~/Content/btn1.css" rel="stylesheet" />
+
 <style>
-
-
     .bed-select.active {
         background-color: #EE6823 !important;
         color: #fff !important;
@@ -14,41 +14,22 @@
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
-    .list-group-item {
-        border: none !important;
-    }
-
-    .card {
+    .list-group-item, .card {
         border: none !important;
         border-radius: 20px !important;
         overflow: hidden;
     }
 
     .card-header {
-        border-top-left-radius: 20px !important;
-        border-top-right-radius: 20px !important;
-    }
-
-    .card-footer {
-        border-bottom-left-radius: 20px !important;
-        border-bottom-right-radius: 20px !important;
-    }
-
-    .list-group-item {
-        border: none !important;
-        background-color: transparent !important;
-    }
-
-    .card-header {
         background-color: rgb(239 103 0 / 7%) !important;
     }
 </style>
-<main class="container my-5">
 
+<main class="container my-5">
 
     @if (TempData["Success"] != null)
     {
-        <div class=" alert alert-success px-3 py-1 ms-auto rounded-5" style="width:fit-content;">
+        <div class="alert alert-success px-3 py-1 ms-auto rounded-5" style="width:fit-content;">
             @TempData["Success"]
         </div>
     }
@@ -57,8 +38,8 @@
         <div class="alert alert-danger text-center">@TempData["Error"]</div>
     }
 
+    <!-- Lọc phòng -->
     <section class="bg-white p-4 rounded-4 shadow-sm mb-4">
-
         @using (Html.BeginForm("DangKyPhong", "Phong", FormMethod.Get))
         {
             <div class="row g-3">
@@ -70,14 +51,6 @@
                         <option value="Female">Nữ</option>
                     </select>
                 </div>
-                @*<div class="col-md-3">
-                        <label class="form-label">Tòa nhà</label>
-                        <select name="building" class="form-select">
-                            <option value="">Tất cả</option>
-                            <option value="A">Tòa A</option>
-                            <option value="B">Tòa B</option>
-                        </select>
-                    </div>*@
                 <div class="col-md-5">
                     <label class="form-label"><strong>Loại phòng</strong></label>
                     <select class="form-select" name="capacity">
@@ -94,6 +67,7 @@
         }
     </section>
 
+    <!-- Danh sách phòng -->
     <section class="mt-5">
         @if (!Model.Any())
         {
@@ -104,21 +78,28 @@
             foreach (var buildingGroup in Model.GroupBy(p => p.Building).OrderBy(g => g.Key))
             {
                 <div class="mb-5">
-                    <h2 class="fw-bold  pb-2 mb-4" style="color:#EE6823">Tòa @buildingGroup.Key</h2>
-
+                    <h2 class="fw-bold pb-2 mb-4" style="color:#EE6823">Tòa @buildingGroup.Key</h2>
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-5">
                         @foreach (var phong in buildingGroup.OrderBy(p => p.RoomNumber))
                         {
                             var slotsAvailable = phong.Capacity - (phong.Occupied ?? 0);
                             bool isAvailable = phong.Status == "Available" && slotsAvailable > 0;
+                            var bedList = phong.Beds.OrderBy(b => b.BedNumber).ToList();
+
+                            
+                                int perRow;
+                                if (phong.Capacity == 8) { perRow = 4; }
+                                else if (phong.Capacity == 6) { perRow = 3; }
+                                else { perRow = 4; }
+                            
 
                             <div class="col">
                                 <div class="card h-100 shadow-sm border-light-subtle rounded-3">
-                                    <div class="card-header p-3 d-flex justify-content-between align-items-center ">
+                                    <div class="card-header p-3 d-flex justify-content-between align-items-center">
                                         <h5 class="card-title mb-0 fw-bold">Phòng @phong.RoomNumber</h5>
                                         @if (isAvailable)
                                         {
-                                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill ">Còn trống</span>
+                                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill">Còn trống</span>
                                         }
                                         else
                                         {
@@ -128,82 +109,65 @@
 
                                     <div class="card-body">
                                         <ul class="list-group list-group-flush">
-                                            <li class="list-group-item">
-                                                <i class="bi bi-people-fill text-muted me-2"></i>
-                                                <strong>Giới tính:</strong> @(phong.Gender == "Male" ? "Nam" : "Nữ")
-                                            </li>
-                                            <li class="list-group-item">
-                                                <i class="bi bi-grid-3x3-gap-fill text-muted me-2"></i>
-                                                <strong>Sức chứa:</strong> @phong.Capacity người
-                                            </li>
-                                            <li class="list-group-item">
-                                                <i class="bi bi-person-check-fill text-muted me-2"></i>
-                                                <strong>Chỗ còn trống:</strong> <span class="fw-bold text-success">@slotsAvailable</span>
-                                            </li>
-                                            <li class="list-group-item">
-                                                <i class="bi bi-cash-coin text-muted me-2"></i>
-                                                <strong>Giá:</strong> <span class="fw-bold text-danger">@string.Format("{0:N0}", phong.Price) VNĐ/tháng</span>
-                                            </li>
-
-                                            @{
-                                                int perRow;
-                                                if (phong.Capacity == 8)
-                                                {
-                                                    perRow = 4;
-                                                }
-                                                else if (phong.Capacity == 6)
-                                                {
-                                                    perRow = 3;
-                                                }
-                                                else if (phong.Capacity == 4)
-                                                {
-                                                    perRow = 4;
-                                                }
-                                                else
-                                                {
-                                                    perRow = 4;
-                                                }
-
-                                                var bedList = phong.Beds.OrderBy(b => b.BedNumber).ToList();
-                                            }
-
-                                            <div class="mt-2">
-                                                <strong class="ms-4">Giường:</strong>
-
-                                                <div class="d-flex flex-column gap-2 mt-2">
-                                                    @for (int i = 0; i < bedList.Count; i += perRow)
-                                                    {
-                                                        <div class="d-flex justify-content-center flex-wrap gap-2">
-
-                                                            @foreach (var bed in bedList.Skip(i).Take(perRow))
-                                                            {
-                                                                if (bed.IsOccupied ?? false)
-                                                                {
-                                                                    <button type="button"
-                                                                            class="btn btn-secondary bed-select px-3 py-2"
-                                                                            style="font-size: 12px !important"
-                                                                            disabled>
-                                                                        @bed.BedNumber
-                                                                    </button>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <button type="button"
-                                                                            class="btn btn-outline-success bed-select px-3 py-2"
-                                                                            style="font-size: 12px !important"
-                                                                            data-bedid="@bed.BedID"
-                                                                            data-roomid="@phong.RoomID">
-                                                                        @bed.BedNumber
-                                                                    </button>
-                                                                }
-
-                                                            }
-                                                        </div>
-                                                    }
-                                                </div>
-                                            </div>
-
+                                            <li class="list-group-item"><i class="bi bi-people-fill text-muted me-2"></i><strong>Giới tính:</strong> @(phong.Gender == "Male" ? "Nam" : "Nữ")</li>
+                                            <li class="list-group-item"><i class="bi bi-grid-3x3-gap-fill text-muted me-2"></i><strong>Sức chứa:</strong> @phong.Capacity người</li>
+                                            <li class="list-group-item"><i class="bi bi-person-check-fill text-muted me-2"></i><strong>Chỗ còn trống:</strong> <span class="fw-bold text-success">@slotsAvailable</span></li>
+                                            <li class="list-group-item"><i class="bi bi-cash-coin text-muted me-2"></i><strong>Giá:</strong> <span class="fw-bold text-danger">@string.Format("{0:N0}", phong.Price) VNĐ/tháng</span></li>
                                         </ul>
+
+                                        <!-- Danh sách giường -->
+                                        <div class="mt-2">
+                                            <strong class="ms-4">Giường:</strong>
+                                            <div class="d-flex flex-column gap-2 mt-2">
+                                                @for (int i = 0; i < bedList.Count; i += perRow)
+                                                {
+                                                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                                                        @foreach (var bed in bedList.Skip(i).Take(perRow))
+                                                        {
+                                                            bool isDisabled = (bed.IsOccupied ?? false) || pendingBedIds.Contains(bed.BedID);
+                                                            string bedAttributes = "";
+                                                            if (!isDisabled)
+                                                            {
+                                                                bedAttributes = "data-bedid='" + bed.BedID + "' data-bednumber='" + bed.BedNumber + "' data-roomid='" + phong.RoomID + "'";
+                                                            }
+                                                            <button type="button"
+                                                                    class="btn @(isDisabled ? "btn-secondary" : "btn-outline-success") bed-select px-3 py-2"
+                                                                    style="font-size: 12px !important"
+                                                                    @Html.Raw(isDisabled ? "disabled" : bedAttributes)>
+                                                                @bed.BedNumber
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <label><strong>Thời hạn hợp đồng</strong></label>
+                                            <select id="ContractDuration" name="ContractDuration" class="form-select">
+                                                <option value="6">6 tháng</option>
+                                                <option value="12">12 tháng</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <label><strong>Bắt đầu</strong></label>
+                                            <select id="StartMonth" name="StartMonth" class="form-select">
+                                                @{
+                                                    int currentMonth = DateTime.Now.Month;
+                                                    int currentYear = DateTime.Now.Year;
+                                                    for (int i = 1; i <= 12; i++)
+                                                    {
+                                                        int month = (currentMonth + i - 1) % 12 + 1;
+                                                        int year = currentYear + ((currentMonth + i - 1) / 12);
+                                                        string selected = i == 1 ? "selected" : "";
+                                                        <text>
+                                                            <option value="@month" @selected>@month/@year</option>
+                                                        </text>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div class="card-footer bg-white border-0 p-3">
@@ -212,21 +176,22 @@
                                             <form action="/Phong/DangKyPhong" method="post" class="registerForm">
                                                 @Html.Hidden("roomId", phong.RoomID)
                                                 <input type="hidden" name="bedId" class="selected-bed-id" />
+                                                <input type="hidden" name="bedNumber" class="selected-bed-number" />
+                                                <input type="hidden" name="ContractDuration" class="selected-contract-duration" />
+                                                <input type="hidden" name="StartMonth" class="selected-start-month" />
 
                                                 <button type="button" class="btn btn1 w-100 btnRegister"
                                                         data-room="@phong.RoomNumber"
                                                         data-building="@phong.Building"
                                                         data-capacity="@phong.Capacity"
                                                         data-available="@slotsAvailable">
-                                                     Đăng ký
+                                                    Đăng ký
                                                 </button>
                                             </form>
-
-
                                         }
                                         else
                                         {
-                                            <button class="btn btn-secondary w-100" disabled>Không khả dụng</button>
+                                            <button style="border-radius:15px" class="btn btn-secondary w-100" disabled>Phòng đã đầy</button>
                                         }
                                     </div>
                                 </div>
@@ -237,25 +202,36 @@
             }
         }
     </section>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Chọn giường
             document.querySelectorAll(".bed-select").forEach(btn => {
                 btn.addEventListener("click", function () {
                     const card = this.closest(".card");
                     card.querySelectorAll(".bed-select").forEach(b => b.classList.remove("active"));
                     this.classList.add("active");
                     card.querySelector(".selected-bed-id").value = this.dataset.bedid;
+                    card.querySelector(".selected-bed-number").value = this.dataset.bednumber;
                 });
             });
 
             document.querySelectorAll(".btnRegister").forEach(btn => {
                 btn.addEventListener("click", function () {
+                    const card = this.closest(".card");
                     const form = this.closest("form");
+
+                    form.querySelector(".selected-contract-duration").value = card.querySelector("#ContractDuration").value;
+                    form.querySelector(".selected-start-month").value = card.querySelector("#StartMonth").value;
+
                     const bedId = form.querySelector(".selected-bed-id").value;
+                    const bedNumber = form.querySelector(".selected-bed-number").value;
                     const room = this.dataset.room;
                     const building = this.dataset.building;
                     const capacity = this.dataset.capacity;
                     const available = this.dataset.available;
+                    const contractDuration = form.querySelector(".selected-contract-duration").value;
+                    const startMonth = form.querySelector(".selected-start-month").value;
 
                     if (!bedId) {
                         Swal.fire({
@@ -266,38 +242,63 @@
                         });
                         return;
                     }
+                    const now = new Date();
+                    let startYear = now.getFullYear();
+                    if (parseInt(startMonth) < now.getMonth() + 1) startYear += 1;
+                    const startDate = new Date(startYear, parseInt(startMonth) - 1, 1);
+                    const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + parseInt(contractDuration), 0); // ngày cuối cùng của tháng kết thúc
 
                     Swal.fire({
-                        title: `<h4 class="fw-bold" style="color:#EE6823;">Xác nhận đăng ký phòng ${room}</h4>`,
+                        title: `<h4 class="fw-bold text-center" style="color:#EE6823;">Xác nhận đăng ký</h4>`,
                         html: `
-                <div style="display:flex; gap:20px; background-color:#fff8f4; border:1px solid #ffe0cc; border-radius:10px; padding:16px;">
-                    <div style="flex:1;">
-                        <p><b>Tòa:</b> ${building}</p>
-                        <p><b>Phòng:</b> ${room}</p>
-                    </div>
-                    <div style="flex:1;">
-                        <p><b>Giường:</b> G${bedId}</p>
-                        <p><b>Còn trống:</b> ${available} /${capacity}</p>
-                    </div>
-                </div>
-            `,
+                            <div style="display:flex; flex-direction: column; gap: 16px;
+                                        border:1px solid #ffe0cc; border-radius:12px; padding:20px; font-family:Arial, sans-serif;">
+            
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px;">
+                                    <p style="margin:0;"><strong>Tòa:</strong> ${building}</p>
+                                    <p style="margin:0;"><strong>Phòng:</strong> ${room}</p>
+                                    <p style="margin:0;"><strong>Thời hạn hợp đồng:</strong> ${contractDuration} tháng</p>
+                                    <p style="margin:0;"><strong>Bắt đầu:</strong> ${startDate.toLocaleDateString()}</p>
+                                    <p style="margin:0;"><strong>Kết thúc:</strong> ${endDate.toLocaleDateString()}</p>
+                                    <p style="margin:0;"><strong>Giường:</strong> G${bedNumber}</p>
+                                </div>
+
+                                <div style="text-align:center; margin-top:10px;">
+                                    
+                                    <p style="margin:5px 0 0; font-size:14px; color:#555;">
+                                        Vui lòng kiểm tra thông tin trước khi xác nhận.
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        width: '40%',
                         showCancelButton: true,
                         confirmButtonText: 'Đăng ký',
                         cancelButtonText: 'Hủy',
                         buttonsStyling: false,
                         customClass: {
-                            confirmButton: 'btn btn1 px-4 me-2',
-                            cancelButton: 'btn btn-secondary rounded-3 ms-2 px-4'
+                            confirmButton: 'btn btn1 px-5 py-2 fw-bold m-1',
+                            cancelButton: 'btn btn-secondary rounded-4 px-5 py-2 fw-bold m-1'
+                        },
+                        preConfirm: () => {
+                            const bedIdVal = form.querySelector(".selected-bed-id").value;
+                           
+                            if (!bedIdVal) {
+                                Swal.showValidationMessage('Vui lòng chọn giường trước khi đăng ký.');
+                                return false; 
+                            }
+
+                            return true;
                         }
-                    }).then(result => {
-                        if (result.isConfirmed) form.submit();
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
                     });
+
                 });
             });
-
         });
     </script>
-
-
 
 </main>

@@ -37,29 +37,38 @@ namespace KTXSV.Controllers
             return View(pendingRegs);
         }
 
-        // Phê duyệt đăng ký
         public ActionResult Approve(int id)
         {
-            var reg = db.Registrations.Find(id);
-            if (reg != null)
-            {
-                reg.Status = "Active"; // Hoặc "Approved" tùy logic
+            // Load registration
+            var reg = db.Registrations
+                .FirstOrDefault(r => r.RegID == id);
 
-                var room = db.Rooms.Find(reg.RoomID);
-                if (room != null)
-                {
-                    room.Occupied += 1;
-                    room.Status = room.Occupied < room.Capacity ? "Available" : "Full";
-                }
+            if (reg == null)
+                return HttpNotFound();
 
-                db.SaveChanges();
-                TempData["Message"] = "Phê duyệt thành công!";
-            }
-            else
+            reg.Status = "Active";
+
+            var bed = db.Beds.FirstOrDefault(b => b.BedID == reg.BedID);
+
+            if (bed != null)
             {
-                TempData["Message"] = "Đăng ký không tồn tại!";
+                bed.IsOccupied = true;
             }
 
+            var room = db.Rooms
+                .Include("Beds")
+                .FirstOrDefault(r => r.RoomID == reg.RoomID);
+
+            if (room != null)
+            {
+                room.Occupied = room.Beds.Count(b => b.IsOccupied == true);
+
+                room.Status = (room.Occupied < room.Capacity) ? "Available" : "Full";
+            }
+
+            db.SaveChanges();
+
+            TempData["Message"] = "Phê duyệt thành công!";
             return RedirectToAction("PendingRegistrations");
         }
 
@@ -77,7 +86,8 @@ namespace KTXSV.Controllers
             {
                 TempData["Message"] = "Đăng ký không tồn tại!";
             }
-
+            var bed = db.Beds.Find(reg.BedID);
+           
             return RedirectToAction("PendingRegistrations");
         }
 

@@ -2,6 +2,19 @@
 @{
     ViewBag.Title = "Chỉnh sửa thông tin sinh viên";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // Mapping trạng thái database sang tiếng Việt
+    var statusOptions = new Dictionary<string, string>
+{
+        { "Active", "Đang ở" },
+        { "Pending", "Chờ duyệt" },
+        { "Ended", "Đã kết thúc" },
+        { "Rejected", "Bị từ chối" },
+        { "Canceled", "Đã hủy" }
+    };
+
+    // Lấy registration hiện tại (Active hoặc Pending)
+    var currentReg = Model.Registrations?.FirstOrDefault(r => r.Status == "Active" || r.Status == "Pending");
 }
 
 <div class="container mt-4">
@@ -20,7 +33,7 @@
                     @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
                 </div>
                 <div class="col-md-6">
-                    <label>Tên đăng nhập</label>
+                    <label>MSSV <small>(Tên đăng nhập)</small></label>
                     @Html.TextBoxFor(model => model.Username, new { @class = "form-control", @readonly = "readonly" })
                 </div>
             </div>
@@ -38,17 +51,31 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label>Giới tính</label>
-                @Html.DropDownListFor(model => model.Gender,
-                    new SelectList(new[] { "Nam", "Nữ" }, Model.Gender),
-                    "Chọn giới tính",
-                    new { @class = "form-select" })
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Giới tính</label>
+                    @Html.DropDownListFor(model => model.Gender,
+                        new SelectList(new[] { "Nam", "Nữ" }, Model.Gender),
+                        "Chọn giới tính",
+                        new { @class = "form-select" })
+                </div>
+
+                <div class="col-md-6">
+                    @if (currentReg != null)
+                    {
+                        <label>Trạng thái đăng ký phòng</label>
+                        @Html.Hidden("RegID", currentReg.RegID)
+                        @Html.DropDownList("RegistrationStatus",
+                            new SelectList(statusOptions, "Key", "Value", currentReg.Status),
+                            "Chọn trạng thái",
+                            new { @class = "form-select" })
+                    }
+                </div>
             </div>
 
             <div class="text-center mt-4">
-                <button type="submit" class="btn btn-success px-4">💾 Lưu thay đổi</button>
-                @Html.ActionLink("⬅ Quay lại", "Index", null, new { @class = "btn btn-secondary px-4" })
+                <button type="submit" class="btn btn-success px-4">Lưu thay đổi</button>
+                @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary px-4" })
             </div>
         </div>
     }

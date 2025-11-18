@@ -24,8 +24,11 @@ namespace KTXSV.Models
         public int RoomID { get; set; }
         public int BedNumber { get; set; }
         public Nullable<bool> IsOccupied { get; set; }
+        public bool IsActive { get; set; }
+        public bool Booking { get; set; }
     
         public virtual Room Room { get; set; }
+        public virtual Room Room1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Registration> Registrations { get; set; }
     }

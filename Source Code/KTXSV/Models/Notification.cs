@@ -22,7 +22,5 @@ namespace KTXSV.Models
         public Nullable<int> UserID { get; set; }
         public bool IsRead { get; set; }
         public string Url { get; set; }
-    
-        public virtual User User { get; set; }
     }
 }

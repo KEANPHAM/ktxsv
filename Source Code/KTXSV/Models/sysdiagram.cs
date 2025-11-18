@@ -12,18 +12,12 @@ namespace KTXSV.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SupportRequest
+    public partial class sysdiagram
     {
-        public int RequestID { get; set; }
-        public int UserID { get; set; }
-        public Nullable<int> RoomID { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Status { get; set; }
-        public Nullable<System.DateTime> CreatedAt { get; set; }
-        public string Reply { get; set; }
-    
-        public virtual User User { get; set; }
-        public virtual Room Room { get; set; }
+        public string name { get; set; }
+        public int principal_id { get; set; }
+        public int diagram_id { get; set; }
+        public Nullable<int> version { get; set; }
+        public byte[] definition { get; set; }
     }
 }

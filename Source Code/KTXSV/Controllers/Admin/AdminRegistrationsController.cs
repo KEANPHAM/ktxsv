@@ -69,20 +69,9 @@ namespace KTXSV.Controllers
         }
 
 
-        // POST: AdminRegistrations/Approve/5
-        [HttpPost]
-        public ActionResult Approve(int id)
-        {
-            var reg = db.Registrations.FirstOrDefault(r => r.RegID == id);
-            if (reg == null)
-                return HttpNotFound();
+        
 
-            reg.Status = "Approved";
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
 
-        // POST: AdminRegistrations/Reject/5
         [HttpPost]
         public ActionResult Reject(int id)
         {
@@ -91,8 +80,12 @@ namespace KTXSV.Controllers
                 return HttpNotFound();
 
             reg.Status = "Rejected";
+
             db.SaveChanges();
+
+            TempData["Success"] = "Từ chối đăng ký thành công.";
             return RedirectToAction("Index");
         }
+
     }
 }

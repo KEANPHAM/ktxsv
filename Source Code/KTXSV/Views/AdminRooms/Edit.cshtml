@@ -3,8 +3,15 @@
     ViewBag.Title = "Chỉnh sửa phòng";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
 <main>
     <h2 class="text-warning mb-4">Chỉnh sửa thông tin phòng</h2>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
     <div>
         @using (Html.BeginForm())
         {
@@ -14,24 +21,41 @@
             <div class="card p-4 shadow-sm">
                 <div class="form-group mb-3">
                     <label>Tòa nhà</label>
-                    @Html.TextBoxFor(m => m.Building, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.Building, new { @class = "form-control", id = "Building" })
                 </div>
+
                 <div class="form-group mb-3">
                     <label>Số phòng</label>
                     @Html.TextBoxFor(m => m.RoomNumber, new { @class = "form-control" })
                 </div>
+
                 <div class="form-group mb-3">
                     <label>Giới tính</label>
-                    @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female" }, Model.Gender), new { @class = "form-select" })
+                    <input type="text" id="GenderDisplay" class="form-control" value="@(Model.Gender == "Male" ? "Nam" : "Nữ")" readonly />
+                    <input type="hidden" id="Gender" name="Gender" value="@Model.Gender" />
                 </div>
+
                 <div class="form-group mb-3">
-                    <label>Sức chứa</label>
-                    @Html.TextBoxFor(m => m.Capacity, new { @class = "form-control", type = "number", min = "1" })
+                    <label>Sức chứa tối đa</label>
+                    <input type="number" class="form-control" value="@Model.MaxCapacity" disabled />
                 </div>
+
+                <div class="form-group mb-3">
+                    <label>Số sinh viên đang ở</label>
+                    <input type="number" class="form-control" value="@Model.Beds.Count(b => b.IsOccupied == true)" disabled />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Sức chứa cần chỉnh sửa</label>
+                    @Html.TextBoxFor(m => m.Capacity, new { @class = "form-control", type = "number", min = "1", max = Model.MaxCapacity })
+                    <small class="text-muted">Không được vượt quá sức chứa tối đa (có thể tạo phòng mới với sức chứa tối đa lớn hơn).</small>
+                </div>
+
                 <div class="form-group mb-3">
                     <label>Giá phòng (VNĐ)</label>
                     @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", step = "1000" })
                 </div>
+
                 <div class="form-group mb-3">
                     <label>Trạng thái</label>
                     @Html.DropDownListFor(m => m.Status, new SelectList(new[] { "Available", "Full", "Maintenance" }, Model.Status), new { @class = "form-select" })
@@ -40,5 +64,25 @@
                 <button type="submit" class="btn btn-warning mb-2">Lưu thay đổi</button>
                 <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
             </div>
-        }</div>
+        }
+    </div>
 </main>
+<script>
+    const buildingInput = document.getElementById('Building');
+    const genderDisplay = document.getElementById('GenderDisplay');
+    const genderHidden = document.getElementById('Gender');
+
+    buildingInput.addEventListener('input', function () {
+        const value = buildingInput.value.trim().toUpperCase();
+        if (value === "A") {
+            genderDisplay.value = "Nam";
+            genderHidden.value = "Male";
+        } else if (value !== "") {
+            genderDisplay.value = "Nữ";
+            genderHidden.value = "Female";
+        } else {
+            genderDisplay.value = "Chưa xác định";
+            genderHidden.value = "";
+        }
+    });
+</script>

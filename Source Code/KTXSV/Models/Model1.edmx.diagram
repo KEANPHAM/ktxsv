@@ -4,30 +4,25 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-<<<<<<< HEAD
-      <Diagram DiagramId="14dbeb4dd7124a41b3173880fb9ab728" Name="Diagram1" ZoomLevel="72">
-=======
-      <Diagram DiagramId="14dbeb4dd7124a41b3173880fb9ab728" Name="Diagram1" ZoomLevel="53">
->>>>>>> 3c647e37413511e27067bf1c3b1242d6fc06be01
-        <EntityTypeShape EntityType="KTXSVModel.Notification" Width="1.5" PointX="25" PointY="6" IsExpanded="true" />
-        <EntityTypeShape EntityType="KTXSVModel.Payment" Width="1.375" PointX="16.875" PointY="3.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="KTXSVModel.Registration" Width="1.5" PointX="19.625" PointY="2" IsExpanded="true" />
-        <EntityTypeShape EntityType="KTXSVModel.Room" Width="1.5" PointX="19.75" PointY="5.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="KTXSVModel.StudentFile" Width="1.5" PointX="25.375" PointY="2" IsExpanded="true" />
-        <EntityTypeShape EntityType="KTXSVModel.SupportRequest" Width="1.5" PointX="22.5" PointY="6.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="KTXSVModel.User" Width="1.5" PointX="22.375" PointY="1.875" IsExpanded="true" />
-        <AssociationConnector Association="KTXSVModel.FK__Payments__RegID__5165187F" ManuallyRouted="false" >
-        </AssociationConnector>
-        <AssociationConnector Association="KTXSVModel.FK__Registrat__RoomI__49C3F6B7" ManuallyRouted="false" />
-        <AssociationConnector Association="KTXSVModel.FK__Registrat__UserI__48CFD27E" ManuallyRouted="false" />
-        <AssociationConnector Association="KTXSVModel.FK__SupportRe__RoomI__619B8048" ManuallyRouted="false" >
-        </AssociationConnector>
-        <AssociationConnector Association="KTXSVModel.FK__StudentFi__UserI__5AEE82B9" ManuallyRouted="false" />
-        <AssociationConnector Association="KTXSVModel.FK__SupportRe__UserI__60A75C0F" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="KTXSVModel.Bed" Width="1.5" PointX="15.5" PointY="6.5" />
-        <AssociationConnector Association="KTXSVModel.FK__Bed__RoomID__367C1819" />
-        <AssociationConnector Association="KTXSVModel.FK_Registrations_Bed" />
-        <AssociationConnector Association="KTXSVModel.FK_Notifications_Users" />
+      <Diagram DiagramId="6248ce816c3f4f7e8c5e1f0cb25d017e" Name="Diagram1">
+        <EntityTypeShape EntityType="KTXSVModel.Bed" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.Notification" Width="1.5" PointX="5.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.Payment" Width="1.5" PointX="5.25" PointY="3.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.Registration" Width="1.5" PointX="3" PointY="3.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.Room" Width="1.5" PointX="1.5" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.StudentFile" Width="1.5" PointX="3" PointY="8.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.SupportRequest" Width="1.5" PointX="3" PointY="11" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.sysdiagram" Width="1.5" PointX="7.75" PointY="1.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="KTXSVModel.User" Width="1.5" PointX="0.75" PointY="5.125" IsExpanded="true" />
+        <AssociationConnector Association="KTXSVModel.FK__Bed__RoomID__66603565" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__Bed__RoomID__6754599E" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK_Registrations_Bed" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__Payments__RegID__68487DD7" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__Registrat__UserI__693CA210" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__StudentFi__UserI__6B24EA82" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK__SupportRe__UserI__6C190EBB" ManuallyRouted="false" />
+        <AssociationConnector Association="KTXSVModel.FK_Registrations_Room" />
+        <AssociationConnector Association="KTXSVModel.FK_SupportRequests_Room" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -29,10 +29,10 @@ namespace KTXSV.Models
         public Nullable<int> BedID { get; set; }
         public string Note { get; set; }
     
+        public virtual Bed Bed { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Payment> Payments { get; set; }
-        public virtual Room Room { get; set; }
         public virtual User User { get; set; }
-        public virtual Bed Bed { get; set; }
+        public virtual Room Room { get; set; }
     }
 }

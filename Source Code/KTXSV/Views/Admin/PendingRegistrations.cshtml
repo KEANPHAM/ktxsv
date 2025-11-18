@@ -94,6 +94,7 @@
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
+            <th>STT</th>
             <th>Sinh viên</th>
             <th>Giới tính</th>
             <th>Phòng</th>
@@ -105,9 +106,15 @@
         </tr>
     </thead>
     <tbody>
+        @{ 
+            int stt = 1;
+
+        }
+
         @foreach (var reg in Model)
         {
             <tr>
+                <td>@stt</td>
                 <td>@(reg.User?.FullName ?? "Chưa có")</td>
                 <td>@(reg.Room.Gender == "Male" ? "Nam" : "Nữ")</td>
                 <td>@(reg.Room?.RoomNumber ?? "Chưa có")</td>
@@ -127,6 +134,7 @@
                     </form>
                 </td>
             </tr>
+            stt++;
         }
     </tbody>
 </table>

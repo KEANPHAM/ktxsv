@@ -15,45 +15,26 @@ namespace KTXSV.Controllers
         {
             base.OnActionExecuting(filterContext);
 
-            if (Session["UserID"] != null)
+            if (Session["UserID"] == null || !int.TryParse(Session["UserID"].ToString(), out int userId))
             {
-                int userId;
-                if (int.TryParse(Session["UserID"].ToString(), out userId))
-                {
-                    var user = db.Users.Find(userId);
-                    if (user != null)
-                    {
-                        ViewBag.Username = user.Username;
-                        ViewBag.FullName = user.FullName;
-                        ViewBag.Email = user.Email;
-                    }
-                }
-            }
-        }
-
-        public ActionResult Index()
-        {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("LoginStudent", "Account");
+                filterContext.Result = RedirectToAction("LoginStudent", "Account");
+                return;
             }
 
-            int userID;
-            if (!int.TryParse(Session["UserID"].ToString(), out userID))
-            {
-                return RedirectToAction("LoginStudent", "Account");
-            }
-
-            var user = db.Users.Find(userID);
+            var user = db.Users.Find(userId);
             if (user == null)
             {
-                return RedirectToAction("LoginStudent", "Account");
+                filterContext.Result = RedirectToAction("LoginStudent", "Account");
+                return;
             }
 
             ViewBag.Username = user.Username;
             ViewBag.FullName = user.FullName;
             ViewBag.Email = user.Email;
+        }
 
+        public ActionResult Index()
+        {
             return View();
         }
 
@@ -64,7 +45,7 @@ namespace KTXSV.Controllers
         public ActionResult DangKyPhong(string gender, string building, int? capacity)
         {
             
-            int userId = int.Parse(Session["UserID"].ToString());
+            var userId = int.Parse(Session["UserID"].ToString());
 
             var uploadedTypes = db.StudentFiles
                 .Where(f => f.UserID == userId)
@@ -84,27 +65,35 @@ namespace KTXSV.Controllers
                 .FirstOrDefault(r => r.UserID == userId && (r.Status == "Pending" || r.Status == "Active"));
             ViewBag.DaDangKy = dangKyHienTai != null;
 
-            var phongTrong = db.Rooms
-                .Include(r => r.Beds)
-                .AsQueryable();
-
+            var phongTrong = db.Rooms.Include(r => r.Beds).AsQueryable();
             if (!string.IsNullOrEmpty(gender))
                 phongTrong = phongTrong.Where(p => p.Gender == gender);
-
             if (!string.IsNullOrEmpty(building))
                 phongTrong = phongTrong.Where(p => p.Building == building);
-
             if (capacity.HasValue)
                 phongTrong = phongTrong.Where(p => p.Capacity == capacity.Value);
+
+            var pendingBedIds = db.Registrations
+                .Where(r => r.Status == "Pending" || r.Status == "Active")
+                .Select(r => r.BedID.Value) 
+                .ToList();
+
+            ViewBag.PendingBedIds = pendingBedIds;
 
             return View(phongTrong.ToList());
         }
 
-        // đăng ký phòng
         [HttpPost]
-        public ActionResult DangKyPhong(int roomId, int bedId)
+        public ActionResult DangKyPhong(int roomId, int bedId, int ContractDuration, int StartMonth)
         {
             int userId = int.Parse(Session["UserID"].ToString());
+
+            int year = DateTime.Now.Year;
+            if (StartMonth < DateTime.Now.Month)
+                year += 1;
+
+            DateTime startDate = new DateTime(year, StartMonth, 1); 
+            DateTime endDate = startDate.AddMonths(ContractDuration).AddDays(-1); 
 
             var uploadedTypes = db.StudentFiles
                 .Where(f => f.UserID == userId)
@@ -118,6 +107,7 @@ namespace KTXSV.Controllers
                 TempData["Error"] = "Vui lòng hoàn tất hồ sơ trước khi đăng ký phòng";
                 return RedirectToAction("Index", "StudentFiles");
             }
+
             bool daDangKy = db.Registrations.Any(r => r.UserID == userId &&
                 (r.Status == "Active" || r.Status == "Pending"));
             if (daDangKy)
@@ -127,26 +117,28 @@ namespace KTXSV.Controllers
             }
 
             var phong = db.Rooms.Find(roomId);
-            var bed = db.Beds.FirstOrDefault(b => b.BedID == bedId && (b.IsOccupied ?? false) == false);
+            var bed = db.Beds.FirstOrDefault(b => b.BedID == bedId &&
+                (!db.Registrations.Any(r => r.BedID == b.BedID && (r.Status == "Pending" || r.Status == "Active"))
+                 || b.Booking == true));
             if (phong != null && phong.Status == "Available" && bed != null)
             {
                 var dangKyMoi = new Registration
                 {
                     UserID = userId,
                     RoomID = roomId,
-                    StartDate = DateTime.Now,
-                    Status = "Pending",
                     BedID = bed.BedID,
+                    StartDate = startDate, 
+                    EndDate = endDate,      
+                    Status = "Pending"
 
                 };
                 db.Registrations.Add(dangKyMoi);
-                bed.IsOccupied = true;
                 db.SaveChanges();
 
                 var thongBao = new Notification
                 {
                     Title = "Đăng ký phòng thành công",
-                    Content = $"Đăng ký thành công phòng {dangKyMoi.Room.RoomNumber}, Tòa {dangKyMoi.Room.Building}, Giường  {dangKyMoi.Bed.BedNumber}",
+                    Content = $"Đăng ký phòng {dangKyMoi.Room.RoomNumber}, Tòa {dangKyMoi.Room.Building}, Giường {dangKyMoi.Bed.BedNumber} từ {startDate:dd/MM/yyyy} đến {endDate:dd/MM/yyyy}",
                     CreatedAt = DateTime.Now,
                     TargetRole = "Student"
                 };
@@ -240,6 +232,6 @@ namespace KTXSV.Controllers
             db.SaveChanges();
             return RedirectToAction("DanhSachPhong");
         }
-
+       
     }
 }

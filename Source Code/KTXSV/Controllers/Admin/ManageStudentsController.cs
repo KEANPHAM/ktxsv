@@ -94,51 +94,45 @@ namespace KTXSV.Controllers
         }
         public ActionResult Active(string search, string gender, string status, string sort)
         {
-            // Lấy dữ liệu sinh viên, kèm registrations
             var students = db.Users.Include("Registrations")
-                                   .Where(u => u.Role == "Student" && u.Registrations.Any(r => r.Status == "Active"))
-                                   .AsQueryable();
+                .Where(u => u.Role == "Student" && u.Registrations.Any(r => r.Status == "Active"))
+                .ToList();
 
             // Tìm kiếm
             if (!string.IsNullOrEmpty(search))
             {
-                students = students.Where(u => u.FullName.Contains(search) || u.Username.Contains(search));
+                students = students.Where(u => u.FullName.Contains(search) || u.Username.Contains(search)).ToList();
             }
 
             // Lọc giới tính
             if (!string.IsNullOrEmpty(gender))
             {
-                students = students.Where(u => u.Gender == gender);
+                students = students.Where(u => u.Gender == gender).ToList();
             }
-
-            // Đưa dữ liệu về memory để xử lý trạng thái, vì EF6 không hiểu FirstOrDefault trong Where
-            var studentList = students.ToList();
-
-            // Lọc trạng thái
-         
 
             // Sắp xếp
             switch (sort)
             {
                 case "name_asc":
-                    studentList = studentList.OrderBy(u => u.FullName).ToList();
+                    students = students.OrderBy(u => u.FullName).ToList();
                     break;
                 case "name_desc":
-                    studentList = studentList.OrderByDescending(u => u.FullName).ToList();
+                    students = students.OrderByDescending(u => u.FullName).ToList();
                     break;
                 case "date_asc":
-                    studentList = studentList.OrderBy(u => u.CreatedAt).ToList();
+                    students = students.OrderBy(u => u.CreatedAt).ToList();
                     break;
                 case "date_desc":
-                    studentList = studentList.OrderByDescending(u => u.CreatedAt).ToList();
+                    students = students.OrderByDescending(u => u.CreatedAt).ToList();
                     break;
                 default:
-                    studentList = studentList.OrderBy(u => u.UserID).ToList();
+                    students = students.OrderBy(u => u.UserID).ToList();
                     break;
             }
 
-            return View(studentList);
+            return View("Index", students); // <-- dùng chung view Index.cshtml
         }
+
 
         // GET: ManageStudents/Details/5
         public ActionResult Details(int id)
@@ -163,7 +157,7 @@ namespace KTXSV.Controllers
         // POST: ManageStudents/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(User student)
+        public ActionResult Edit(User student, int? RegID, string RegistrationStatus)
         {
             if (ModelState.IsValid)
             {
@@ -175,7 +169,16 @@ namespace KTXSV.Controllers
                     existing.Phone = student.Phone;
                     existing.Gender = student.Gender;
 
-                    db.SaveChanges();
+                    if (RegID.HasValue)
+                    {
+                        var reg = db.Registrations.Find(RegID.Value);
+                        if (reg != null)
+                        {
+                            reg.Status = RegistrationStatus;
+                            db.SaveChanges();
+                        }
+                    }
+
                     TempData["Message"] = "Cập nhật sinh viên thành công!";
                     return RedirectToAction("Index");
                 }

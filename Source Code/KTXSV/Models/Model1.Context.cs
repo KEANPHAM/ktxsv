@@ -25,13 +25,14 @@ namespace KTXSV.Models
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<Bed> Beds { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<Registration> Registrations { get; set; }
         public virtual DbSet<Room> Rooms { get; set; }
         public virtual DbSet<StudentFile> StudentFiles { get; set; }
         public virtual DbSet<SupportRequest> SupportRequests { get; set; }
+        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<Bed> Beds { get; set; }
     }
 }
