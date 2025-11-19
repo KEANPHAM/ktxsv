@@ -1,4 +1,6 @@
-﻿using System;
+﻿using KTXSV.Models;
+using KTXSV.Services;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -6,12 +8,19 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using KTXSV.Models;
 
 namespace KTXSV.Controllers.Admin
 {
     public class PaymentAdminController : Controller
     {
+        private readonly AdminNotificationService _adminNotificationService;
+        private readonly StudentNotificationService _studentNotificationService;
+
+        public PaymentAdminController()
+        {
+            _adminNotificationService = new AdminNotificationService(new KTXSVEntities());
+            _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
+        }
         KTXSVEntities db = new KTXSVEntities();
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {

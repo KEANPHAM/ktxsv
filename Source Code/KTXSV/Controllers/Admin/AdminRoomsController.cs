@@ -311,7 +311,6 @@ namespace KTXSV.Controllers
         [HttpPost]
         public ActionResult TransferRoom(int id, int newRoomID, int newBedID, string note)
         {
-            // Lấy hợp đồng hiện tại đang Active
             var oldReg = db.Registrations
                 .Include(r => r.User)
                 .Include(r => r.Room)
@@ -327,7 +326,8 @@ namespace KTXSV.Controllers
             // Cập nhật hợp đồng cũ
             oldReg.Status = "Transferred";
             oldReg.Note = note;
-
+            var oldEndDate = oldReg.EndDate; 
+            oldReg.EndDate = DateTime.Now;
             if (oldReg.Bed != null)
             {
                 oldReg.Bed.Booking = true;
@@ -344,16 +344,14 @@ namespace KTXSV.Controllers
                     oldRoom.Status = "Available";
             }
 
-            oldReg.EndDate = DateTime.Now;
 
-            // Tạo hợp đồng mới cho phòng mới
             var newReg = new Registration
             {
                 UserID = oldReg.UserID,
                 RoomID = newRoomID,
                 BedID = newBedID,
                 StartDate = DateTime.Now,
-                EndDate = oldReg.EndDate, // EndDate là DateTime non-nullable
+                EndDate = oldEndDate, 
                 Status = "Active",
                 Note = note
             };

@@ -1,18 +1,16 @@
 ﻿@model IEnumerable<KTXSV.Models.Notification>
 
 @{
-    ViewBag.Title = "Thông báo của bạn";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Thông báo của Admin";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <style>
-    /* Định nghĩa màu chủ đạo mới dựa trên #EE6823 */
     :root {
         --custom-primary: #EE6823;
         --custom-unread-bg: #fff9f5;
     }
 
-    /* Áp dụng màu chủ đạo cho các thành phần Bootstrap */
     .bg-custom-primary {
         background-color: var(--custom-primary) !important;
     }
@@ -27,32 +25,28 @@
 
     .badge.bg-custom-primary {
         background-color: var(--custom-primary) !important;
-        color: white; /* Đảm bảo chữ trắng trên nền cam */
+        color: white;
     }
 
-    /* CSS cho item thông báo */
     .notification-item, .unread-notification-item {
         transition: transform 0.2s, box-shadow 0.2s;
-        border-radius: 0.5rem; /* Bo góc */
+        border-radius: 0.5rem;
     }
 
         .notification-item:hover, .unread-notification-item:hover {
-            transform: translateY(-2px); /* Nâng nhẹ khi hover */
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important; /* Đổ bóng nhẹ hơn */
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1) !important;
         }
 
-    /* Thẻ Card chưa đọc có viền và màu nền nhẹ */
     .unread-notification-item {
-        background-color: var(--custom-unread-bg) !important; /* Màu nền #fff9f5 */
-        border-left: 5px solid var(--custom-primary); /* Viền nhấn bên trái */
+        background-color: var(--custom-unread-bg) !important;
+        border-left: 5px solid var(--custom-primary);
     }
 
-    /* Bỏ viền dưới cho item đã đọc để nhìn tinh tế hơn */
     .notification-item {
         border: 1px solid #f0f0f0;
     }
 
-    /* Modal header màu chủ đạo */
     .modal-header.bg-custom-primary {
         border-bottom: none;
     }
@@ -65,11 +59,10 @@
 </style>
 
 <div class="container mt-5">
-
     @if (!Model.Any())
     {
-        <div class="alert alert-info shadow-sm p-4 text-center" role="alert">
-            <i class="bi bi-info-circle-fill me-2"></i> Hiện tại bạn chưa có thông báo nào.
+        <div class="alert alert-info shadow-sm p-4 text-center">
+            <i class="bi bi-info-circle-fill me-2"></i> Hiện tại chưa có thông báo nào.
         </div>
     }
     else
@@ -79,7 +72,6 @@
                 @foreach (var n in Model.OrderByDescending(x => x.CreatedAt))
                 {
                     var isUnread = !n.IsRead;
-                    // Class cho item: Card hiện đại, có bóng, và màu nhấn cho chưa đọc
                     var itemClass = isUnread ? "card mb-3 shadow-sm unread-notification-item" : "card mb-3 shadow-sm notification-item";
 
                     <div class="@itemClass" style="cursor:pointer;"
@@ -139,32 +131,22 @@
             modals.forEach(function (modalEl) {
                 modalEl.addEventListener('show.bs.modal', function () {
                     var notiId = modalEl.id.split('-')[1];
-                    // Tìm thẻ Card cha bằng data-notification-id
                     var parentItem = document.querySelector(`[data-notification-id="${notiId}"]`);
 
-                    // 1. Ajax đánh dấu đã đọc (không chờ kết quả)
-                    fetch('/ThongBao/MarkAsRead/' + notiId, { method: 'POST' });
+                    // Gọi Ajax đánh dấu đã đọc
+                    fetch('/Admin/MarkAsRead/' + notiId, { method: 'POST' });
 
-                    // 2. Cập nhật giao diện item đã đọc ngay lập tức
+                    // Cập nhật giao diện
                     if (parentItem && parentItem.classList.contains('unread-notification-item')) {
-                        // Xóa các class của trạng thái chưa đọc
                         parentItem.classList.remove('unread-notification-item');
-                        parentItem.classList.add('notification-item'); // Thêm class đã đọc
+                        parentItem.classList.add('notification-item');
 
-                        // Cập nhật nội dung bên trong Card
                         var titleElement = parentItem.querySelector('h5');
                         if (titleElement) {
                             titleElement.classList.remove('text-custom-primary', 'fw-bold');
                             titleElement.classList.add('text-dark');
-                            // Xóa tag 'Mới'
                             var badgeElement = titleElement.querySelector('.badge');
                             if (badgeElement) badgeElement.remove();
-                        }
-
-                        // Cập nhật màu nút 'Xem chi tiết' thành màu mặc định (hoặc màu custom-primary nếu muốn)
-                        var detailLink = parentItem.querySelector('.text-decoration-none');
-                        if (detailLink) {
-                            detailLink.style.color = 'var(--custom-primary)';
                         }
                     }
                 });

@@ -44,8 +44,21 @@ namespace KTXSV.Controllers
             ViewBag.FullName = user.FullName;
             ViewBag.Email = user.Email;
 
+           
+            bool hasAllFiles =
+                db.StudentFiles.Any(f => f.UserID == userID && f.FileType == "CCCD") &&
+                db.StudentFiles.Any(f => f.UserID == userID && f.FileType == "BHYT") &&
+                db.StudentFiles.Any(f => f.UserID == userID && f.FileType == "StudentCard") &&
+                db.StudentFiles.Any(f => f.UserID == userID && f.FileType == "Portrait");
+
+            if (hasAllFiles)
+            {
+                return RedirectToAction("DangKyPhong", "Phong");
+            }
+
             return View();
         }
+
         [HttpPost]
         public ActionResult UploadFiles(HttpPostedFileBase CCCD, HttpPostedFileBase BHYT, HttpPostedFileBase StudentCard, HttpPostedFileBase Portrait)
         {
@@ -95,7 +108,6 @@ namespace KTXSV.Controllers
             }
             catch (Exception ex)
             {
-                // Ghi log lỗi nếu không gửi được thông báo nhưng không chặn luồng chính
                 System.Diagnostics.Debug.WriteLine("Error sending file upload notification: " + ex.Message);
             }
             TempData["Success"] = "Cập nhật hồ sơ thành công.";

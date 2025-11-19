@@ -1,4 +1,5 @@
 ﻿using KTXSV.Models;
+using KTXSV.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,14 @@ namespace KTXSV.Controllers
 {
     public class ThanhToanController : Controller
     {
+        private readonly AdminNotificationService _adminNotificationService;
+        private readonly StudentNotificationService _studentNotificationService;
+
+        public ThanhToanController()
+        {
+            _adminNotificationService = new AdminNotificationService(new KTXSVEntities());
+            _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
+        }
         KTXSVEntities db = new KTXSVEntities();
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {

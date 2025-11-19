@@ -9,6 +9,7 @@ namespace KTXSV.Controllers
 {
     public class AdminController : Controller
     {
+
         private readonly AdminNotificationService _adminNotificationService;
         private readonly StudentNotificationService _studentNotificationService;
 
@@ -103,14 +104,51 @@ namespace KTXSV.Controllers
 
             reg.Status = "Rejected";
             db.SaveChanges();
-            _studentNotificationService.SendStudentNotification(reg.UserID, reg.RegID, "Rejected", reg);
 
             _adminNotificationService.SendAdminNotification( "Rejected", reg);
 
             TempData["Message"] = "Đã từ chối đăng ký và gửi thông báo đến sinh viên";
             return RedirectToAction("PendingRegistrations");
         }
+        public ActionResult Notifications()
+        {
+            // Lấy tất cả thông báo dành cho Admin hoặc All
+            var notifications = db.Notifications
+                                  .Where(n => n.TargetRole == "Admin" || n.TargetRole == "All")
+                                  .OrderByDescending(n => n.CreatedAt)
+                                  .ToList();
 
+            return View(notifications);
+        }
+
+        // POST: Admin/MarkAsRead/5
+        [HttpPost]
+        public ActionResult MarkAsRead(int id)
+        {
+            var noti = db.Notifications.Find(id);
+            if (noti != null && !noti.IsRead)
+            {
+                noti.IsRead = true;
+                db.SaveChanges(); // Cập nhật trực tiếp vào database
+            }
+            return new EmptyResult(); // Không trả view, chỉ dùng để Ajax
+        }
+
+        // GET: Admin/Notifications/ChiTiet/5
+        public ActionResult ChiTiet(int id)
+        {
+            var noti = db.Notifications.Find(id);
+            if (noti == null) return HttpNotFound();
+
+            // Nếu chưa đọc, đánh dấu đã đọc
+            if (!noti.IsRead)
+            {
+                noti.IsRead = true;
+                db.SaveChanges();
+            }
+
+            return View(noti);
+        }
 
 
     }
