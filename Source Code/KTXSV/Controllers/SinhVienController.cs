@@ -2,11 +2,19 @@
 using System;
 using System.Linq;
 using System.Web.Mvc;
-
+using KTXSV.Services;
 namespace KTXSV.Controllers
 {
     public class SinhVienController : Controller
     {
+        private readonly AdminNotificationService _adminNotificationService;
+        private readonly StudentNotificationService _studentNotificationService;
+
+        public SinhVienController()
+        {
+            _adminNotificationService = new AdminNotificationService(new KTXSVEntities());
+            _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
+        }
         private KTXSVEntities db = new KTXSVEntities();
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -77,6 +85,14 @@ namespace KTXSV.Controllers
             user.Phone = updatedUser.Phone;
 
             db.SaveChanges();
+            try
+            {
+                _studentNotificationService.SendGeneralNotification(user.UserID, "ProfileUpdated");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error sending profile update notification: " + ex.Message);
+            }
             TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
             return RedirectToAction("ThongTinCaNhan");
         }

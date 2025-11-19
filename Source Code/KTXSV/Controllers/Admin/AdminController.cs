@@ -1,5 +1,5 @@
 ﻿using KTXSV.Models;
-//using KTXSV.Services;
+using KTXSV.Services;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -9,15 +9,14 @@ namespace KTXSV.Controllers
 {
     public class AdminController : Controller
     {
+        private readonly AdminNotificationService _adminNotificationService;
+        private readonly StudentNotificationService _studentNotificationService;
 
-        //private readonly AdminNotificationService _notificationService;
-
-        //public AdminController()
-        //{
-        //    _notificationService = new AdminNotificationService(new KTXSVEntities());
-        //}
-        //private readonly StudentNotificationService _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
-      
+        public AdminController()
+        {
+            _adminNotificationService = new AdminNotificationService(new KTXSVEntities());
+            _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
+        }
 
 
 
@@ -87,10 +86,10 @@ namespace KTXSV.Controllers
             };
             db.Payments.Add(newPayment);
             db.SaveChanges();
-            //_studentNotificationService.SendStudentNotification(reg.UserID, reg.RegID, "Approved", reg);
+            _studentNotificationService.SendStudentNotification(reg.UserID, reg.RegID, "Approved", reg);
 
             // Gửi thông báo cho admin
-           // _adminNotificationService.SendAdminNotification("Approved", reg);
+            _adminNotificationService.SendAdminNotification("Approved", reg);
 
             TempData["Message"] = "Phê duyệt thành công!";
             return RedirectToAction("PendingRegistrations");
@@ -104,8 +103,9 @@ namespace KTXSV.Controllers
 
             reg.Status = "Rejected";
             db.SaveChanges();
+            _studentNotificationService.SendStudentNotification(reg.UserID, reg.RegID, "Rejected", reg);
 
-            //_notificationService.SendAdminNotification( "Rejected", reg);
+            _adminNotificationService.SendAdminNotification( "Rejected", reg);
 
             TempData["Message"] = "Đã từ chối đăng ký và gửi thông báo đến sinh viên";
             return RedirectToAction("PendingRegistrations");

@@ -1,5 +1,5 @@
 ﻿using KTXSV.Models;
-//using KTXSV.Services;
+using KTXSV.Services;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -11,6 +11,14 @@ namespace KTXSV.Controllers
 {
     public class PhongController : Controller
     {
+        private readonly AdminNotificationService _adminNotificationService;
+        private readonly StudentNotificationService _studentNotificationService;
+
+        public PhongController()
+        {
+            _adminNotificationService = new AdminNotificationService(new KTXSVEntities());
+            _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
+        }
         KTXSVEntities db = new KTXSVEntities();
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -79,19 +87,7 @@ namespace KTXSV.Controllers
             registration.Status = "Active";
             db.SaveChanges();
 
-            var noti = new Notification
-            {
-                UserID = registration.UserID,
-                Title = "Gia hạn phòng thành công",
-                Content = $"Bạn đã gia hạn phòng {registration.Room.RoomNumber} đến {newEndDate:dd/MM/yyyy}.Vui lòng thanh toán trước ngày <strong>{registration.StartDate.AddMonths(-1):dd/MM/yyyy}</strong>.",
-                CreatedAt = DateTime.Now,
-                TargetRole = "Student",
-                IsRead = false,
-                RegID = registration.RegID,
-                Url = "/Phong/DanhSachPhong"
-            };
-            db.Notifications.Add(noti);
-            db.SaveChanges();
+            
             // Tạo hóa đơn mới cho kỳ gia hạn
             var newPayment = new Payment
             {
@@ -104,7 +100,8 @@ namespace KTXSV.Controllers
             db.Payments.Add(newPayment);
 
             db.SaveChanges();
-
+            _studentNotificationService.SendStudentNotification(registration.UserID, registration.RegID, "Extended", registration);
+            _adminNotificationService.SendAdminNotification("Extended", registration);
             TempData["Success"] = "Gia hạn phòng thành công! Hóa đơn mới đã được tạo.";
             return RedirectToAction("DanhSachDangKy");
         }
@@ -203,22 +200,16 @@ namespace KTXSV.Controllers
                 db.Registrations.Add(dangKyMoi);
                 db.SaveChanges();
 
-                var thongBao = new Notification
-                {
-                    Title = "Đăng ký phòng thành công",
-                    Content = $"Đăng ký phòng {dangKyMoi.Room.RoomNumber}, Tòa {dangKyMoi.Room.Building}, Giường {dangKyMoi.Bed.BedNumber} từ {startDate:dd/MM/yyyy} đến {endDate:dd/MM/yyyy}",
-                    CreatedAt = DateTime.Now,
-                    TargetRole = "Student"
-                };
-                db.Notifications.Add(thongBao);
-                db.SaveChanges();
-
+               
 
                 if (phong.Occupied == phong.Capacity)
                 {
                     phong.Status = "Full";
                 }
                 db.SaveChanges();
+
+                _adminNotificationService.SendAdminNotification("NewRegistration", dangKyMoi);
+                _studentNotificationService.SendStudentNotification(userId, dangKyMoi.RegID, "NewRegistration", dangKyMoi);
                 TempData["Success"] = "Đăng ký phòng thành công. Vui lòng chờ duyệt.";
                 return RedirectToAction("DanhSachPhong");
 
@@ -282,20 +273,8 @@ namespace KTXSV.Controllers
             {
                 TempData["Error"] = "Không thể hủy đăng ký đã bị từ chối hoặc không tồn tại.";
             }
-            var thongBao = new Notification
-            {
-                UserID = reg.UserID,
-                Title = "Hủy đăng ký phòng",
-                Content = $"Hủy đăng ký phòng {reg.Room.RoomNumber}, Tòa {reg.Room.Building}, Giường  {reg.Bed.BedNumber}",
-                CreatedAt = DateTime.Now,
-                TargetRole = "Student",
-                IsRead = false,
-                RegID = reg.RegID,
-                Url = "/Phong/DanhSachPhong"
-            };
-            db.Notifications.Add(thongBao);
-            db.SaveChanges();
-
+            _studentNotificationService.SendStudentNotification(reg.UserID, reg.RegID, "Canceled", reg);
+            _adminNotificationService.SendAdminNotification("Canceled", reg);
             return RedirectToAction("DanhSachPhong");
         }
         // Action xem thông báo
@@ -323,12 +302,7 @@ namespace KTXSV.Controllers
                                   .ToList();
             return View(notifications);
         }
-        //private readonly NotificationService _notificationService;
-
-        //public PhongController()
-        //{
-        //    _notificationService = new NotificationService(new KTXSVEntities());
-        //}
+       
 
     }
 }

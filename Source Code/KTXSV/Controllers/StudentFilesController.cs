@@ -1,4 +1,5 @@
 ﻿using KTXSV.Models;
+using KTXSV.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +11,14 @@ namespace KTXSV.Controllers
 {
     public class StudentFilesController : Controller
     {
+        private readonly AdminNotificationService _adminNotificationService;
+        private readonly StudentNotificationService _studentNotificationService;
+
+        public StudentFilesController()
+        {
+            _adminNotificationService = new AdminNotificationService(new KTXSVEntities());
+            _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
+        }
         KTXSVEntities db = new KTXSVEntities();
         // GET: StudentFiles
         public ActionResult Index()
@@ -79,6 +88,16 @@ namespace KTXSV.Controllers
             SaveFile(Portrait, "Portrait");
 
             db.SaveChanges();
+
+            try
+            {
+                _studentNotificationService.SendGeneralNotification(userId, "FileUploadSuccess");
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi nếu không gửi được thông báo nhưng không chặn luồng chính
+                System.Diagnostics.Debug.WriteLine("Error sending file upload notification: " + ex.Message);
+            }
             TempData["Success"] = "Cập nhật hồ sơ thành công.";
             return RedirectToAction("DangKyPhong", "Phong");
         }

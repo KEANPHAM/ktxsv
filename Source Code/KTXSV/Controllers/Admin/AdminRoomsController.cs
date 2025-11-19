@@ -1,5 +1,5 @@
 ﻿using KTXSV.Models;
-//using KTXSV.Services;
+using KTXSV.Services;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -9,6 +9,14 @@ namespace KTXSV.Controllers
 {
     public class AdminRoomsController : Controller
     {
+        private readonly AdminNotificationService _adminNotificationService;
+        private readonly StudentNotificationService _studentNotificationService;
+
+        public AdminRoomsController()
+        {
+            _adminNotificationService = new AdminNotificationService(new KTXSVEntities());
+            _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
+        }
         private KTXSVEntities db = new KTXSVEntities();
 
         private bool IsAdmin() => Session["Role"] != null &&
@@ -112,12 +120,13 @@ namespace KTXSV.Controllers
                     BedNumber = i,
                     IsOccupied = false,
                     Booking = true,
-                    IsActive = true // nếu có cột này
+                    IsActive = true 
                 };
                 db.Beds.Add(newBed);
             }
             db.SaveChanges();
 
+            _adminNotificationService.SendAdminNotification("RoomCreated", room);
             TempData["Success"] = "Thêm phòng thành công";
             return RedirectToAction("Index");
         }
@@ -202,7 +211,7 @@ namespace KTXSV.Controllers
 
             db.Entry(dbRoom).State = EntityState.Modified;
             db.SaveChanges();
-
+            _adminNotificationService.SendAdminNotification("RoomUpdated", dbRoom);
             TempData["Success"] = "Cập nhật phòng thành công";
             return RedirectToAction("Index");
         }
@@ -230,7 +239,7 @@ namespace KTXSV.Controllers
 
             db.Rooms.Remove(room);
             db.SaveChanges();
-
+            _adminNotificationService.SendAdminNotification("RoomDeleted", room);
             TempData["Success"] = "Xóa phòng thành công";
             return RedirectToAction("Index");
         }
@@ -238,7 +247,8 @@ namespace KTXSV.Controllers
         [HttpPost]
         public ActionResult DeleteBed(int bedId)
         {
-            var bed = db.Beds.Find(bedId);
+            var bed = db.Beds.Include(b => b.Room).FirstOrDefault(b => b.BedID == bedId);
+
             if (bed == null) return HttpNotFound();
 
             if (bed.IsOccupied.GetValueOrDefault())
@@ -247,16 +257,31 @@ namespace KTXSV.Controllers
                 return RedirectToAction("Details", new { id = bed.RoomID });
             }
 
-            var room = db.Rooms.Find(bed.RoomID);
-            if (room != null) room.Capacity--;
+            var room = bed.Room;
+            int? roomId = bed.RoomID;
+
+            var bedInfo = new
+            {
+                RoomNumber = room?.RoomNumber,
+                BedNumber = bed.BedNumber,
+                Building = room?.Building
+            };
+
+            if (room != null)
+            {
+                room.Capacity = Math.Max(room.Capacity - 1, 0);
+                room.Status = (room.Occupied >= room.Capacity) ? "Full" : "Available";
+                db.Entry(room).State = EntityState.Modified;
+            }
 
             db.Beds.Remove(bed);
             db.SaveChanges();
 
-            TempData["Success"] = "Xóa giường thành công";
-            return RedirectToAction("Details", new { id = bed.RoomID });
-        }
+            _adminNotificationService.SendAdminNotification("BedDeleted", bedInfo.RoomNumber, bedInfo.BedNumber, bedInfo.Building);
 
+            TempData["Success"] = $"Đã xóa giường {bedInfo.BedNumber} của phòng {bedInfo.RoomNumber} thành công.";
+            return RedirectToAction("Details", new { id = roomId });
+        }
         [HttpGet]
         public JsonResult GetAvailableBeds(int roomId)
         {
@@ -286,18 +311,30 @@ namespace KTXSV.Controllers
         [HttpPost]
         public ActionResult TransferRoom(int id, int newRoomID, int newBedID, string note)
         {
-            var registration = db.Registrations.FirstOrDefault(r => r.RegID == id && r.Status == "Active");
-            if (registration == null)
+            // Lấy hợp đồng hiện tại đang Active
+            var oldReg = db.Registrations
+                .Include(r => r.User)
+                .Include(r => r.Room)
+                .Include(r => r.Bed)
+                .FirstOrDefault(r => r.RegID == id && r.Status == "Active");
+
+            if (oldReg == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Không tìm thấy hợp đồng đang hoạt động.";
+                return RedirectToAction("Index");
             }
 
-            registration.Status = "Transferred";
-            registration.Note = note;
-            registration.Bed.Booking = true;
-            db.Entry(registration).State = EntityState.Modified;
+            // Cập nhật hợp đồng cũ
+            oldReg.Status = "Transferred";
+            oldReg.Note = note;
 
-            var oldRoom = db.Rooms.FirstOrDefault(r => r.RoomID == registration.RoomID);
+            if (oldReg.Bed != null)
+            {
+                oldReg.Bed.Booking = true;
+                oldReg.Bed.IsOccupied = false;
+            }
+
+            var oldRoom = oldReg.Room;
             if (oldRoom != null)
             {
                 if (oldRoom.Occupied > 0)
@@ -307,22 +344,20 @@ namespace KTXSV.Controllers
                     oldRoom.Status = "Available";
             }
 
-            var oldBed = db.Beds.FirstOrDefault(b => b.BedID == registration.BedID);
-            if (oldBed != null)
-                oldBed.IsOccupied = false;
+            oldReg.EndDate = DateTime.Now;
 
+            // Tạo hợp đồng mới cho phòng mới
             var newReg = new Registration
             {
-                UserID = registration.UserID,
+                UserID = oldReg.UserID,
                 RoomID = newRoomID,
                 BedID = newBedID,
                 StartDate = DateTime.Now,
-                EndDate = registration.EndDate.Value, 
+                EndDate = oldReg.EndDate, // EndDate là DateTime non-nullable
                 Status = "Active",
                 Note = note
             };
             db.Registrations.Add(newReg);
-            registration.EndDate = DateTime.Now;
 
             var newRoom = db.Rooms.FirstOrDefault(r => r.RoomID == newRoomID);
             if (newRoom != null)
@@ -337,10 +372,18 @@ namespace KTXSV.Controllers
             {
                 newBed.IsOccupied = true;
                 newBed.Booking = false;
-                    }
+            }
+
             try
             {
                 db.SaveChanges();
+
+                // Gửi thông báo cho sinh viên
+                _studentNotificationService.SendStudentNotification(oldReg.UserID, oldReg.RegID, "Transferred", oldReg);
+
+                // Gửi thông báo cho Admin
+                _adminNotificationService.SendAdminNotification("Transferred", newReg);
+
                 TempData["Success"] = "Chuyển phòng thành công!";
             }
             catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
@@ -350,8 +393,8 @@ namespace KTXSV.Controllers
             }
 
             return RedirectToAction("Index");
-
         }
+
         // mở giường cho phép đăng ký
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -484,10 +527,9 @@ namespace KTXSV.Controllers
             };
             db.Payments.Add(p);
 
-            //_notificationService.SendNotification(reg.UserID, reg.RegID, "Extended", reg, months);
-
+            _adminNotificationService.SendAdminNotification("Extended", reg);
+            _studentNotificationService.SendStudentNotification(reg.UserID, reg.RegID,"Extended", reg,months);
             db.SaveChanges();
-
             TempData["Success"] = "Gia hạn hợp đồng thành công!";
             return RedirectToAction("Details", new { id = reg.RoomID });
         }
@@ -566,7 +608,8 @@ namespace KTXSV.Controllers
 
             db.Entry(reg).State = EntityState.Modified;
             db.SaveChanges();
-
+            _adminNotificationService.SendAdminNotification("EndContract", reg);
+            _studentNotificationService.SendStudentNotification(reg.UserID, reg.RegID, "EndContract", reg);
             TempData["Success"] = $"Hợp đồng của {reg.User.FullName} đã kết thúc và cho phép đăng ký mới tại giường {reg.Bed.BedNumber}.";
             return RedirectToAction("CurrentContracts");
         }
@@ -597,12 +640,7 @@ namespace KTXSV.Controllers
             return Redirect(Request.UrlReferrer.ToString()); // Quay về lại trang hiện tại
         }
 
-        //private readonly NotificationService _notificationService;
-
-        //public AdminRoomsController()
-        //{
-        //    _notificationService = new NotificationService(new KTXSVEntities());
-        //}
+        
 
 
     }

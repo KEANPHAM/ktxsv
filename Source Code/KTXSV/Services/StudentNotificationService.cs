@@ -1,154 +1,255 @@
-﻿//using KTXSV.Models;
-//using System;
+﻿using KTXSV.Models;
+using System;
+using System.Linq;
 
-//namespace KTXSV.Services
-//{
-//    public class StudentNotificationService : NotificationService
-//    {
-//        public StudentNotificationService(KTXSVEntities dbContext) : base(dbContext)
-//        {
-//        }
+namespace KTXSV.Services
+{
+    public class StudentNotificationService : NotificationService
+    {
+        public StudentNotificationService(KTXSVEntities dbContext) : base(dbContext)
+        {
+        }
 
-//        public void SendStudentNotification(int userId, int regId, string type, Registration reg, int months = 0)
-//        {
-//            string title = "";
-//            string content = "";
-//            string url = "/ThongBao/Index";
-//            string targetRole = "Student";
+        public void SendStudentNotification(int userId, int regId, string type, Registration reg, int months = 0)
+        {
+            string title = "";
+            string content = "";
+            string url = "/ThongBao/Index";
+            string targetRole = "Student";
 
-//            // Lấy các giá trị an toàn từ Registration
-//            DateTime startDate = reg.StartDate;
-//            DateTime endDate = reg.EndDate.GetValueOrDefault(DateTime.Today.AddMonths(1));
+            // Lấy các giá trị an toàn từ Registration
+            DateTime startDate = reg.StartDate;
+            DateTime endDate = reg.EndDate.GetValueOrDefault(DateTime.Today.AddMonths(1));
 
-//            // Tính toán Deadline
-//            DateTime paymentDeadline = startDate.AddMonths(-1);
-//            DateTime renewalDeadline = endDate.AddMonths(-1);
+            // Tính toán Deadline
+            DateTime paymentDeadline = startDate.AddMonths(-1);
+            DateTime renewalDeadline = endDate.AddMonths(-1);
 
-//            // Lấy thông tin user an toàn
-//            string fullName = reg.User?.FullName ?? "Sinh viên";
-//            string userIdString = reg.User?.UserID.ToString() ?? "N/A";
+            // Lấy thông tin user an toàn
+            string fullName = reg.User?.FullName ?? "Sinh viên";
+            string userIdString = reg.User?.UserID.ToString() ?? "N/A";
 
-//            // Lấy thông tin phòng an toàn
-//            string roomNumber = reg.Room?.RoomNumber ?? "N/A";
-//            string bedNumber = reg.Bed?.BedNumber ?? "N/A";
-//            string building = reg.Room?.Building ?? "N/A";
+            // Lấy thông tin phòng an toàn
+            string bedNumber = reg.Bed != null ? reg.Bed.BedNumber.ToString() : "N/A";
+            string roomNumber = reg.Room != null ? reg.Room.RoomNumber.ToString() : "N/A";
+            string building = reg.Room?.Building ?? "N/A";
 
+            var lastPayment = _db.Payments.Where(p => p.RegID == regId && p.Status == "Paid").OrderByDescending(p => p.PaymentDate).FirstOrDefault();
+            string paymentAmount = lastPayment != null ? string.Format("{0:N0} VNĐ", lastPayment.Amount) : "[Số tiền N/A]";
+            string paymentType = lastPayment?.Type ?? "Phí KTX";
 
-//            switch (type)
-//            {
-//                case "NewRegistration":
-//                    title = "XÁC NHẬN: Đã nhận Yêu cầu Đăng ký Phòng";
-//                    content = $@"
-//Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
-//Phòng Quản lý Ký túc xá xác nhận đã nhận được **Yêu cầu đăng ký chỗ ở** của bạn.<br/><br/>
-//<b>1. Thông tin đăng ký:</b><br/>
-//- Phòng: <strong>{roomNumber}</strong>, Tòa <strong>{building}</strong>, Giường <strong>{bedNumber}</strong><br/>
-//- Thời gian thuê: từ <strong>{startDate:dd/MM/yyyy}</strong> đến <strong>{endDate:dd/MM/yyyy}</strong><br/><br/>
-//<b>2. Bước tiếp theo:</b><br/>
-//- Yêu cầu của bạn đang được **xem xét và chờ phê duyệt** bởi Ban Quản lý KTX.<br/>
-//- Vui lòng thường xuyên kiểm tra thông báo để nhận được quyết định cuối cùng.<br/><br/>
-//Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
-//                    url = "/Phong/DanhSachPhong";
-//                    break;
+            switch (type)
+            {
+                case "EndContract":
+                    title = " THÔNG BÁO QUAN TRỌNG: Hợp đồng KTX đã Chấm dứt";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Hợp đồng chỗ ở của bạn tại Phòng **{roomNumber}**, Giường **{bedNumber}** đã được Ban Quản lý KTX chấm dứt vào ngày **{DateTime.Now:dd/MM/yyyy}**.<br/>
+<br/>
+- **Lý do:** [Chèn Lý do chấm dứt hợp đồng, nếu bạn có trường Reason trong Controller]<br/>
+- Vui lòng liên hệ Văn phòng Quản lý KTX để hoàn tất thủ tục trả phòng và nhận lại các khoản phí (nếu có).";
+                    url = "/SinhVien/ChiTietHopDong";
+                    break;
+                case "Transferred":
+                    // Lấy thông tin phòng cũ (reg là hợp đồng cũ)
+                    string oldRoomNumber = reg.Room?.RoomNumber ?? "N/A";
+                    string oldBedNumber = reg.Bed?.BedNumber.ToString() ?? "N/A";
 
-//                case "Canceled":
-//                    title = "XÁC NHẬN: Hủy Đăng ký Phòng Ký túc xá";
-//                    content = $@"
-//Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
-//Phòng Quản lý Ký túc xá xác nhận đã **hủy bỏ** yêu cầu/hợp đồng chỗ ở của bạn.<br/><br/>
-//<b>1. Thông tin hủy:</b><br/>
-//- Phòng: <strong>{roomNumber}</strong>, Giường <strong>{bedNumber}</strong><br/>
-//- Trạng thái hợp đồng: **Đã hủy**<br/><br/>
-//<b>2. Lưu ý:</b><br/>
-//- Nếu bạn hủy hợp đồng đang **Active**, vui lòng liên hệ KTX để hoàn tất thủ tục trả phòng và xử lý các khoản phí liên quan (nếu có).<br/><br/>
-//Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
-//                    url = "/Phong/DanhSachPhong";
-//                    break;
+                 
+                    title = " XÁC NHẬN: Chuyển Phòng Thành Công";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Yêu cầu chuyển phòng của bạn đã được Ban Quản lý KTX thực hiện thành công.<br/>
+<br/>
+<b>1. Hợp đồng cũ:</b><br/>
+- Phòng cũ: <strong>{oldRoomNumber}</strong>, Giường <strong>{oldBedNumber}</strong> đã được **chấm dứt/chuyển giao**.<br/>
+<br/>
+<b>2. Chỗ ở mới:</b><br/>
+- Vui lòng kiểm tra lại danh sách đăng ký phòng để xem thông tin hợp đồng mới (Phòng/Giường mới) và thời hạn mới (nếu có).<br/>
+- **Lưu ý:** Bạn cần chuyển đồ sang phòng mới theo quy định trong thời gian [Số ngày].";
+                    url = "/Phong/DanhSachPhong";
+                    break;
 
-//                case "Approved":
-//                    title = "THÔNG BÁO QUAN TRỌNG: Phê duyệt Đăng ký Phòng Ký túc xá";
-//                    content = $@"
-//Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
-//Phòng Quản lý Ký túc xá trân trọng thông báo:<br/>
-//<strong>Yêu cầu đăng ký chỗ ở</strong> tại KTX đã được <strong>phê duyệt chính thức</strong>.<br/><br/>
-//<b>1. Thông tin chỗ ở:</b><br/>
-//- Phòng: <strong>{roomNumber}</strong><br/>
-//- Giường: <strong>{bedNumber}</strong><br/>
-//- Thời gian thuê dự kiến: từ <strong>{startDate:dd/MM/yyyy}</strong><br/><br/>
-//<b>2. Yêu cầu thanh toán:</b><br/>
-//Một <strong>Hóa đơn KTX</strong> đã được tạo. Vui lòng thanh toán trước <strong>{paymentDeadline:dd/MM/yyyy}</strong>.<br/><br/>
-//<b>3. Hướng dẫn:</b><br/>
-//- Xem chi tiết hóa đơn tại <a href='/ThanhToan/HoaDon' target='_blank'>Trang Thanh Toán</a>.<br/><br/>
-//Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
-//                    url = "/ThanhToan/HoaDon";
-//                    break;
+                //
+                case "NewRegistration":
+                    title = "XÁC NHẬN: Đăng ký phòng thành công";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Phòng Quản lý Ký túc xá xác nhận đã nhận được **Yêu cầu đăng ký chỗ ở** của bạn.<br/><br/>
+<b>1. Thông tin đăng ký:</b><br/>
+- Phòng: <strong>{roomNumber}</strong>, Tòa <strong>{building}</strong>, Giường <strong>{bedNumber}</strong><br/>
+- Thời gian thuê: từ <strong>{startDate:dd/MM/yyyy}</strong> đến <strong>{endDate:dd/MM/yyyy}</strong><br/><br/>
+<b>2. Bước tiếp theo:</b><br/>
+- Yêu cầu của bạn đang được **xem xét và chờ phê duyệt** bởi Ban Quản lý KTX.<br/>
+- Vui lòng thường xuyên kiểm tra thông báo để nhận được quyết định cuối cùng.<br/><br/>
+Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
+                    url = "/Phong/DanhSachPhong";
+                    break;
 
-//                case "Rejected":
-//                    title = "THÔNG BÁO QUAN TRỌNG: Từ chối Đăng ký Phòng Ký túc xá";
-//                    content = $@"
-//Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
-//Yêu cầu đăng ký phòng của bạn tại Phòng <strong>{roomNumber}</strong>, Giường <strong>{bedNumber}</strong> đã bị <strong>từ chối</strong>.<br/>
-//<b>1. Lý do (Ví dụ):</b><br/>
-//- Đăng ký không hợp lệ hoặc phòng đã đầy.<br/><br/>
-//<b>2. Hướng dẫn:</b><br/>
-//- Đăng ký lại tại <a href='/DangKy/Index' target='_blank'>Trang Đăng ký Phòng</a> nếu còn suất.<br/><br/>
-//Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
-//                    url = "/DangKy/Index";
-//                    break;
+                case "Canceled":
+                    title = "XÁC NHẬN: Hủy Đăng ký Phòng Ký túc xá";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Phòng Quản lý Ký túc xá xác nhận đã **hủy bỏ** yêu cầu/hợp đồng chỗ ở của bạn.<br/><br/>
+<b>1. Thông tin hủy:</b><br/>
+- Phòng: <strong>{roomNumber}</strong>, Giường <strong>{bedNumber}</strong><br/>
+- Trạng thái hợp đồng: **Đã hủy**<br/><br/>
+<b>2. Lưu ý:</b><br/>
+- Nếu bạn hủy hợp đồng đang **Active**, vui lòng liên hệ KTX để hoàn tất thủ tục trả phòng và xử lý các khoản phí liên quan (nếu có).<br/><br/>
+Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
+                    url = "/Phong/DanhSachPhong";
+                    break;
 
-//                case "Extended":
-//                    title = "THÔNG BÁO QUAN TRỌNG: Xác nhận Gia hạn Hợp đồng KTX";
-//                    content = $@"
-//Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
-//Gia hạn hợp đồng chỗ ở của bạn đã được thực hiện thành công.<br/><br/>
-//<b>1. Thông tin mới:</b><br/>
-//- Gia hạn thêm: <strong>{months} tháng</strong><br/>
-//- Hạn mới: <strong>{endDate:dd/MM/yyyy}</strong><br/>
-//- Chỗ ở: Phòng <strong>{roomNumber}</strong>, Giường <strong>{bedNumber}</strong><br/><br/>
-//<b>2. Thanh toán:</b><br/>
-//Hóa đơn gia hạn đã được tạo. Vui lòng thanh toán trước <strong>{renewalDeadline:dd/MM/yyyy}</strong>.<br/><br/>
-//<b>3. Hướng dẫn:</b><br/>
-//- Xem hóa đơn tại <a href='/ThanhToan/HoaDon' target='_blank'>Trang Thanh Toán</a>.<br/><br/>
-//Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
-//                    url = "/ThanhToan/HoaDon";
-//                    break;
+                case "Approved":
+                    title = "THÔNG BÁO QUAN TRỌNG: Phê duyệt đăng ký phòng";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Phòng Quản lý Ký túc xá trân trọng thông báo:<br/>
+<strong>Yêu cầu đăng ký chỗ ở</strong> tại KTX đã được <strong>phê duyệt chính thức</strong>.<br/><br/>
+<b>1. Thông tin chỗ ở:</b><br/>
+- Phòng: <strong>{roomNumber}</strong><br/>
+- Giường: <strong>{bedNumber}</strong><br/>
+- Thời gian thuê dự kiến: từ <strong>{startDate:dd/MM/yyyy}</strong><br/><br/>
+<b>2. Yêu cầu thanh toán:</b><br/>
+Một <strong>Hóa đơn KTX</strong> đã được tạo. Vui lòng thanh toán trước <strong>{paymentDeadline:dd/MM/yyyy}</strong>.<br/><br/>
+<b>3. Hướng dẫn:</b><br/>
+- Xem chi tiết hóa đơn tại <a href='/ThanhToan/HoaDon' target='_blank'>Trang Thanh Toán</a>.<br/><br/>
+Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
+                    url = "/ThanhToan/HoaDon";
+                    break;
 
-//                case "Expiring":
-//                    title = "CẢNH BÁO: Hợp đồng Ký túc xá sắp hết hạn";
-//                    content = $@"
-//Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
-//Hợp đồng phòng <strong>{roomNumber}</strong> sẽ hết hạn vào ngày <strong>{endDate:dd/MM/yyyy}</strong>.<br/><br/>
-//<b>1. Lựa chọn:</b><br/>
-//- <a href='/GiaHan/Index' target='_blank'>Gia hạn hợp đồng</a><br/>
-//- Thực hiện bàn giao phòng trước ngày hết hạn.<br/><br/>
-//<b>2. Hướng dẫn:</b><br/>
-//- Sinh viên không hoàn tất thủ tục đúng hạn sẽ bị xử lý theo quy định KTX.<br/><br/>
-//Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
-//                    url = "/GiaHan/Index";
-//                    break;
+                case "Rejected":
+                    title = "THÔNG BÁO QUAN TRỌNG: Từ chối Đăng ký Phòng Ký túc xá";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Yêu cầu đăng ký phòng của bạn tại Phòng <strong>{roomNumber}</strong>, Giường <strong>{bedNumber}</strong> đã bị <strong>từ chối</strong>.<br/>
+<b>1. Lý do (Ví dụ):</b><br/>
+- Đăng ký không hợp lệ hoặc phòng đã đầy.<br/><br/>
+<b>2. Hướng dẫn:</b><br/>
+- Đăng ký lại tại <a href='/DangKy/Index' target='_blank'>Trang Đăng ký Phòng</a> nếu còn suất.<br/><br/>
+Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
+                    url = "/DangKy/Index";
+                    break;
 
-//                default:
-//                    title = "THÔNG BÁO CHUNG: Thông tin Ký túc xá";
-//                    content = $@"
-//Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
-//Phòng Quản lý KTX có thông báo: {type}<br/><br/>
-//Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
-//                    break;
-//            }
+                case "Extended":
+                    title = "THÔNG BÁO QUAN TRỌNG: Xác nhận Gia hạn Hợp đồng KTX";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Gia hạn hợp đồng chỗ ở của bạn đã được thực hiện thành công.<br/><br/>
+<b>1. Thông tin mới:</b><br/>
+- Gia hạn thêm: <strong>{months} tháng</strong><br/>
+- Hạn mới: <strong>{endDate:dd/MM/yyyy}</strong><br/>
+- Chỗ ở: Phòng <strong>{roomNumber}</strong>, Giường <strong>{bedNumber}</strong><br/><br/>
+<b>2. Thanh toán:</b><br/>
+Hóa đơn gia hạn đã được tạo. Vui lòng thanh toán trước <strong>{renewalDeadline:dd/MM/yyyy}</strong>.<br/><br/>
+<b>3. Hướng dẫn:</b><br/>
+- Xem hóa đơn tại <a href='/ThanhToan/HoaDon' target='_blank'>Trang Thanh Toán</a>.<br/><br/>
+Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
+                    url = "/ThanhToan/HoaDon";
+                    break;
 
-//            var noti = new Notification
-//            {
-//                UserID = userId,
-//                RegID = regId,
-//                Title = title,
-//                Content = content,
-//                CreatedAt = DateTime.Now,
-//                TargetRole = targetRole,
-//                IsRead = false,
-//                Url = url
-//            };
+                case "Expiring":
+                    title = "CẢNH BÁO: Hợp đồng Ký túc xá sắp hết hạn";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Hợp đồng phòng <strong>{roomNumber}</strong> sẽ hết hạn vào ngày <strong>{endDate:dd/MM/yyyy}</strong>.<br/><br/>
+<b>1. Lựa chọn:</b><br/>
+- <a href='/GiaHan/Index' target='_blank'>Gia hạn hợp đồng</a><br/>
+- Thực hiện bàn giao phòng trước ngày hết hạn.<br/><br/>
+<b>2. Hướng dẫn:</b><br/>
+- Sinh viên không hoàn tất thủ tục đúng hạn sẽ bị xử lý theo quy định KTX.<br/><br/>
+Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
+                    url = "/GiaHan/Index";
+                    break;
+                case "PaymentReceived":
+                    title = " XÁC NHẬN: Thanh toán Phí Ký túc xá thành công";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Phòng Quản lý KTX xác nhận đã nhận được thanh toán của bạn.<br/><br/>
+<b>1. Chi tiết thanh toán:</b><br/>
+- Nội dung: <strong>{paymentType}</strong><br/>
+- Số tiền: <strong>{paymentAmount}</strong><br/>
+- Trạng thái hóa đơn: **Đã thanh toán**<br/><br/>
+<b>2. Lưu ý:</b><br/>
+- Hóa đơn của bạn đã được cập nhật. Vui lòng kiểm tra mục Lịch sử Thanh toán.";
+                    url = "/ThanhToan/LichSu";
+                    break;
+                default:
+                    title = "THÔNG BÁO CHUNG: Thông tin Ký túc xá";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Phòng Quản lý KTX có thông báo: {type}<br/><br/>
+Trân trọng,<br/><strong>Phòng Quản lý KTX - HUFLIT</strong>";
+                    break;
+            }
 
-//            SaveNotification(noti);
-//        }
-//    }
-//}
+            var noti = new Notification
+            {
+                UserID = userId,
+                RegID = regId,
+                Title = title,
+                Content = content,
+                CreatedAt = DateTime.Now,
+                TargetRole = targetRole,
+                IsRead = false,
+                Url = url
+            };
+
+            SaveNotification(noti);
+        }
+        public void SendGeneralNotification(int userId, string type)
+        {
+            string title = "";
+            string content = "";
+            string url = "/StudentFiles/Index";
+            string targetRole = "Student";
+
+            var user = _db.Users.Find(userId);
+            string fullName = user?.FullName ?? "Sinh viên";
+            string userIdString = user?.UserID.ToString() ?? "N/A";
+
+            switch (type)
+            {
+                case "FileUploadSuccess":
+                    title = " XÁC NHẬN: Cập nhật Hồ sơ Thành công";
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Hồ sơ/tài liệu của bạn đã được **cập nhật thành công** trên hệ thống KTX.<br/>
+<br/>
+<b>Lưu ý:</b><br/>
+- Hồ sơ đầy đủ là điều kiện tiên quyết để thực hiện đăng ký phòng. Bạn có thể tiến hành đăng ký ngay bây giờ.<br/>
+- Vui lòng đảm bảo các tài liệu đã tải lên là chính xác.";
+                    url = "/Phong/DangKyPhong";
+                    break;
+                case "ProfileUpdated":
+                    title = "✅ XÁC NHẬN: Cập nhật Thông tin Cá nhân"; // Khai báo lại biến title
+                    content = $@"
+Kính gửi: <strong>{fullName} ({userIdString})</strong><br/><br/>
+Thông tin cá nhân của bạn trên hệ thống KTX đã được **cập nhật thành công** vào ngày {DateTime.Now:dd/MM/yyyy}.<br/>
+<br/>
+<b>Lưu ý:</b><br/>
+- Nếu bạn không thực hiện việc thay đổi này, vui lòng liên hệ ngay với Phòng Quản lý KTX để được hỗ trợ bảo mật.";
+                    url = "/SinhVien/ThongTinCaNhan"; // Khai báo lại biến url
+                    break;
+                default:
+                    title = "THÔNG BÁO CHUNG";
+                    content = $"Thông báo chung về sự kiện '{type}'.";
+                    break;
+            }
+
+            var noti = new Notification
+            {
+                UserID = userId,
+                RegID = null,
+                Title = title,
+                Content = content,
+                CreatedAt = DateTime.Now,
+                TargetRole = targetRole,
+                IsRead = false,
+                Url = url
+            };
+
+            SaveNotification(noti);
+        }
+    }
+}
