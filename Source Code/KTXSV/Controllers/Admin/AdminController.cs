@@ -1,4 +1,5 @@
 ﻿using KTXSV.Models;
+//using KTXSV.Services;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -8,6 +9,18 @@ namespace KTXSV.Controllers
 {
     public class AdminController : Controller
     {
+
+        //private readonly AdminNotificationService _notificationService;
+
+        //public AdminController()
+        //{
+        //    _notificationService = new AdminNotificationService(new KTXSVEntities());
+        //}
+        //private readonly StudentNotificationService _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
+      
+
+
+
         private KTXSVEntities db = new KTXSVEntities();
 
         // GET: Admin/PendingRegistrations
@@ -48,12 +61,11 @@ namespace KTXSV.Controllers
 
             reg.Status = "Active";
 
-            var bed = db.Beds.FirstOrDefault(b => b.BedID == reg.BedID);
-
-            if (bed != null)
-            {
-                bed.IsOccupied = true;
-            }
+            var bed = db.Beds.Find(reg.BedID);
+            bed.Booking = false;   
+            bed.IsOccupied = true;  
+            db.Entry(bed).State = EntityState.Modified;
+            db.SaveChanges();
 
             var room = db.Rooms
                 .Include("Beds")
@@ -65,8 +77,20 @@ namespace KTXSV.Controllers
 
                 room.Status = (room.Occupied < room.Capacity) ? "Available" : "Full";
             }
-
+            var newPayment = new Payment
+            {
+                RegID = reg.RegID,
+                Amount = reg.Room.Price, 
+                PaymentDate = DateTime.Today,
+                Type = "Rent",
+                Status = "Unpaid"
+            };
+            db.Payments.Add(newPayment);
             db.SaveChanges();
+            //_studentNotificationService.SendStudentNotification(reg.UserID, reg.RegID, "Approved", reg);
+
+            // Gửi thông báo cho admin
+           // _adminNotificationService.SendAdminNotification("Approved", reg);
 
             TempData["Message"] = "Phê duyệt thành công!";
             return RedirectToAction("PendingRegistrations");
@@ -75,21 +99,18 @@ namespace KTXSV.Controllers
         // Từ chối đăng ký
         public ActionResult Reject(int id)
         {
-            var reg = db.Registrations.Find(id);
-            if (reg != null)
-            {
-                reg.Status = "Rejected";
-                db.SaveChanges();
-                TempData["Message"] = "Đã từ chối đăng ký!";
-            }
-            else
-            {
-                TempData["Message"] = "Đăng ký không tồn tại!";
-            }
-            var bed = db.Beds.Find(reg.BedID);
-           
+            var reg = db.Registrations.Include(r => r.User).Include(r => r.Room).Include(r => r.Bed).FirstOrDefault(r => r.RegID == id);
+            if (reg == null) return HttpNotFound();
+
+            reg.Status = "Rejected";
+            db.SaveChanges();
+
+            //_notificationService.SendAdminNotification( "Rejected", reg);
+
+            TempData["Message"] = "Đã từ chối đăng ký và gửi thông báo đến sinh viên";
             return RedirectToAction("PendingRegistrations");
         }
+
 
 
     }

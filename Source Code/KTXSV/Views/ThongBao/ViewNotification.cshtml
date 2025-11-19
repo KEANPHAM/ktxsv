@@ -1,0 +1,17 @@
+﻿@model KTXSV.Models.Notification
+
+<h2 class="mb-4" style="color:#EE6823;">Chi tiết thông báo</h2>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <strong>@Model.Title</strong>
+    </div>
+    <div class="card-body">
+        <p>@Html.Raw(Model.Content)</p>
+        <p><strong>Ngày gửi:</strong> @(Model.CreatedAt.HasValue ? Model.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")</p>
+        <p><strong>Trạng thái:</strong> @(Model.IsRead ? "Đã đọc" : "Chưa đọc")</p>
+    </div>
+    <div class="card-footer">
+        <a href="@Url.Action("Notifications", "ThongBao")" class="btn btn-sm btn-secondary">Quay lại danh sách</a>
+    </div>
+</div>

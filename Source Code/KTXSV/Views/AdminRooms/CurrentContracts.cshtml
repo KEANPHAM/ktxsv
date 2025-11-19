@@ -1,0 +1,216 @@
+﻿@model IEnumerable<KTXSV.Models.Registration>
+@{
+    ViewBag.Title = "Danh sách sinh viên đang ở";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<h2 class="mb-4" style="color:#EE6823;">Danh sách sinh viên đang ở</h2>
+
+<!-- Form tìm kiếm -->
+<form method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="search" placeholder="Tìm theo tên sinh viên" value="@Request["search"]" class="form-control" />
+    <input type="text" name="roomNumber" placeholder="Tìm theo số phòng" value="@Request["roomNumber"]" class="form-control" />
+    <select name="status" class="form-select">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Active" @(Request["status"] == "Active" ? "selected" : "")>Đang ở</option>
+        <option value="Expiring" @(Request["status"] == "Expiring" ? "selected" : "")>Sắp hết hạn</option>
+        <option value="Ended" @(Request["status"] == "Ended" ? "selected" : "")>Đã kết thúc</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Lọc</button>
+</form>
+
+<table class="table table-bordered text-center">
+    <thead class="table-light">
+        <tr>
+            <th>STT</th>
+            <th>Họ và tên</th>
+            <th>Phòng</th>
+            <th>Giường</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Thanh toán</th>
+            <th>Chức năng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int stt = 1;
+        }
+        @foreach (var reg in Model)
+        {
+            string statusText = "Đang ở";
+            string badgeClass = "success";
+
+
+            switch (reg.Status)
+            {
+                case "Active": statusText = "Đang ở"; badgeClass = "success"; break;
+                case "Expiring": statusText = "Sắp hết hạn"; badgeClass = "warning"; break;
+                case "Ended": statusText = "Đã kết thúc"; badgeClass = "secondary"; break;
+                case "Pending": statusText = "Chờ duyệt"; badgeClass = "info"; break;
+                case "Rejected": statusText = "Bị từ chối"; badgeClass = "danger"; break;
+                case "Canceled": statusText = "Đã hủy"; badgeClass = "dark"; break;
+            }
+
+            <tr>
+                <td>@stt</td>
+                <td>@(reg.User != null ? reg.User.FullName : "-")</td>
+                <td>@(reg.Room != null ? reg.Room.RoomNumber : "-")</td>
+                <td>@(reg.Bed != null ? reg.Bed.BedNumber.ToString() : "-")</td>
+                <td>@reg.StartDate.ToString("dd/MM/yyyy")</td>
+                <td>@(reg.EndDate != null ? reg.EndDate.Value.ToString("dd/MM/yyyy") : "-")</td>
+                <td><span class="badge bg-@badgeClass">@statusText</span></td>
+                <td>
+                    @if (reg.Payments != null && reg.Payments.Any())
+                    {
+                        foreach (var pay in reg.Payments)
+                        {
+                            string paymentBadgeClass;
+                            string statusTextRent;
+
+                            if (pay.Status == "Paid")
+                            {
+                                paymentBadgeClass = "success";
+                                statusTextRent = "Đã thanh toán";
+                            }
+                            else if (pay.Status == "Unpaid")
+                            {
+                                paymentBadgeClass = "warning";
+                                statusTextRent = "Chưa thanh toán";
+                            }
+                            else if (pay.Status == "Overdue")
+                            {
+                                paymentBadgeClass = "danger";
+                                statusTextRent = "Quá hạn";
+                            }
+                            else
+                            {
+                                paymentBadgeClass = "secondary";
+                                statusTextRent = pay.Status; // fallback
+                            }
+
+                            <span class="badge bg-@paymentBadgeClass mb-1">@statusTextRent</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Chưa có hóa đơn</span>
+                    }
+                </td>
+
+                <td>
+                    <!-- Chuyển phòng -->
+                    <a href="@Url.Action("TransferRoom", "AdminRooms", new { id = reg.RegID })"
+                       class="btn btn-sm btn-outline-primary mb-1">Chuyển phòng</a>
+
+                    <!-- Gia hạn -->
+                    @if (reg.Status == "Expiring")
+                    {
+                        <a href="@Url.Action("Renew", "AdminRooms", new { id = reg.RegID })"
+                           class="btn btn-sm btn-warning mb-1">Gia hạn</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-secondary mb-1" disabled>Gia hạn</button>
+                    }
+
+                    <!-- Kết thúc hợp đồng -->
+                    @using (Html.BeginForm("EndContract", "AdminRooms", FormMethod.Post, new { @style = "display:inline", @class = "formEndContract" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("regId", reg.RegID)
+                        <button type="submit" class="btn btn-sm btn-danger mb-1 btnConfirmEnd">Kết thúc</button>
+                    }
+
+                    <!-- Gửi thông báo (nút chuông) -->
+                    <!-- Modal gửi thông báo -->
+                    <div class="modal fade" id="sendNotiModal" tabindex="-1" aria-labelledby="sendNotiModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form id="sendNotiForm" method="post" action="@Url.Action("SendNotification", "AdminRooms")">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" id="modalUserId" name="userId" />
+                                    <input type="hidden" id="modalRegId" name="regId" />
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="sendNotiModalLabel">Gửi thông báo</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="modalTitle" class="form-label">Tiêu đề</label>
+                                            <input type="text" class="form-control" id="modalTitle" name="title" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="modalContent" class="form-label">Nội dung</label>
+                                            <textarea class="form-control" id="modalContent" name="content" rows="4" required></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Gửi</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-outline-info mb-1 btnOpenNotiModal"
+                            data-userid="@reg.UserID" data-regid="@reg.RegID" title="Gửi thông báo">
+                        <i class="bi bi-bell"></i>
+                    </button>
+
+                </td>
+
+            </tr>
+            stt++;
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                // Xác nhận kết thúc hợp đồng
+                $(".btnConfirmEnd").click(function (e) {
+                    e.preventDefault();
+                    var btn = $(this);
+                    var form = btn.closest("form");
+
+                    $.confirm({
+                        title: 'Xác nhận',
+                        content: 'Bạn có chắc muốn kết thúc hợp đồng này không?',
+                        buttons: {
+                            confirm: { text: 'Xác nhận', action: function () { form.submit(); } },
+                            cancel: { text: 'Hủy', btnClass: 'btn1-cancel' }
+                        }
+                    });
+                });
+
+                // Xác nhận gửi thông báo
+                $(document).ready(function () {
+                    // Mở modal gửi thông báo
+                    $(".btnOpenNotiModal").click(function () {
+                        var userId = $(this).data("userid");
+                        var regId = $(this).data("regid");
+
+                        $("#modalUserId").val(userId);
+                        $("#modalRegId").val(regId);
+
+                        var modal = new bootstrap.Modal(document.getElementById('sendNotiModal'));
+                        modal.show();
+                    });
+                });
+
+            });
+        </script>
+    }
+
+

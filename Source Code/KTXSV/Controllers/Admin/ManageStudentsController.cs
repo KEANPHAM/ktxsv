@@ -130,19 +130,25 @@ namespace KTXSV.Controllers
                     break;
             }
 
-            return View("Index", students); // <-- dùng chung view Index.cshtml
+            return View("Index", students); //
         }
 
 
         // GET: ManageStudents/Details/5
         public ActionResult Details(int id)
         {
-            var student = db.Users.Find(id);
-            if (student == null || student.Role != "Student")
+            var student = db.Users
+                .Include(u => u.Registrations.Select(r => r.Room)) 
+                .Include(u => u.Registrations.Select(r => r.Bed))  
+                .Include(u => u.StudentFiles)
+                .FirstOrDefault(u => u.UserID == id);
+
+            if (student == null)
                 return HttpNotFound();
 
             return View(student);
         }
+
 
         // GET: ManageStudents/Edit/5
         public ActionResult Edit(int id)

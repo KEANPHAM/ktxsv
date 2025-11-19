@@ -42,19 +42,39 @@ namespace KTXSV.Controllers
                 return RedirectToAction("LoginStudent", "Account");
 
             var notifications = db.Notifications
-                .Where(n =>
-                    (n.TargetRole == "ALL" || n.TargetRole == "Student") &&
-                    (n.UserID == null || n.UserID == userId)
-                )
-                .OrderByDescending(n => n.CreatedAt)
-                .ToList();
-            foreach (var n in notifications.Where(n => n.UserID == userId && !n.IsRead))
-            {
-                n.IsRead = true;
-            }
-            db.SaveChanges();
+                                 .Where(n => n.UserID == userId)
+                                 .OrderByDescending(n => n.CreatedAt)
+                                 .ToList();
 
             return View(notifications);
         }
+      
+        public ActionResult ViewNotification(int id)
+        {
+            var noti = db.Notifications.Find(id);
+            if (noti == null)
+                return HttpNotFound();
+
+            if (!noti.IsRead)
+            {
+                noti.IsRead = true;
+                db.SaveChanges();
+            }
+
+            return View(noti); 
+        }
+        [HttpPost]
+        public ActionResult MarkAsRead(int id)
+        {
+            var noti = db.Notifications.Find(id);
+            if (noti != null && !noti.IsRead)
+            {
+                noti.IsRead = true;
+                db.SaveChanges();
+            }
+            return new EmptyResult(); 
+        }
+
+
     }
 }

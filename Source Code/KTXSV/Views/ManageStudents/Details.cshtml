@@ -5,7 +5,11 @@
 
 <h2 class="mb-4" style="color:#ee6823;">Chi tiết sinh viên</h2>
 @{
-    var currentRegistration = Model.Registrations?.FirstOrDefault(r => r.Status == "Active");
+    var currentRegistration = Model.Registrations?
+        .OrderBy(r => r.Status == "Expiring" ? 0 :
+                      r.Status == "Active" ? 1 :
+                      r.Status == "Pending" ? 2 : 3)
+        .FirstOrDefault();
     string statusText = "Chưa có";
     string badgeClass = "secondary";
 
@@ -18,6 +22,8 @@
             case "Pending": statusText = "Chờ duyệt"; badgeClass = "info"; break;
             case "Rejected": statusText = "Bị từ chối"; badgeClass = "danger"; break;
             case "Canceled": statusText = "Đã hủy"; badgeClass = "warning"; break;
+            case "Expiring": statusText = "Sắp hết hạn"; badgeClass = "warning"; break;
+
         }
     }
 }
@@ -51,10 +57,10 @@
         <div class="col-sm-3 fw-bold">Ngày tạo</div>
         <div class="col-sm-3">@Model.CreatedAt.ToString()</div>
     </div>
-    <div class="row mb-2">
+    <div class="row mb-2 data-user-id=" @Model.UserID "">
 
         @{
-            var co = Model.Registrations?.FirstOrDefault(r => r.Status == "Active");
+            var co = currentRegistration;
         }
         <div class="col-sm-3 fw-bold">Phòng hiện tại </div>
         <div class="col-sm-3">@(co?.Room?.RoomNumber ?? "Chưa có")</div>

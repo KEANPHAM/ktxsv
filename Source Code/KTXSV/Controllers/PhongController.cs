@@ -1,4 +1,5 @@
 ﻿using KTXSV.Models;
+//using KTXSV.Services;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -42,9 +43,76 @@ namespace KTXSV.Controllers
         {
             return View();
         }
+        public ActionResult GiaHanPhong(int regId)
+        {
+            var registration = db.Registrations
+                                 .Include(r => r.Room)
+                                 .FirstOrDefault(r => r.RegID == regId);
+
+            if (registration == null)
+                return HttpNotFound();
+
+            return View(registration);
+        }
+
+        [HttpPost]
+        public ActionResult GiaHanPhong(int regId, DateTime newEndDate)
+        {
+            var registration = db.Registrations
+                                 .Include(r => r.Room)
+                                 .Include(r => r.User)
+                                 .FirstOrDefault(r => r.RegID == regId);
+
+            if (registration == null)
+                return HttpNotFound();
+
+            // Kiểm tra giường đã bị người khác đăng ký chưa
+            var bed = db.Beds.Find(registration.BedID);
+            if (bed == null || (bed.IsOccupied.GetValueOrDefault() && registration.Status != "Expiring"))
+            {
+                TempData["Error"] = "Giường đã bị người khác đăng ký. Không thể gia hạn.";
+                return RedirectToAction("DanhSachDangKy");
+            }
+
+            // Cập nhật ngày kết thúc
+            registration.EndDate = newEndDate;
+            registration.Status = "Active";
+            db.SaveChanges();
+
+            var noti = new Notification
+            {
+                UserID = registration.UserID,
+                Title = "Gia hạn phòng thành công",
+                Content = $"Bạn đã gia hạn phòng {registration.Room.RoomNumber} đến {newEndDate:dd/MM/yyyy}.Vui lòng thanh toán trước ngày <strong>{registration.StartDate.AddMonths(-1):dd/MM/yyyy}</strong>.",
+                CreatedAt = DateTime.Now,
+                TargetRole = "Student",
+                IsRead = false,
+                RegID = registration.RegID,
+                Url = "/Phong/DanhSachPhong"
+            };
+            db.Notifications.Add(noti);
+            db.SaveChanges();
+            // Tạo hóa đơn mới cho kỳ gia hạn
+            var newPayment = new Payment
+            {
+                RegID = registration.RegID,
+                Amount = registration.Room.Price, // giả sử 1 tháng
+                Type = "Rent",
+                PaymentDate = DateTime.Today,
+                Status = "Unpaid"
+            };
+            db.Payments.Add(newPayment);
+
+            db.SaveChanges();
+
+            TempData["Success"] = "Gia hạn phòng thành công! Hóa đơn mới đã được tạo.";
+            return RedirectToAction("DanhSachDangKy");
+        }
+
+
         public ActionResult DangKyPhong(string gender, string building, int? capacity)
         {
-            
+
             var userId = int.Parse(Session["UserID"].ToString());
 
             var uploadedTypes = db.StudentFiles
@@ -75,7 +143,7 @@ namespace KTXSV.Controllers
 
             var pendingBedIds = db.Registrations
                 .Where(r => r.Status == "Pending" || r.Status == "Active")
-                .Select(r => r.BedID.Value) 
+                .Select(r => r.BedID.Value)
                 .ToList();
 
             ViewBag.PendingBedIds = pendingBedIds;
@@ -92,8 +160,8 @@ namespace KTXSV.Controllers
             if (StartMonth < DateTime.Now.Month)
                 year += 1;
 
-            DateTime startDate = new DateTime(year, StartMonth, 1); 
-            DateTime endDate = startDate.AddMonths(ContractDuration).AddDays(-1); 
+            DateTime startDate = new DateTime(year, StartMonth, 1);
+            DateTime endDate = startDate.AddMonths(ContractDuration).AddDays(-1);
 
             var uploadedTypes = db.StudentFiles
                 .Where(f => f.UserID == userId)
@@ -127,8 +195,8 @@ namespace KTXSV.Controllers
                     UserID = userId,
                     RoomID = roomId,
                     BedID = bed.BedID,
-                    StartDate = startDate, 
-                    EndDate = endDate,      
+                    StartDate = startDate,
+                    EndDate = endDate,
                     Status = "Pending"
 
                 };
@@ -145,15 +213,7 @@ namespace KTXSV.Controllers
                 db.Notifications.Add(thongBao);
                 db.SaveChanges();
 
-                var thanhToanMoi = new Payment
-                {
-                    RegID = dangKyMoi.RegID,
-                    Amount = dangKyMoi.Room.Price,
-                    PaymentDate = DateTime.Now,
-                    Type = "Rent",
-                    Status = "Unpaid"
-                };
-                db.Payments.Add(thanhToanMoi);
+
                 if (phong.Occupied == phong.Capacity)
                 {
                     phong.Status = "Full";
@@ -170,19 +230,20 @@ namespace KTXSV.Controllers
             return RedirectToAction("DangKyPhong");
 
         }
-        //Phòng đã đk
         public ActionResult DanhSachPhong()
         {
             int userId = int.Parse(Session["UserID"].ToString());
 
             var dsDangKy = db.Registrations
                 .Where(r => r.UserID == userId)
+                .Include(r => r.Room)
+                .Include(r => r.Bed)
+                .Include(r => r.Payments) 
                 .OrderByDescending(r => r.StartDate)
                 .ToList();
 
             return View(dsDangKy);
         }
-
         [HttpPost]
         public ActionResult HuyDangKy(int? regId, int? bedId)
         {
@@ -196,7 +257,7 @@ namespace KTXSV.Controllers
                 TempData["Error"] = "Không tìm thấy đăng ký.";
                 return RedirectToAction("DanhSachPhong");
             }
-            
+
             if (reg.Status == "Pending" || reg.Status == "Active")
             {
                 reg.Status = "Canceled";
@@ -223,15 +284,51 @@ namespace KTXSV.Controllers
             }
             var thongBao = new Notification
             {
-                Title = "Hủy đăng ký phòng ",
+                UserID = reg.UserID,
+                Title = "Hủy đăng ký phòng",
                 Content = $"Hủy đăng ký phòng {reg.Room.RoomNumber}, Tòa {reg.Room.Building}, Giường  {reg.Bed.BedNumber}",
                 CreatedAt = DateTime.Now,
-                TargetRole = "Student"
+                TargetRole = "Student",
+                IsRead = false,
+                RegID = reg.RegID,
+                Url = "/Phong/DanhSachPhong"
             };
             db.Notifications.Add(thongBao);
             db.SaveChanges();
+
             return RedirectToAction("DanhSachPhong");
         }
-       
+        // Action xem thông báo
+        public ActionResult ViewNotification(int id)
+        {
+            var noti = db.Notifications.Find(id);
+            if (noti == null)
+                return HttpNotFound();
+
+            if (!noti.IsRead)
+            {
+                noti.IsRead = true;
+                db.SaveChanges();
+            }
+
+            return View(noti);
+        }
+
+        public ActionResult Notifications()
+        {
+            int userId = int.Parse(Session["UserID"].ToString());
+            var notifications = db.Notifications
+                                  .Where(n => n.UserID == userId)
+                                  .OrderByDescending(n => n.CreatedAt)
+                                  .ToList();
+            return View(notifications);
+        }
+        //private readonly NotificationService _notificationService;
+
+        //public PhongController()
+        //{
+        //    _notificationService = new NotificationService(new KTXSVEntities());
+        //}
+
     }
 }

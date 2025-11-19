@@ -1,0 +1,25 @@
+﻿@model KTXSV.Models.Registration
+@{
+    ViewBag.Title = "Gia hạn hợp đồng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h3>Gia hạn hợp đồng cho @Model.User.FullName</h3>
+
+<table class="table table-bordered">
+    <tr><th>Phòng</th><td>@Model.Room.RoomNumber</td></tr>
+    <tr><th>Giường</th><td>@Model.Bed.BedNumber</td></tr>
+    <tr><th>Ngày hết hạn hiện tại</th><td>@Model.EndDate.Value.ToString("dd/MM/yyyy")</td></tr>
+</table>
+
+<h4>Chọn thời gian gia hạn</h4>
+
+@using (Html.BeginForm())
+{
+    <select name="months" class="form-select">
+        <option value="6">Gia hạn 6 tháng</option>
+        <option value="12">Gia hạn 12 tháng</option>
+    </select>
+
+    <button class="btn btn-primary mt-3">Xác nhận gia hạn</button>
+}

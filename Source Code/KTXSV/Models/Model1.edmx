@@ -28,6 +28,7 @@
           <Property Name="UserID" Type="int" />
           <Property Name="IsRead" Type="bit" Nullable="false" />
           <Property Name="Url" Type="nvarchar" MaxLength="200" />
+          <Property Name="RegID" Type="int" />
         </EntityType>
         <EntityType Name="Payments">
           <Key>
@@ -172,6 +173,20 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Bed_Room_RoomID">
+          <End Role="Rooms" Type="Self.Rooms" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Bed" Type="Self.Bed" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rooms">
+              <PropertyRef Name="RoomID" />
+            </Principal>
+            <Dependent Role="Bed">
+              <PropertyRef Name="RoomID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Registrations_Bed">
           <End Role="Bed" Type="Self.Bed" Multiplicity="0..1" />
           <End Role="Registrations" Type="Self.Registrations" Multiplicity="*" />
@@ -234,6 +249,10 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="SupportRequests" EntitySet="SupportRequests" />
           </AssociationSet>
+          <AssociationSet Name="FK_Bed_Room_RoomID" Association="Self.FK_Bed_Room_RoomID">
+            <End Role="Rooms" EntitySet="Rooms" />
+            <End Role="Bed" EntitySet="Bed" />
+          </AssociationSet>
           <AssociationSet Name="FK_Registrations_Bed" Association="Self.FK_Registrations_Bed">
             <End Role="Bed" EntitySet="Bed" />
             <End Role="Registrations" EntitySet="Registrations" />
@@ -277,6 +296,7 @@
           <Property Name="UserID" Type="Int32" />
           <Property Name="IsRead" Type="Boolean" Nullable="false" />
           <Property Name="Url" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="RegID" Type="Int32" />
         </EntityType>
         <EntityType Name="Payment">
           <Key>
@@ -381,7 +401,9 @@
           <NavigationProperty Name="SupportRequests" Relationship="Self.FK__SupportRe__UserI__6C190EBB" FromRole="Users" ToRole="SupportRequests" />
         </EntityType>
         <Association Name="FK__Bed__RoomID__66603565">
-          <End Role="Rooms" Type="Self.Room" Multiplicity="1" />
+          <End Role="Rooms" Type="Self.Room" Multiplicity="1" >
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="Bed" Type="Self.Bed" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Rooms">
@@ -564,6 +586,7 @@
           <EntitySetMapping Name="Notifications">
             <EntityTypeMapping TypeName="KTXSVModel.Notification">
               <MappingFragment StoreEntitySet="Notifications">
+                <ScalarProperty Name="RegID" ColumnName="RegID" />
                 <ScalarProperty Name="NotiID" ColumnName="NotiID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
                 <ScalarProperty Name="Content" ColumnName="Content" />

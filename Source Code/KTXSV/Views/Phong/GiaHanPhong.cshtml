@@ -1,0 +1,126 @@
+﻿@model KTXSV.Models.Registration
+
+@{
+    ViewBag.Title = "Gia hạn phòng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4" style="color:#EE6823;">Gia hạn phòng @Model.Room.RoomNumber</h2>
+
+<div class="container border p-3 rounded" style="border-color:#EE6823; max-width:600px;">
+
+    <p><strong>Tòa:</strong> @Model.Room.Building</p>
+    <p><strong>Giường:</strong> @Model.BedID</p>
+    <p><strong>Bắt đầu:</strong> @Model.StartDate.ToString("dd/MM/yyyy")</p>
+    <p><strong>Kết thúc:</strong> @(Model.EndDate.HasValue ? Model.EndDate.Value.ToString("dd/MM/yyyy") : "-")</p>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form id="extendForm" action="@Url.Action("GiaHanPhong","Phong")" method="post">
+        @Html.Hidden("regId", Model.RegID)
+        <input type="hidden" name="newEndDate" id="newEndDateHidden" />
+
+        <div class="mb-3">
+            <label for="ContractDuration" class="form-label">Gia hạn trong:</label>
+            <select id="ContractDuration" name="ContractDuration" class="form-select">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    <option value="@i">@i tháng</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label"><strong>Ngày kết thúc dự kiến:</strong></label>
+            <p id="endDatePreview" class="fw-bold text-success">-</p>
+        </div>
+
+        <button type="button" id="btnConfirmExtend" class="btn btn-primary w-100">Xác nhận gia hạn</button>
+        <a href="@Url.Action("DanhSachPhong","Phong")" class="btn btn-secondary w-100 mt-2">Quay lại</a>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const contractSelect = document.getElementById("ContractDuration");
+    const endDatePreview = document.getElementById("endDatePreview");
+    const hiddenEndDate = document.getElementById("newEndDateHidden");
+
+    // Ngày kết thúc hiện tại
+    const oldEndDateStr = "@(Model.EndDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))";
+    const oldEndDate = new Date(oldEndDateStr);
+
+    function updateEndDatePreview() {
+        const months = parseInt(contractSelect.value);
+
+        // Bắt đầu = ngày 1 của tháng tiếp theo
+        let startMonth = oldEndDate.getMonth() + 1; // tháng tiếp theo
+        let startYear = oldEndDate.getFullYear();
+        if (startMonth > 11) { // sang năm mới
+            startMonth = 0;
+            startYear += 1;
+        }
+        const startDate = new Date(startYear, startMonth, 1);
+
+        // Ngày kết thúc = ngày cuối cùng của tháng kết thúc
+        const endMonth = startDate.getMonth() + months - 1;
+        const endYear = startDate.getFullYear() + Math.floor((startDate.getMonth() + months - 1) / 12);
+        const endMonthAdjusted = (startDate.getMonth() + months - 1) % 12;
+        const endDate = new Date(endYear, endMonthAdjusted + 1, 0); // ngày cuối cùng của tháng
+
+        // Update hiển thị
+        endDatePreview.textContent = endDate.toLocaleDateString();
+        hiddenEndDate.value = endDate.toISOString().split('T')[0];
+    }
+
+    // Cập nhật khi chọn số tháng
+    contractSelect.addEventListener("change", updateEndDatePreview);
+
+    // Khởi tạo lúc load
+    updateEndDatePreview();
+
+    // Xác nhận gia hạn với Swal
+    document.getElementById("btnConfirmExtend").addEventListener("click", function () {
+        const months = parseInt(contractSelect.value);
+
+        // Bắt đầu = ngày 1 tháng tiếp theo
+        let startMonth = oldEndDate.getMonth() + 1;
+        let startYear = oldEndDate.getFullYear();
+        if (startMonth > 11) {
+            startMonth = 0;
+            startYear += 1;
+        }
+        const startDate = new Date(startYear, startMonth, 1);
+
+        Swal.fire({
+            title: 'Xác nhận gia hạn',
+            html: `<p>Phòng: @Model.Room.RoomNumber</p>
+                   <p>Giường: @Model.BedID</p>
+                   <p>Thời hạn: ${months} tháng</p>
+                   <p>Bắt đầu: ${startDate.toLocaleDateString()}</p>
+                   <p>Kết thúc: ${endDatePreview.textContent}</p>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Gia hạn',
+            cancelButtonText: 'Hủy',
+            customClass: {
+                confirmButton: 'btn btn-primary px-5 py-2',
+                cancelButton: 'btn btn-secondary px-5 py-2'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById("extendForm").submit();
+            }
+        });
+    });
+});
+
+</script>

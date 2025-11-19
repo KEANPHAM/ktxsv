@@ -1,0 +1,348 @@
+﻿@{
+    ViewBag.Title = "Dashboard Quản Trị KTX";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; 
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<style>
+    :root {
+        --primary-color: #4e73df;
+        --success-color: #1cc88a;
+        --info-color: #36b9cc;
+        --warning-color: #f6c23e;
+        --danger-color: #e74a3b;
+        --dark-text: #5a5c69;
+        --light-bg: #f8f9fc;
+    }
+
+    body {
+        background-color: var(--light-bg);
+        font-family: 'Nunito', sans-serif;
+    }
+
+    .dashboard-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .dashboard-title {
+        color: var(--dark-text);
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+
+    .card-box {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px 0 rgba(0,0,0,0.05);
+        border: none;
+        margin-bottom: 24px;
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+
+        .card-box:hover {
+            transform: translateY(-5px);
+        }
+
+    .card-statistic-3 {
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .card-statistic-3 .card-icon {
+            position: absolute;
+            right: 15px;
+            top: 20px;
+            font-size: 3.5rem;
+            opacity: 0.15;
+            transform: rotate(-15deg);
+        }
+
+        .card-statistic-3 .card-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .card-statistic-3 .card-label {
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 0;
+        }
+
+    .border-left-primary {
+        border-left: 5px solid var(--primary-color);
+    }
+
+    .border-left-success {
+        border-left: 5px solid var(--success-color);
+    }
+
+    .border-left-warning {
+        border-left: 5px solid var(--warning-color);
+    }
+
+    .border-left-danger {
+        border-left: 5px solid var(--danger-color);
+    }
+
+    .text-primary {
+        color: var(--primary-color) !important;
+    }
+
+    .text-success {
+        color: var(--success-color) !important;
+    }
+
+    .text-warning {
+        color: var(--warning-color) !important;
+    }
+
+    .text-danger {
+        color: var(--danger-color) !important;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .card-box canvas {
+        max-height: 100%;
+        width: 100% !important;
+        height: auto !important;
+    }
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+    .badge-custom {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .progress {
+        height: 8px;
+        margin-top: 5px;
+        border-radius: 4px;
+        background-color: #e9ecef;
+    }
+    .content-area {
+        flex-grow: 1; 
+        padding: 20px;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+</style>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between dashboard-header">
+        <h1 class="dashboard-title">Xin chào, @ViewBag.FullName!</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-download fa-sm text-white-50"></i> Xuất báo cáo
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card-box card-statistic-3 border-left-primary">
+                <div class="card-icon text-primary"><i class="fas fa-user-graduate"></i></div>
+                <div class="mb-2">
+                    <h6 class="card-label text-primary">Sinh viên hiện tại</h6>
+                    <h2 class="card-value text-gray-800">@ViewBag.ActiveStudents</h2>
+                </div>
+                <div class="progress">
+                    @{
+                        double percentActive = ViewBag.TotalStudents > 0 ? ((double)ViewBag.ActiveStudents / ViewBag.TotalStudents) * 100 : 0;
+                    }
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: @percentActive%" aria-valuenow="@percentActive" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">Tổng hồ sơ: @ViewBag.TotalStudents</small>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card-box card-statistic-3 border-left-success">
+                <div class="card-icon text-success"><i class="fas fa-dollar-sign"></i></div>
+                <div class="mb-2">
+                    <h6 class="card-label text-success">Đã Thu (VND)</h6>
+                    <h2 class="card-value">@String.Format("{0:N0}", ViewBag.PaidPayments)</h2>
+                </div>
+                <small class="text-muted">Tổng thu dự kiến: @String.Format("{0:0,0}", ViewBag.TotalPayments)</small>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card-box card-statistic-3 border-left-danger">
+                <div class="card-icon text-danger"><i class="fas fa-hand-holding-usd"></i></div>
+                <div class="mb-2">
+                    <h6 class="card-label text-danger">Công nợ tồn đọng</h6>
+                    <h2 class="card-value">@String.Format("{0:N0}", ViewBag.UnpaidPayments)</h2>
+                </div>
+                <small class="text-danger font-weight-bold">Cần xử lý gấp</small>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card-box card-statistic-3 border-left-warning">
+                <div class="card-icon text-warning"><i class="fas fa-comments"></i></div>
+                <div class="mb-2">
+                    <h6 class="card-label text-warning">Yêu cầu hỗ trợ</h6>
+                    <h2 class="card-value">@ViewBag.PendingSupport</h2>
+                </div>
+                <small class="text-muted">Đang chờ xử lý</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-lg-8">
+            <div class="card-box p-4">
+                <h5 class="section-title"><i class="fas fa-bed mr-2 me-2"></i>Tình trạng Phòng & Giường</h5>
+
+                <div class="row">
+                    <div class="col-md-6 d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <canvas id="roomStatusChart"></canvas>
+                    </div>
+
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <span><i class="fas fa-door-open text-success mr-2 me-2"></i>Phòng trống</span>
+                                <span class="badge badge-custom bg-success text-white">@ViewBag.AvailableRooms</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span><i class="fas fa-door-closed text-secondary mr-2 me-2"></i>Phòng đã đầy</span>
+                                <span class="badge badge-custom bg-secondary text-white">@ViewBag.OccupiedRooms</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span><i class="fas fa-tools text-danger mr-2 me-2"></i>Đang bảo trì</span>
+                                <span class="badge badge-custom bg-danger text-white">@ViewBag.MaintenanceRooms</span>
+                            </li>
+
+                            <li class="list-group-item">
+                                <span><i class="fas fa-luggage-cart text-info mr-2 me-2"></i>Giường đang giữ chỗ</span>
+                                <span class="badge badge-custom bg-info text-white">@ViewBag.BookingBeds</span>
+                            </li>
+
+                            <!-- Tổng số giường -->
+                            <li class="list-group-item mt-3 border-top pt-3">
+                                <strong><i class="fas fa-bed text-primary mr-2 me-2"></i>Tổng số giường: @ViewBag.TotalBeds</strong>
+                            </li>
+                            <li class="list-group-item">
+                                <div style="width: 100%">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small>Tỉ lệ lấp đầy giường</small>
+                                        <small>@ViewBag.UsedBeds / @ViewBag.TotalBeds</small>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        @{
+                                            double bedPercent = ViewBag.TotalBeds > 0 ? ((double)ViewBag.UsedBeds / ViewBag.TotalBeds) * 100 : 0;
+                                        }
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: @bedPercent%"></div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-4">
+            <div class="card-box p-4 mb-4">
+                <h5 class="section-title text-danger"><i class="fas fa-exclamation-triangle mr-2"></i>Cần chú ý</h5>
+
+                <div class="d-flex align-items-center mb-4 p-3 rounded" style="background-color: #fff3cd; color: #856404;">
+                    <div class="me-3 display-4 "><i class="fas fa-file-contract"></i></div>
+                    <div  style="padding-left: 2px;">
+                        <h5 class="mb-0">@ViewBag.ExpiringContracts</h5>
+                        <small>Hợp đồng sắp hết hạn (7 ngày tới)</small>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center p-3 rounded" style="background-color: #d1ecf1; color: #0c5460;">
+                    <div class="me-3 display-4"><i class="fas fa-user-clock"></i></div>
+                    <div  style="padding-left: 3px;">
+                        <h5 class="mb-0">@ViewBag.PendingRegistrations</h5>
+                        <small>Đăng ký mới chờ duyệt</small>
+                    </div>
+                </div>
+                
+                <div class="mt-4 d-flex justify-content-evenly">
+                    <a href="@Url.Action("PendingRegistrations", "Admin")" class="btn btn-primary">
+                        Xử lý đăng ký
+                    </a>
+                    <a href="@Url.Action("CurrentContracts", "AdminRooms")" class="btn btn-warning">
+                        Gia hạn hợp đồng
+                    </a>
+                </div>
+            </div>
+
+           
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var availableRooms = @ViewBag.AvailableRooms;
+        var occupiedRooms = @ViewBag.OccupiedRooms;
+        var maintenanceRooms = @ViewBag.MaintenanceRooms;
+
+        var ctxRoom = document.getElementById('roomStatusChart').getContext('2d');
+        var roomChart = new Chart(ctxRoom, {
+            type: 'doughnut',
+            data: {
+                labels: ['Trống', 'Đã đầy', 'Bảo trì'],
+                datasets: [{
+                    data: [availableRooms, occupiedRooms, maintenanceRooms],
+                    backgroundColor: ['#1cc88a', '#858796', '#e74a3b'],
+                    hoverBackgroundColor: ['#17a673', '#5a5c69', '#c0392b'],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                },
+                legend: {
+                    display: false
+                },
+                cutoutPercentage: 70,
+            },
+        });
+    });
+</script>

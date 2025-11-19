@@ -140,7 +140,14 @@
         }
         @foreach (var student in Model)
         {
-            var lastReg = student.Registrations.OrderByDescending(r => r.StartDate).FirstOrDefault();
+            var lastReg = student.Registrations
+                .OrderByDescending(r =>
+                    r.Status == "Active" ? 3 :
+                    r.Status == "Expiring" ? 2 :
+                    r.Status == "Approved" ? 1 : 0
+                )
+                .ThenByDescending(r => r.StartDate)
+                .FirstOrDefault();
             string statusText = "Chưa có";
             string badgeClass = "secondary";
 
@@ -153,6 +160,8 @@
                     case "Pending": statusText = "Chờ duyệt"; badgeClass = "info"; break;
                     case "Rejected": statusText = "Bị từ chối"; badgeClass = "danger"; break;
                     case "Canceled": statusText = "Đã hủy"; badgeClass = "warning"; break;
+                    case "Expiring": statusText = "Sắp hết hạn"; badgeClass = "warning"; break;
+
                 }
             }
 

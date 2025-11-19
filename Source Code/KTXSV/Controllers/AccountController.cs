@@ -213,7 +213,7 @@ namespace KTXSV.Controllers
             {
                 Session["UserID"] = admin.UserID;
                 Session["Role"] = admin.Role;
-                return RedirectToAction("PendingRegistrations", "Admin");
+                return RedirectToAction("Index", "Dashboard");
             }
 
             ViewBag.Message = "Sai tài khoản hoặc mật khẩu admin.";

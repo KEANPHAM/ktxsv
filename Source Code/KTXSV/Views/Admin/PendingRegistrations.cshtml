@@ -1,7 +1,12 @@
 ﻿@model List<KTXSV.Models.Registration>
 @{
+    ViewBag.Title = "Dashboard Quản Trị KTX";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
 
 <style>
     h2 {
@@ -26,27 +31,26 @@
             background-color: #146c43 !important;
             transform: scale(0.95);
         }
-                .btn1-danger
 
-                    {
-                        background-color: #dc3545;
-                        color: #fff;
-                    }
-
-    .btn1-danger:hover {
-        background-color: #bb2d3b;
-        
-        transform: scale(1.02);
+    .btn1-danger {
+        background-color: #dc3545;
+        color: #fff;
     }
 
-    .btn1-danger:active {
-        background-color: #a52834 !important;
-        transform: scale(0.95);
-    }
+        .btn1-danger:hover {
+            background-color: #bb2d3b;
+            transform: scale(1.02);
+        }
+
+        .btn1-danger:active {
+            background-color: #a52834 !important;
+            transform: scale(0.95);
+        }
+
     .btn1-cancel {
         background-color: #6c757d;
         color: #fff;
-        border-radius:15px !important;
+        border-radius: 15px !important;
     }
 
         .btn1-cancel:hover {
@@ -106,7 +110,7 @@
         </tr>
     </thead>
     <tbody>
-        @{ 
+        @{
             int stt = 1;
 
         }

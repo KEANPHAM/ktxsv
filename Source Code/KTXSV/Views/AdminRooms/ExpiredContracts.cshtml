@@ -1,0 +1,72 @@
+﻿@model IEnumerable<KTXSV.Models.Registration>
+@{
+    ViewBag.Title = "Danh sách sinh viên đang ở";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mb-4" style="color:#EE6823;">Danh sách sinh viên đang ở</h2>
+
+<form method="get" class="mb-3">
+    <input type="text" name="search" placeholder="Tìm theo tên sinh viên" value="@Request["search"]" />
+    <input type="text" name="roomNumber" placeholder="Tìm theo số phòng" value="@Request["roomNumber"]" />
+    <select name="status">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Active" @(Request["status"] == "Active" ? "selected" : "")>Active</option>
+        <option value="Expiring" @(Request["status"] == "Expiring" ? "selected" : "")>Expiring</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Lọc</button>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Sinh viên</th>
+            <th>Phòng</th>
+            <th>Giường</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reg in Model)
+        {
+            <tr>
+                <td>@reg.User.FullName</td>
+                <td>@reg.Room.RoomNumber</td>
+                <td>@reg.Bed.BedNumber</td>
+                <td>@reg.StartDate?.ToString("dd/MM/yyyy")</td>
+                <td>@reg.EndDate?.ToString("dd/MM/yyyy")</td>
+                <td>@reg.Status</td>
+                <td>
+                    <!-- Kết thúc hợp đồng -->
+                    @using (Html.BeginForm("EndContract", "AdminRooms", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("regId", reg.RegID)
+                        <button type="submit" class="btn btn-sm btn-danger mb-1">Kết thúc</button>
+                    }
+
+                    <!-- Gia hạn hợp đồng -->
+                    @using (Html.BeginForm("ExtendContract", "AdminRooms", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("regId", reg.RegID)
+                        <input type="number" name="extendDays" min="1" placeholder="Số ngày" style="width:70px;" />
+                        <button type="submit" class="btn btn-sm btn-success mb-1">Gia hạn</button>
+                    }
+
+                    <!-- Chuyển phòng -->
+                    @using (Html.BeginForm("ChangeRoom", "AdminRooms", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("regId", reg.RegID)
+                        <input type="text" name="newRoomNumber" placeholder="Số phòng mới" style="width:80px;" />
+                        <button type="submit" class="btn btn-sm btn-warning">Chuyển phòng</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,4 +1,5 @@
 ﻿using KTXSV.Models;
+//using KTXSV.Services;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -64,7 +65,7 @@ namespace KTXSV.Controllers
 
             // Sinh viên đang ở (Active hoặc Approved)
             var currentStudents = db.Registrations
-                .Where(r => r.RoomID == id && (r.Status == "Approved" || r.Status == "Active"))
+                .Where(r => r.RoomID == id && (r.Status == "Approved" || r.Status == "Active" || r.Status == "Expiring"))
                 .Include(r => r.User)
                 .Include(r => r.Bed)
                 .ToList();
@@ -100,6 +101,21 @@ namespace KTXSV.Controllers
             room.Occupied = 0;
             room.Status = "Available";
             db.Rooms.Add(room);
+            db.SaveChanges();
+            int roomId = room.RoomID;
+
+            for (int i = 1; i <= room.Capacity; i++)
+            {
+                Bed newBed = new Bed
+                {
+                    RoomID = roomId,
+                    BedNumber = i,
+                    IsOccupied = false,
+                    Booking = true,
+                    IsActive = true // nếu có cột này
+                };
+                db.Beds.Add(newBed);
+            }
             db.SaveChanges();
 
             TempData["Success"] = "Thêm phòng thành công";
@@ -257,10 +273,8 @@ namespace KTXSV.Controllers
             if (registration == null)
                 return HttpNotFound();
 
-            // Danh sách phòng
             ViewBag.RoomID = new SelectList(db.Rooms, "RoomID", "RoomNumber");
 
-            // Lấy giường trống theo phòng hiện tại (ban đầu hiển thị giường của phòng hiện tại)
             var availableBeds = db.Beds
                 .Where(b => b.RoomID == registration.RoomID && b.IsOccupied == false)
                 .ToList();
@@ -278,13 +292,11 @@ namespace KTXSV.Controllers
                 return HttpNotFound();
             }
 
-            // 1. Kết thúc đăng ký hiện tại bằng EndDate cũ hoặc EndDate của đăng ký mới
             registration.Status = "Transferred";
             registration.Note = note;
-
+            registration.Bed.Booking = true;
             db.Entry(registration).State = EntityState.Modified;
 
-            // 2. Cập nhật phòng và giường cũ
             var oldRoom = db.Rooms.FirstOrDefault(r => r.RoomID == registration.RoomID);
             if (oldRoom != null)
             {
@@ -299,21 +311,19 @@ namespace KTXSV.Controllers
             if (oldBed != null)
                 oldBed.IsOccupied = false;
 
-            // 3. Tạo đăng ký mới cho phòng mới
             var newReg = new Registration
             {
                 UserID = registration.UserID,
                 RoomID = newRoomID,
                 BedID = newBedID,
                 StartDate = DateTime.Now,
-                EndDate = registration.EndDate.Value, // dùng EndDate cũ nếu có
+                EndDate = registration.EndDate.Value, 
                 Status = "Active",
                 Note = note
             };
             db.Registrations.Add(newReg);
             registration.EndDate = DateTime.Now;
 
-            // 4. Cập nhật phòng và giường mới
             var newRoom = db.Rooms.FirstOrDefault(r => r.RoomID == newRoomID);
             if (newRoom != null)
             {
@@ -324,9 +334,10 @@ namespace KTXSV.Controllers
 
             var newBed = db.Beds.FirstOrDefault(b => b.BedID == newBedID);
             if (newBed != null)
+            {
                 newBed.IsOccupied = true;
-
-            // 5. Lưu thay đổi
+                newBed.Booking = false;
+                    }
             try
             {
                 db.SaveChanges();
@@ -341,7 +352,7 @@ namespace KTXSV.Controllers
             return RedirectToAction("Index");
 
         }
-        // POST: AdminRooms/ReleaseBed
+        // mở giường cho phép đăng ký
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ReleaseBed(int bedID)
@@ -349,13 +360,250 @@ namespace KTXSV.Controllers
             var bed = db.Beds.Find(bedID);
             if (bed == null) return HttpNotFound();
 
-            // Mở giường cho đăng ký trước
-            bed.Booking = true; // kiểu bool? trong model
+            bed.Booking = true; 
             db.Entry(bed).State = EntityState.Modified;
             db.SaveChanges();
 
             TempData["Success"] = "Giường đã được mở cho đăng ký.";
             return RedirectToAction("Details", new { id = bed.RoomID });
         }
+
+        //ktra sắp hết hạn
+        public void CheckExpiringContracts()
+        {
+            DateTime today = DateTime.Today;
+            DateTime warning = today.AddDays(7);
+
+            var expiringRegs = db.Registrations
+                .Where(r => r.Status == "Active" && r.EndDate != null && DbFunctions.TruncateTime(r.EndDate) <= warning)
+                .Include(r => r.User)
+                .Include(r => r.Room)
+                .Include(r => r.Bed)
+                .ToList();
+
+            foreach (var reg in expiringRegs)
+            {
+                // Đồng bộ trạng thái
+                reg.Status = "Expiring";
+
+                // Đồng bộ giường: khóa đăng ký cho người khác
+                if (reg.Bed != null)
+                {
+                    reg.Bed.IsOccupied = true;
+                    reg.Bed.Booking = false;
+                }
+
+                // Kiểm tra Notification chưa gửi cho registration này hôm nay
+                bool sent = db.Notifications.Any(n =>
+                    n.UserID == reg.UserID &&
+                    n.Title.Contains("sắp hết hạn") &&
+                    DbFunctions.TruncateTime(n.CreatedAt) == today
+                );
+
+                if (!sent)
+                {
+                    db.Notifications.Add(new Notification
+                    {
+                        RegID = reg.RegID, 
+                        UserID = reg.UserID,
+                        Title = "Hợp đồng sắp hết hạn",
+                        Content = $"Hợp đồng phòng {reg.Room.RoomNumber} sẽ hết hạn ngày {reg.EndDate:dd/MM/yyyy}. Vui lòng gia hạn hoặc liên hệ Admin.",
+                        CreatedAt = DateTime.Now,
+                        TargetRole = "Student",
+                        IsRead = false,
+                        Url = "/Phong/DanhSachPhong"
+                    });
+                }
+            }
+
+            db.SaveChanges();
+        }
+
+
+        //tự động kiểm tra hạn
+        public ActionResult RunDailyTask()
+        {
+            CheckExpiringContracts();
+            return Content("DONE");
+        }
+
+
+        //gia hạn
+        public ActionResult Renew(int id)
+        {
+            var reg = db.Registrations
+                .Include(r => r.User)
+                .Include(r => r.Room)
+                .Include(r => r.Bed)
+                .FirstOrDefault(r => r.RegID == id);
+
+            if (reg == null) return HttpNotFound();
+            if (reg.Status == "Ended" || reg.Status == "Transferred")
+            {
+                TempData["Error"] = "Hợp đồng này đã kết thúc, không thể gia hạn!";
+                return RedirectToAction("Details", new { id = reg.RoomID });
+            }
+            return View(reg);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Renew(int id, int months)
+        {
+            var reg = db.Registrations
+                .Include(r => r.Room)
+                .Include(r => r.User)
+                .Include(r => r.Bed)
+                .FirstOrDefault(r => r.RegID == id);
+
+            if (reg == null) return HttpNotFound();
+            if (reg.Status == "Ended" || reg.Status == "Transferred")
+            {
+                TempData["Error"] = "Hợp đồng này đã kết thúc, không thể gia hạn!";
+                return RedirectToAction("Details", new { id = reg.RoomID });
+            }
+            DateTime oldEnd = reg.EndDate ?? DateTime.Now;
+            DateTime startDate = new DateTime(oldEnd.Year, oldEnd.Month, 1).AddMonths(1);
+
+            DateTime endDate = startDate.AddMonths(months).AddDays(-1);
+            reg.EndDate = endDate;
+
+            // cap nhat lại tạng thái
+            reg.Status = "Active";
+            if (reg.Bed != null)
+            {
+                reg.Bed.IsOccupied = true;
+                reg.Bed.Booking = false;
+            }
+            Payment p = new Payment
+            {
+                RegID = reg.RegID,
+                Amount = reg.Room.Price * months,
+                Type = "Rent",
+                PaymentDate = DateTime.Now,
+                Status = "Unpaid"
+            };
+            db.Payments.Add(p);
+
+            //_notificationService.SendNotification(reg.UserID, reg.RegID, "Extended", reg, months);
+
+            db.SaveChanges();
+
+            TempData["Success"] = "Gia hạn hợp đồng thành công!";
+            return RedirectToAction("Details", new { id = reg.RoomID });
+        }
+        public ActionResult CurrentContracts(string search = "", string roomNumber = "", string status = "")
+        {
+            var today = DateTime.Today;
+            var warning = today.AddDays(7);
+
+            var regs = db.Registrations
+                .Include(r => r.User)
+                .Include(r => r.Room)
+                .Include(r => r.Bed)
+                .Where(r => r.Status == "Active" || r.Status == "Expiring")
+                .ToList();
+
+            // Đồng bộ trạng thái Expiring
+            foreach (var reg in regs)
+            {
+                if (reg.Status == "Active" && reg.EndDate.HasValue && reg.EndDate.Value <= warning)
+                {
+                    reg.Status = "Expiring";
+                    if (reg.Bed != null)
+                    {
+                        reg.Bed.IsOccupied = true;
+                        reg.Bed.Booking = false;
+                    }
+                }
+            }
+            db.SaveChanges();
+
+            // Áp dụng filter tìm kiếm
+            if (!string.IsNullOrEmpty(search))
+                regs = regs.Where(r => r.User.FullName.Contains(search)).ToList();
+            if (!string.IsNullOrEmpty(roomNumber))
+                regs = regs.Where(r => r.Room.RoomNumber.Contains(roomNumber)).ToList();
+            if (!string.IsNullOrEmpty(status))
+                regs = regs.Where(r => r.Status == status).ToList();
+
+            // Sắp xếp theo phòng -> giường
+            regs = regs.OrderBy(r => r.Room.RoomNumber)
+                       .ThenBy(r => r.Bed.BedNumber)
+                       .ToList();
+
+            return View(regs);
+        }
+
+        public ActionResult ExpiredContracts()
+        {
+            DateTime today = DateTime.Today;
+
+            var expiredRegs = db.Registrations
+                .Include(r => r.User)
+                .Include(r => r.Room)
+                .Include(r => r.Bed)
+                .Where(r => (r.Status == "Active" || r.Status == "Expiring") && r.EndDate < today)
+                .OrderBy(r => r.EndDate)
+                .ToList();
+
+            return View(expiredRegs);
+        }
+        //kết thúc hợp đồng
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EndContract(int regId)
+        {
+            var reg = db.Registrations.Include(r => r.Bed).FirstOrDefault(r => r.RegID == regId);
+            if (reg == null) return HttpNotFound();
+
+            reg.Status = "Ended";
+
+            if (reg.Bed != null)
+            {
+                reg.Bed.IsOccupied = false;
+                reg.Bed.Booking = true;
+            }
+
+            db.Entry(reg).State = EntityState.Modified;
+            db.SaveChanges();
+
+            TempData["Success"] = $"Hợp đồng của {reg.User.FullName} đã kết thúc và cho phép đăng ký mới tại giường {reg.Bed.BedNumber}.";
+            return RedirectToAction("CurrentContracts");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SendNotification(int userId, int regId, string title, string content)
+        {
+            var notification = new Notification
+            {
+                UserID = userId,
+                RegID = regId,
+                Title = title,
+                Content = content,
+                TargetRole = "Student",
+                IsRead = false,
+                CreatedAt = DateTime.Now,
+                Url = ""
+            };
+
+
+            db.Notifications.Add(notification);
+
+            db.SaveChanges();
+            notification.Url = $"/Phong/ViewNotification/{notification.NotiID}";
+            db.SaveChanges();
+
+            TempData["Success"] = "Đã gửi thông báo đến sinh viên!";
+            return Redirect(Request.UrlReferrer.ToString()); // Quay về lại trang hiện tại
+        }
+
+        //private readonly NotificationService _notificationService;
+
+        //public AdminRoomsController()
+        //{
+        //    _notificationService = new NotificationService(new KTXSVEntities());
+        //}
+
+
     }
 }
