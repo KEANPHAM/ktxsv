@@ -1,86 +1,187 @@
-﻿@model KTXSV.Models.Payment
+﻿﻿@model KTXSV.Models.Payment
 
 @{
-    ViewBag.Title = "Thêm hóa đơn mới";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Create Payment";
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"> Thêm hóa đơn mới</h4>
-            <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-light btn-sm">Quay lại</a>
-        </div>
+@using (Html.BeginForm("Create", "PaymentAdmin", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
 
-        <div class="card-body">
-            @using (Html.BeginForm())
-            {
-                @Html.AntiForgeryToken()
+    <div class="form-group">
+        @Html.Label("RegID", "Sinh viên - Phòng", htmlAttributes: new { @class = "control-label" })
+        <select id="RegID" name="RegID" class="form-control">
+            <option value="">-- Chọn sinh viên - phòng --</option>
 
-                @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+            @*--- Null-safe: chuẩn hóa nguồn dữ liệu ViewBag.* thành danh sách (value, text) ---*@
+            @{
+                // Lấy object có thể là: IEnumerable<SelectListItem>, IEnumerable<dynamic> (anonymous), SelectList, hoặc ViewBag.RegID
+                var src = ViewBag.RegistrationsDisplay ?? ViewBag.RegID ?? new List<object>();
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Sinh viên - Phòng</label>
-                    @Html.DropDownList("RegID", null, "Chọn sinh viên & phòng...", new { @class = "form-select" })
-                    @Html.ValidationMessageFor(model => model.RegID, "", new { @class = "text-danger" })
-                </div>
+                // Helper: đọc property bằng Reflection (RegID / RegId / Value)
+                Func<object, string> getValue = o =>
+                {
+                    if (o == null) return null;
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Số tiền (VNĐ)</label>
-                    @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập số tiền..." } })
-                    @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
-                </div>
+                    // Nếu là SelectListItem
+                    var sli = o as System.Web.Mvc.SelectListItem;
+                    if (sli != null) return sli.Value;
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Loại thanh toán</label>
-                    @Html.DropDownListFor(model => model.Type,
-                        new SelectList(
-                            new[] {
-                                new { Value = "Rent",        Text = "Tiền phòng" },
-                                new { Value = "Electricity", Text = "Tiền điện" },
-                                new { Value = "Water",       Text = "Tiền nước" },
-                                new { Value = "Other",       Text = "Khác" }
-                            },
-                            "Value", "Text"
-                        ),
-                        "-- Chọn loại thanh toán --",
-                        new { @class = "form-select" }
-                    )
-                    @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
-                </div>
+                    // nếu là KeyValuePair-like: check properties
+                    var t = o.GetType();
+                    var p = t.GetProperty("RegID") ?? t.GetProperty("RegId") ?? t.GetProperty("Value") ?? t.GetProperty("ID") ?? t.GetProperty("Id");
+                    if (p != null)
+                    {
+                        var val = p.GetValue(o, null);
+                        return val == null ? null : val.ToString();
+                    }
 
+                    // nếu là anonymous with IDictionary (rare), thử cast
+                    var dict = o as System.Collections.IDictionary;
+                    if (dict != null)
+                    {
+                        if (dict.Contains("RegID")) return Convert.ToString(dict["RegID"]);
+                        if (dict.Contains("RegId")) return Convert.ToString(dict["RegId"]);
+                        if (dict.Contains("Value")) return Convert.ToString(dict["Value"]);
+                    }
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Ngày tạo hóa đơn</label>
-                    @Html.EditorFor(model => model.PaymentDate, new { htmlAttributes = new { @class = "form-control", type = "date" } })
-                    @Html.ValidationMessageFor(model => model.PaymentDate, "", new { @class = "text-danger" })
-                </div>
+                    // fallback: ToString()
+                    return o.ToString();
+                };
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Trạng thái</label>
-                    @Html.DropDownListFor(model => model.Status, new SelectList(
-                        new[] {
-                            new { Value = "Unpaid", Text = "Chưa thanh toán" },
-                            new { Value = "Paid", Text = "Đã thanh toán" },
-                            new { Value = "Overdue", Text = "Quá hạn" }
-                        }, "Value", "Text"
-                    ), "-- Chọn trạng thái --", new { @class = "form-select" })
-                    @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
-                </div>
+                Func<object, string> getText = o =>
+                {
+                    if (o == null) return null;
 
-                <div class="text-end mt-4">
-                    <button type="submit" class="btn btn-success px-4">
-                        Lưu hóa đơn
-                    </button>
-                    <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-outline-secondary px-4">
-                        Hủy
-                    </a>
-                </div>
+                    var sli = o as System.Web.Mvc.SelectListItem;
+                    if (sli != null) return sli.Text;
+
+                    var t = o.GetType();
+                    var p = t.GetProperty("DisplayText") ?? t.GetProperty("DisplayName") ?? t.GetProperty("Text") ?? t.GetProperty("RoomNumber") ?? t.GetProperty("FullName");
+                    if (p != null)
+                    {
+                        var val = p.GetValue(o, null);
+                        return val == null ? null : val.ToString();
+                    }
+
+                    var dict = o as System.Collections.IDictionary;
+                    if (dict != null)
+                    {
+                        if (dict.Contains("DisplayText")) return Convert.ToString(dict["DisplayText"]);
+                        if (dict.Contains("DisplayName")) return Convert.ToString(dict["DisplayName"]);
+                        if (dict.Contains("Text")) return Convert.ToString(dict["Text"]);
+                    }
+
+                    return o.ToString();
+                };
+
+                // Chuẩn hóa thành list các cặp (value,text)
+                var normalized = new List<Tuple<string, string>>();
+                var enumerable = src as System.Collections.IEnumerable;
+                if (enumerable != null)
+                {
+                    foreach (var item in enumerable)
+                    {
+                        var v = getValue(item);
+                        var t = getText(item);
+                        if (!String.IsNullOrEmpty(v))
+                        {
+                            normalized.Add(Tuple.Create(v, t ?? v));
+                        }
+                    }
+                }
             }
-        </div>
-    </div>
-</div>
 
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+            @* Render options từ normalized list *@
+            @foreach (var pair in normalized)
+            {
+                var value = pair.Item1;
+                var text = pair.Item2;
+                var selected = "";
+                // nếu model có RegID thì so sánh
+                if (Model != null && Model.RegID != null)
+                {
+                    // Model.RegID có thể int; so sánh string
+                    if (value == Model.RegID.ToString()) { selected = "selected"; }
+                }
+                <option value="@value" @Html.Raw(selected)>@text</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Amount, "Số tiền", htmlAttributes: new { @class = "control-label" })
+        @Html.TextBoxFor(m => m.Amount, new { @class = "form-control", id = "Amount" })
+        @Html.ValidationMessageFor(m => m.Amount)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Type, "Thể loại", htmlAttributes: new { @class = "control-label" })
+        @Html.DropDownListFor(m => m.Type,
+                 new SelectList(new[] {
+                new { Value = "Rent", Text = "Rent" },
+                new { Value = "Other", Text = "Other" }
+                         }, "Value", "Text", Model?.Type),
+                 "-- Chọn thể loại --",
+                 new { @class = "form-control" }
+             )
+        @Html.ValidationMessageFor(m => m.Type)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.PaymentDate, "Ngày tạo hóa đơn", htmlAttributes: new { @class = "control-label" })
+        @Html.TextBoxFor(m => m.PaymentDate, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Status, "Trạng thái", htmlAttributes: new { @class = "control-label" })
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.Hidden("Status", "Unpaid")
+        <input type="text" class="form-control" value="Unpaid" readonly />
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Lưu</button>
+        @Html.ActionLink("Hủy", "Index", null, new { @class = "btn btn-default" })
+    </div>
+}
+
+@section scripts{
+    <script>
+        (function(){
+            var regSelect = document.getElementById("RegID");
+            var amountInput = document.getElementById("Amount");
+
+            function fetchAmount(regId) {
+                if (!regId) {
+                    amountInput.value = "";
+                    return;
+                }
+                var url = '@Url.Action("GetAmountByRegistration", "PaymentAdmin")' + '?regId=' + encodeURIComponent(regId);
+                fetch(url, { method: 'GET', credentials: 'same-origin' })
+                  .then(function(res){ return res.json(); })
+                  .then(function(data){
+                      if (data && data.success) {
+                          amountInput.value = data.amount;
+                      } else {
+                          amountInput.value = "";
+                          console.warn("Could not get amount:", data && data.message);
+                      }
+                  })
+                  .catch(function(err){
+                      console.error("Fetch error:", err);
+                      amountInput.value = "";
+                  });
+            }
+
+            if (regSelect) {
+                regSelect.addEventListener("change", function(e){
+                    fetchAmount(e.target.value);
+                });
+
+                // nếu có sẵn selected (nếu reload), fetch initial
+                if (regSelect.value) fetchAmount(regSelect.value);
+            }
+        })();
+    </script>
 }

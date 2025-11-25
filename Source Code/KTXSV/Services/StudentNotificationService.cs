@@ -42,6 +42,18 @@ namespace KTXSV.Services
 
             switch (type)
             {
+                case "NewPayment":
+                    title = "THÔNG BÁO: Hóa đơn mới được tạo";
+                    content = $@"
+Kính gửi: <strong>{fullName} {username}</strong><br/><br/>
+Ban Quản lý KTX đã tạo một hóa đơn mới cho bạn.<br/><br/>
+<b>Chi tiết hóa đơn:</b><br/>
+- Loại: <strong>{reg.Payments.LastOrDefault()?.Type ?? "Phí KTX"}</strong><br/>
+- Số tiền: <strong>{reg.Payments.LastOrDefault()?.Amount:N0} VNĐ</strong><br/>
+- Trạng thái: <span class='badge bg-warning text-dark'>Chưa thanh toán</span><br/><br/>
+Vui lòng truy cập trang <a href='/ThanhToan/HoaDon'>Thanh toán</a> để xem chi tiết và thực hiện thanh toán.";
+                    url = "/ThanhToan/HoaDon";
+                    break;
                 case "EndContract":
                     title = " THÔNG BÁO QUAN TRỌNG: Kết thúc hợp đồng";
                     content = $@"
@@ -55,7 +67,7 @@ Hợp đồng chỗ ở của bạn tại Phòng <strong>{roomNumber}</strong>, 
                     string oldRoomNumber = reg.Room?.RoomNumber ?? "N/A";
                     string oldBedNumber = reg.Bed?.BedNumber.ToString() ?? "N/A";
 
-                 
+
                     title = " XÁC NHẬN: Chuyển Phòng Thành Công";
                     content = $@"
 Kính gửi: <strong>{fullName} {username}</strong><br/><br/>
@@ -173,6 +185,18 @@ Hợp đồng phòng <strong>{roomNumber}</strong> sẽ hết hạn vào ngày <
 </div>";
                     url = "/Phong/DanhSachPhong";
                     break;
+                case "PaymentPending":
+                    title = "XÁC NHẬN: Thanh toán đang chờ duyệt";
+                    content = $@"
+Kính gửi: <strong>{fullName} {username}</strong><br/><br/>
+Bạn đã xác nhận thanh toán cho hóa đơn.<br/>
+- Phòng: <strong>{roomNumber}</strong>, Giường <strong>{bedNumber}</strong><br/>
+- Số tiền: <strong>{reg.Payments.LastOrDefault()?.Amount:N0} VNĐ</strong><br/>
+<br/>
+Trạng thái hiện tại: <span class='badge bg-info fw-bold'>Chờ duyệt</span><br/>
+Vui lòng chờ Admin kiểm tra và xác nhận.";
+                    url = "/ThanhToan/HoaDon";
+                    break;
                 case "PaymentReceived":
                     title = " XÁC NHẬN: Thanh toán thành công";
                     content = $@"
@@ -242,7 +266,7 @@ Thông tin cá nhân của bạn trên hệ thống KTX đã được cập nh�
 <br/>
 <b>Lưu ý:</b><br/>
 - Nếu bạn không thực hiện việc thay đổi này, vui lòng liên hệ ngay với Phòng Quản lý KTX để được hỗ trợ.";
-                    url = "/SinhVien/ThongTinCaNhan"; 
+                    url = "/SinhVien/ThongTinCaNhan";
                     break;
                 default:
                     title = "THÔNG BÁO CHUNG";

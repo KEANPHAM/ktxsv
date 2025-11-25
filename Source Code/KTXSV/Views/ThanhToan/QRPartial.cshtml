@@ -1,0 +1,23 @@
+﻿﻿@model KTXSV.Models.Payment
+
+<div class="text-center">
+    <h5>Quét mã QR để thanh toán</h5>
+    <p><strong>Số tài khoản: 888889999</strong></p>
+    <p><strong>Tên chủ TK: KTX HUFLIT</strong></p>
+    <p><strong>Số tiền:</strong> @Model.Amount.ToString("N0") VNĐ</p>
+    <img src="@ViewBag.QRImage" alt="QR Code" class="img-fluid" style="max-width:300px;" />
+
+
+    <div class="mt-3 d-flex justify-content-center gap-2">
+        @using (Html.BeginForm("ThanhToan", "ThanhToan", FormMethod.Post, new { @id = "confirmForm" }))
+        {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.PaymentID" />
+            <button type="submit" class="btn btn-primary">Đã thanh toán</button>
+        }
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+    </div>
+
+
+
+</div>

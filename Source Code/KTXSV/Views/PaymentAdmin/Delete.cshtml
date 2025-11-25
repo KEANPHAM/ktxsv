@@ -1,4 +1,4 @@
-﻿@model KTXSV.Models.Payment
+﻿﻿@model KTXSV.Models.Payment
 
 @{
     ViewBag.Title = "Delete";
@@ -9,7 +9,6 @@
 
 <h3>Bạn có chắc muốn xóa hóa đơn này?</h3>
 <div>
-    <h4>Payment</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-3">Mã hóa đơn</dt>
@@ -28,7 +27,7 @@
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.PaymentID)
-        <input type="submit" value="Delete" class="btn btn-danger" />
-        @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-secondary ms-2" })
+        <input type="submit" value="Xóa" class="btn btn-danger" />
+        @Html.ActionLink("Hủy", "Index", null, new { @class = "btn btn-secondary ms-2" })
     }
 </div>

@@ -257,5 +257,40 @@ Thông báo hệ thống: {reg.Note} (Thông báo này được gửi từ Admin
 
             SaveNotification(noti);
         }
+        public void SendAdminNotification(string type, Payment payment)
+        {
+            string title = "";
+            string content = "";
+            string url = "/PaymentAdmin/Index";
+            string targetRole = "Admin";
+
+            switch (type)
+            {
+                case "PaymentPending":
+                    title = "THANH TOÁN: Cần duyệt hóa đơn";
+                    content = $@"
+Sinh viên <strong>{payment.Registration.User.FullName} {payment.Registration.User.Username}</strong> đã xác nhận thanh toán.<br/>
+- Mã hóa đơn: <strong>{payment.PaymentID}</strong><br/>
+- Số tiền: <strong>{payment.Amount:N0} VNĐ</strong><br/>
+- Trạng thái hiện tại: <span class='badge bg-info'>Chờ duyệt</span><br/><br/>
+<b>Thao tác:</b> <a href='/PaymentAdmin/DetailsEdit/{payment.PaymentID}'>Nhấn vào đây để duyệt hóa đơn</a>.";
+                    break;
+
+            }
+
+            var noti = new Notification
+            {
+                UserID = SystemAdminID,
+                RegID = payment.RegID,
+                Title = title,
+                Content = content,
+                CreatedAt = DateTime.Now,
+                TargetRole = targetRole,
+                IsRead = false,
+                Url = url
+            };
+
+            SaveNotification(noti);
+        }
     }
 }

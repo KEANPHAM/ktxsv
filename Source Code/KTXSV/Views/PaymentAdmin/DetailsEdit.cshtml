@@ -1,0 +1,168 @@
+﻿@model KTXSV.Models.Payment
+
+@{
+    ViewBag.Title = "Chi tiết / Sửa hóa đơn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var primaryColor = "#ee6823";
+
+    string hoaDonThang = Model.PaymentDate.HasValue ? Model.PaymentDate.Value.ToString("MM/yyyy") : "Chưa xác định";
+
+    Func<string, MvcHtmlString> displayStatus = (status) =>
+    {
+        string text = "";
+        string bgColor = "";
+
+        switch (status)
+        {
+            case "Paid":
+                text = "Đã thanh toán";
+                bgColor = "bg-success";
+                break;
+            case "Unpaid":
+                text = "Chưa thanh toán";
+                bgColor = "bg-danger";
+                break;
+            default:
+                text = status;
+                bgColor = "bg-secondary";
+                break;
+        }
+
+        return new MvcHtmlString($"<span class='badge {bgColor} text-white'>{text}</span>");
+    };
+
+    string studentName = (Model.Registration != null && Model.Registration.User != null) ? Model.Registration.User.FullName : "-";
+    string studentUsername = (Model.Registration != null && Model.Registration.User != null) ? Model.Registration.User.Username : "-";
+    string roomNumber = (Model.Registration != null && Model.Registration.Room != null) ? Model.Registration.Room.RoomNumber : "-";
+    string bedNumber = (Model.Registration != null) ? Model.Registration.Bed.BedNumber.ToString() : "-";
+    string startDate = (Model.Registration != null && Model.Registration.StartDate != DateTime.MinValue)
+            ? Model.Registration.StartDate.ToString("dd/MM/yyyy")
+            : "-";
+    string endDate = (Model.Registration != null && Model.Registration.EndDate.HasValue) ? Model.Registration.EndDate.Value.ToString("dd/MM/yyyy") : "-";
+}
+
+<h2 class="mb-4" style="color: @primaryColor;">Chi tiết / Sửa hóa đơn</h2>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header text-white" style="background-color: @primaryColor;">
+                Thông tin chi tiết Hóa đơn Tháng @hoaDonThang
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-5">Mã hóa đơn</dt>
+                            <dd class="col-sm-7">@Model.PaymentID</dd>
+
+                            <dt class="col-sm-5">Mã số sinh viên</dt>
+                            <dd class="col-sm-7">@studentUsername</dd>
+
+                            <dt class="col-sm-5">Tên sinh viên</dt>
+                            <dd class="col-sm-7">@studentName</dd>
+
+                            <dt class="col-sm-5">Phòng</dt>
+                            <dd class="col-sm-7">@roomNumber</dd>
+
+                            <dt class="col-sm-5">Giường</dt>
+                            <dd class="col-sm-7">@bedNumber</dd>
+                        </dl>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-5">Ngày bắt đầu</dt>
+                            <dd class="col-sm-7">@startDate</dd>
+
+                            <dt class="col-sm-5">Ngày kết thúc</dt>
+                            <dd class="col-sm-7">@endDate</dd>
+
+                            <dt class="col-sm-5">Loại hóa đơn</dt>
+                            <dd class="col-sm-7">@Model.Type</dd>
+
+                            <dt class="col-sm-5">Số tiền</dt>
+                            <dd class="col-sm-7">@String.Format("{0:N0}", Model.Amount) VNĐ</dd>
+
+                            <dt class="col-sm-5">Ngày thanh toán</dt>
+                            <dd class="col-sm-7">@(Model.PaymentDate.HasValue ? Model.PaymentDate.Value.ToString("dd/MM/yyyy") : "-")</dd>
+
+                            <dt class="col-sm-5">Trạng thái</dt>
+                            <dd class="col-sm-7">@displayStatus(Model.Status)</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header text-white fs-4" style="background-color:#ee6823 !important">
+                Chỉnh sửa hóa đơn
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.HiddenFor(model => model.PaymentID)
+                    @Html.HiddenFor(model => model.RegID)
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                @Html.Label("Sinh viên - Phòng", htmlAttributes: new { @class = "form-label" })
+                                <input type="text" class="form-control" value="@ViewBag.RegDisplay" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(model => model.PaymentDate, "Ngày tạo hóa đơn", htmlAttributes: new { @class = "form-label" })
+                                <input type="text" class="form-control" value="@(Model.PaymentDate.HasValue ? Model.PaymentDate.Value.ToString("dd/MM/yyyy") : "-")" readonly />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                @Html.LabelFor(model => model.Amount, "Số tiền (VNĐ)", htmlAttributes: new { @class = "form-label" })
+                                @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", @type = "number", @step = "1000", @min = "0" } })
+                                @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(model => model.Type, "Thể loại", htmlAttributes: new { @class = "form-label" })
+                                @Html.EditorFor(model => model.Type, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(model => model.Status, "Trạng thái", htmlAttributes: new { @class = "form-label" })
+                                @Html.DropDownListFor(model => model.Status,
+                                    new SelectList(new[] {
+                                        new { Value = "Paid", Text = "Đã thanh toán" },
+                                        new { Value = "Unpaid", Text = "Chưa thanh toán" }
+                                    }, "Value", "Text", Model.Status),
+                                    new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <input type="submit" value="Lưu Thay Đổi" class="btn text-white " style="background-color: @primaryColor;" />
+                        @Html.ActionLink("Trở về danh sách", "Index", null, new { @class = "btn btn-secondary ms-2" })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
