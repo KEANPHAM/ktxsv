@@ -49,44 +49,45 @@
                 transition: all 0.3s;
                 box-sizing: border-box; /* thêm dòng này để không bị tràn */
             }
+
+        }
+
+        .login-container input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px #007bff;
+        }
+
+        .login-container button {
+            width: 100%;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .login-container button:hover {
+                background: #0056b3;
             }
 
-            .login-container input:focus {
-                border-color: #007bff;
-                box-shadow: 0 0 5px #007bff;
+        .login-container .links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+            .login-container .links a {
+                text-decoration: none;
+                color: #007bff;
+                font-size: 14px;
             }
 
-            .login-container button {
-                width: 100%;
-                background: #007bff;
-                color: white;
-                border: none;
-                padding: 12px;
-                border-radius: 10px;
-                font-size: 16px;
-                cursor: pointer;
-                transition: all 0.3s;
-            }
-
-                .login-container button:hover {
-                    background: #0056b3;
+                .login-container .links a:hover {
+                    text-decoration: underline;
                 }
-
-            .login-container .links {
-                margin-top: 15px;
-                display: flex;
-                justify-content: space-between;
-            }
-
-                .login-container .links a {
-                    text-decoration: none;
-                    color: #007bff;
-                    font-size: 14px;
-                }
-
-                    .login-container .links a:hover {
-                        text-decoration: underline;
-                    }
 
         .switch {
             margin-top: 25px;
@@ -97,10 +98,15 @@
                 color: #00a86b;
                 font-weight: 500;
             }
+
+        .logo {
+            width: 100px;
+            margin-bottom: 15p
     </style>
 </head>
 <body>
     <div class="login-container">
+        <img src="~/Image/HUFLIT_Logo_English_Official.png" class="logo" />
         <h2>Đăng nhập Sinh viên</h2>
 
         @using (Html.BeginForm("LoginStudent", "Account", FormMethod.Post))

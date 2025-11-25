@@ -18,10 +18,52 @@ namespace KTXSV.Controllers
             _adminNotificationService = new AdminNotificationService(new KTXSVEntities());
             _studentNotificationService = new StudentNotificationService(new KTXSVEntities());
         }
+        KTXSVEntities db = new KTXSVEntities();
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
 
+            if (Session["UserID"] == null || !int.TryParse(Session["UserID"].ToString(), out int userId))
+            {
+                filterContext.Result = RedirectToAction("LoginStudent", "Account");
+                return;
+            }
 
+            var user = db.Users.Find(userId);
+            if (user == null)
+            {
+                filterContext.Result = RedirectToAction("LoginStudent", "Account");
+                return;
+            }
 
-        private KTXSVEntities db = new KTXSVEntities();
+            ViewBag.Username = user.Username;
+            ViewBag.FullName = user.FullName;
+            ViewBag.Email = user.Email;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SendNotification(int userId, int regId, string title, string content)
+        {
+            var notification = new Notification
+            {
+                UserID = userId,
+                RegID = regId,
+                Title = title,
+                Content = content,
+                TargetRole = "Student",
+                IsRead = false,
+                CreatedAt = DateTime.Now,
+                Url = ""
+            };
+
+            db.Notifications.Add(notification);
+            db.SaveChanges();
+            notification.Url = $"/Phong/ViewNotification/{notification.NotiID}";
+            db.SaveChanges();
+
+            TempData["Success"] = "Đã gửi thông báo đến sinh viên!";
+            return Redirect(Request.UrlReferrer.ToString());
+        }
 
         // GET: Admin/PendingRegistrations
         public ActionResult PendingRegistrations()
@@ -112,14 +154,76 @@ namespace KTXSV.Controllers
         }
         public ActionResult Notifications()
         {
-            // Lấy tất cả thông báo dành cho Admin hoặc All
-            var notifications = db.Notifications
-                                  .Where(n => n.TargetRole == "Admin" || n.TargetRole == "All")
-                                  .OrderByDescending(n => n.CreatedAt)
-                                  .ToList();
+            using (var db = new KTXSVEntities())
+            {
+                int currentUserId = Convert.ToInt32(Session["UserID"]);
 
-            return View(notifications);
+                var notifications = db.Notifications
+                                      .Where(n => n.TargetRole == "Admin" || n.UserID == currentUserId)
+                                      .OrderByDescending(n => n.CreatedAt)
+                                      .ToList();
+
+                ViewBag.StudentList = db.Users
+                                        .Where(u => u.Role == "Student")
+                                        .ToList();
+
+                return View(notifications);
+            }
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateNotification(string Title, string Content, string TargetType, int? UserID)
+        {
+            using (var db = new KTXSVEntities())
+            {
+                if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Content))
+                {
+                    TempData["error"] = "Tiêu đề và nội dung không được để trống!";
+                    return RedirectToAction("Notifications");
+                }
+
+                if (TargetType == "All")
+                {
+                    var students = db.Users.Where(u => u.Role == "Student").ToList();
+                    foreach (var s in students)
+                    {
+                        db.Notifications.Add(new Notification
+                        {
+                            Title = Title,
+                            Content = Content,
+                            UserID = s.UserID,
+                            TargetRole = "Student",
+                            CreatedAt = DateTime.Now,
+                            IsRead = false
+                        });
+                    }
+                }
+                else if (TargetType == "One" && UserID.HasValue)
+                {
+                    var user = db.Users.Find(UserID.Value);
+                    if (user != null)
+                    {
+                        db.Notifications.Add(new Notification
+                        {
+                            Title = Title,
+                            Content = Content,
+                            UserID = user.UserID,
+                            TargetRole = "Student",
+                            CreatedAt = DateTime.Now,
+                            IsRead = false
+                        });
+                    }
+                }
+
+                db.SaveChanges();
+            }
+
+            TempData["success"] = "Gửi thông báo thành công!";
+            return RedirectToAction("Notifications");
+        }
+
 
         // POST: Admin/MarkAsRead/5
         [HttpPost]

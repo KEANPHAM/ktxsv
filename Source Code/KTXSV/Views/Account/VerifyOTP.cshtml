@@ -1,108 +1,172 @@
 ﻿@{
     Layout = null;
-    ViewBag.Title = "Xác minh mã";
+    ViewBag.Title = "Đặt lại mật khẩu";
 }
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title>@ViewBag.Title</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <style>
-  :root{ --bg:#071124; --accent:#60a5fa; --accent2:#6ee7b7; }
-  body{ background: linear-gradient(180deg,#031124 0%, #071a2b 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; color:#dff1ff; font-family:Inter,system-ui,Arial; }
-  .wrap{ width:420px; padding:28px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05)); box-shadow: 0 12px 30px rgba(2,6,23,0.7); }
-  .title{ display:flex; gap:12px; align-items:center; margin-bottom:10px; }
-  .icon{
-    width:48px;height:48px;border-radius:10px; display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#021124; font-weight:700;
-  }
-  h4{ margin:0; }
-  p.sub{ color:#9fb6d9; margin-top:6px; margin-bottom:16px; }
 
-  .otp-input{
-    letter-spacing:8px; font-size:1.2rem; text-align:center;
-    background: rgba(255,255,255,0.02); border:none; padding:12px 10px; border-radius:10px; color:#e6f5ff;
-  }
-  .btn-verify{ width:100%; background: linear-gradient(90deg,var(--accent2),var(--accent)); color:#021124; border:none; padding:10px; border-radius:10px; font-weight:600; }
-
-  .meta{ display:flex; justify-content:space-between; margin-top:10px; color:#9fb6d9; font-size:0.9rem; }
-  .msg { padding:10px; border-radius:8px; margin-bottom:12px; }
-  .msg-error { background: rgba(255,80,80,0.06); color:#ffd7d7; border:1px solid rgba(255,80,80,0.05); }
-
-  .media(max-width:480px){ .wrap{ width:92%; } 
-                                .otp-input{ letter-spacing:6px; } }
-    </style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="title">
-            <div class="icon">OTP</div>
+    <div class="forgot-container">
+        <img src="~/Image/HUFLIT_Logo_English_Official.png" class="logo" />
+        <div class="head">
+
             <div>
-                <h4>Nhập mã xác nhận</h4>
-                <p class="sub">Nhập mã 6 chữ số đã gửi đến email của bạn</p>
+                <h4>Đặt lại mật khẩu</h4>
+                <div class="desc">
+                    Nhập mật khẩu mới (ít nhất 8 ký tự, có chữ hoa, số và ký tự đặc biệt)
+                </div>
+                <div class="desc">
+                    -----------
+                </div>
             </div>
         </div>
 
         @if (ViewBag.Error != null)
         {
-            <div class="msg msg-error">@ViewBag.Error</div>
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success">@ViewBag.Message</div>
         }
 
-        @using (Html.BeginForm("VerifyOTP", "Account", FormMethod.Post))
+        @using (Html.BeginForm("ResetPassword", "Account", FormMethod.Post))
         {
             <div class="mb-3">
-                <input type="text" name="otp" maxlength="6" pattern="\d{6}" required class="form-control otp-input" placeholder="● ● ● ● ● ●" />
+                <label class="form-label small-muted">Mật khẩu mới</label>
+                <input type="password" name="NewPassword" class="form-control" required />
             </div>
-            <button class="btn btn-verify" type="submit">Xác nhận</button>
 
-            <div class="meta">
-                <div>
-                    Chưa nhận mã?
-                    <a href="javascript:void(0)" id="resend-link" style="color:#aee1d6">Gửi lại</a>
-                </div>
-                <div id="countdown">05:00</div>
+            <div class="mb-3">
+                <label class="form-label small-muted">Xác nhận mật khẩu</label>
+                <input type="password" name="ConfirmPassword" class="form-control" required />
             </div>
-            <script>
-    document.getElementById("resend-link").addEventListener("click", function () {
-        // Gửi yêu cầu báo lại cho server
-        fetch('/Account/ResendCode', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: '@TempData["UserEmail"]' // hoặc lấy từ ViewBag/Model tùy chỗ em đang lưu
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("Mã xác minh mới đã được gửi!");
-            } else {
-                alert("Không thể gửi lại mã: " + data.message);
-            }
-        })
-        .catch(err => {
-            alert("Lỗi kết nối máy chủ!");
-            console.error(err);
-        });
-    });
-            </script>
+
+            <button class="btn-save" type="submit">Cập nhật mật khẩu</button>
+            <div class="hint">Bạn sẽ được chuyển về trang đăng nhập sau khi thay đổi thành công.</div>
+        }
+    </div>
+    <style>
+        body {
+            /* Set hình background của bạn ở đây */
+            background: url('../../image/huflit_clean_nobus.png') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        <script>
-            // JS countdown (5 minutes) — purely UI, session expiry handled server-side
-            (function () {
-                let time = 300;
-                const el = document.getElementById('countdown');
-                const t = setInterval(() => {
-                    if (time <= 0) { clearInterval(t); el.innerText = 'Hết hạn'; return; }
-                    time--; const m = Math.floor(time / 60), s = time % 60;
-                    el.innerText = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                }, 1000);
-            })();
-        </script>
-    </div>
+        .forgot-container {
+            background: rgba(255, 255, 255, 0.95); /* Khung sáng, hơi trong suốt */
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            width: 380px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .forgot-container h2 {
+                color: #003366;
+                font-weight: 700;
+                margin: 20px 0;
+            }
+
+        .logo {
+            width: 100px;
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+            .form-control:focus {
+                border-color: #00c8ff;
+                box-shadow: 0 0 6px #00c8ff;
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+            .form-control:focus {
+                border-color: #00c8ff;
+                box-shadow: 0 0 6px #00c8ff;
+            }
+
+        .btn-save {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            background-color: #00c8ff;
+            color: #000;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+
+            .btn-save:hover {
+                background-color: #00a8d1;
+            }
+
+        .btn-back {
+            display: inline-block;
+            width: 100%;
+            padding: 12px 1;
+            border-radius: 6px;
+            background-color: #003366;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+            .btn-back:hover {
+                background-color: #0055a5;
+            }
+
+        .alert {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .alert-danger {
+            background: rgba(255, 77, 77, 0.15);
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 128, 0.15);
+            color: #00ff9d;
+            border: 1px solid #00ff9d;
+        }
+    </style>
 </body>
 </html>

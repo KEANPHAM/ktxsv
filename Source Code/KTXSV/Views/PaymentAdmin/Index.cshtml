@@ -1,165 +1,128 @@
 ﻿@model IEnumerable<KTXSV.Models.Payment>
 
 @{
-    ViewBag.Title = "Quản lý hóa đơn";
+    ViewBag.Title = "Quản lý hóa đơn ký túc xá";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background-color:#EE6823; color:white;">
-            <h5 class="mb-0 fw-bold">Quản lý thanh toán ký túc xá</h5>
-            @Html.ActionLink("Thêm mới hóa đơn", "Create", null, new { @class = "btn btn-light fw-bold btn-sm" })
-        </div>
+<h2 class="text-center fw-bold mb-4" style="color: #EE6328;">Danh sách hóa đơn ký túc xá</h2>
 
-        <div class="card-body">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    @TempData["SuccessMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
+<p>
+    <a href="@Url.Action("Create")" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Thêm mới hóa đơn
+    </a>
+</p>
 
-            <form method="get" action="@Url.Action("Index", "PaymentAdmin")" class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="Tên sinh viên..." />
-                </div>
-                <div class="col-md-2">
-                    <select name="type" class="form-select">
-                        <option value="">Loại thanh toán</option>
-                        <option>Tiền phòng</option>
-                        <option>Tiền điện</option>
-                        <option>Tiền nước</option>
-                        <option>Khác</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select name="status" class="form-select">
-                        <option value="">Trạng thái</option>
-                        <option>Đã thanh toán</option>
-                        <option>Chưa thanh toán</option>
-                        <option>Quá hạn</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <input type="date" name="date" class="form-control" />
-                </div>
-                <div class="col-md-3 text-end">
-                    <button type="submit" class="btn btn-light me-2" style="background-color:#EE6823; color:white;">Lọc</button>
-                    <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-outline-secondary">Xóa bộ lọc</a>
-                </div>
-            </form>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
 
-            <div class="table-responsive">
-                <table class="table table-bordered  table-hover align-middle">
-                    <thead class="text-center" style="background-color:#EE6823; color:white;">
-                        <tr>
-                            <th>#</th>
-                            <th>Mã hóa đơn</th>
-                            <th>Sinh viên</th>
-                            <th>Phòng</th>
-                            <th>Loại thanh toán</th>
-                            <th>Số tiền (VNĐ)</th>
-                            <th>Ngày thanh toán</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (!Model.Any())
-                        {
-                            <tr>
-                                <td colspan="9" class="text-center text-muted">Không có dữ liệu hóa đơn.</td>
-                            </tr>
-                        }
-                        else
-                        {
-                            var index = 1;
-                            foreach (var p in Model)
-                            {
-                                <tr>
-                                    <td class="text-center">@index</td>
-                                    <td>@p.PaymentID</td>
-                                    <td>@(p.Registration?.User?.FullName ?? "-")</td>
-                                    <td>@(p.Registration?.Room?.RoomNumber ?? "-")</td>
-                                    <td>
-                                        @{
-                                            string typeVN = "-";
-                                            if (p.Type == "Rent")
-                                            {
-                                                typeVN = "Tiền phòng";
-                                            }
-                                            else if (p.Type == "Electricity")
-                                            {
-                                                typeVN = "Tiền điện";
-                                            }
-                                            else if (p.Type == "Water")
-                                            {
-                                                typeVN = "Tiền nước";
-                                            }
-                                            else if (p.Type == "Other")
-                                            {
-                                                typeVN = "Khác";
-                                            }
-                                            else
-                                            {
-                                                typeVN = p.Type;
-                                            }
-
-                                        }
-                                        @typeVN
-                                    </td>
-                                    <td class="text-end">@String.Format("{0:N0}", p.Amount)</td>
-                                    <td class="text-center">@p.PaymentDate.ToString()</td>
-                                    <td class="text-center">
-                                        @switch (p.Status)
-                                        {
-                                            case "Paid":
-                                                <span class="badge bg-success">Đã thanh toán</span>; break;
-                                            case "Unpaid":
-                                                <span class="badge bg-warning text-dark">Chưa thanh toán</span>; break;
-                                            case "Overdue":
-                                                <span class="badge bg-danger">Quá hạn</span>; break;
-                                            default:
-                                                <span class="badge bg-info text-dark">@p.Status</span>; break;
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        @Html.ActionLink("Chi tiết / Sửa", "DetailsEdit", new { id = p.PaymentID }, new { @class = "btn btn-sm btn-outline-light me-1 rounded-pill px-3", style = "border-color:#EE6823; color:#EE6823;" })
-                                        @Html.ActionLink("Xóa", "Delete", new { id = p.PaymentID }, new { @class = "btn btn-sm btn-outline-danger rounded-pill px-3" })
-                                    </td>
-                                </tr>
-                                index++;
-                            }
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<!-- Form lọc -->
+<form method="get" action="@Url.Action("Index", "PaymentAdmin")" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <input type="text" name="search" value="@Request.QueryString["search"]" class="form-control" placeholder="Tên sinh viên..." />
     </div>
-</div>
+    <div class="col-md-3">
+        <select name="type" class="form-select">
+            <option value="">Loại thanh toán</option>
+            <option value="Rent" @(Request.QueryString["type"] == "Rent" ? "selected" : "")>Tiền phòng</option>
+            <option value="Electricity" @(Request.QueryString["type"] == "Electricity" ? "selected" : "")>Tiền điện</option>
+            <option value="Water" @(Request.QueryString["type"] == "Water" ? "selected" : "")>Tiền nước</option>
+            <option value="Other" @(Request.QueryString["type"] == "Other" ? "selected" : "")>Khác</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">Trạng thái</option>
+            <option value="Paid" @(Request.QueryString["status"] == "Paid" ? "selected" : "")>Đã thanh toán</option>
+            <option value="Unpaid" @(Request.QueryString["status"] == "Unpaid" ? "selected" : "")>Chưa thanh toán</option>
+            <option value="Overdue" @(Request.QueryString["status"] == "Overdue" ? "selected" : "")>Quá hạn</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="date" value="@Request.QueryString["date"]" class="form-control" />
+    </div>
+    <div class="col-md-12 text-end mt-2">
+        <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search"></i> Lọc</button>
+        <a href="@Url.Action("Index", "PaymentAdmin")" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+    </div>
+</form>
 
-<style>
-    .table th {
-        white-space: nowrap;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.9rem;
-    }
-
-    .table td {
-        vertical-align: middle;
-    }
-
-    .card {
-        border-radius: 12px;
-        overflow: hidden;
-    }QA
-
-    .btn-outline-light:hover {
-        background-color: #EE6823 !important;
-        color: white !important;
-        transform: scale(1.05);
-    }
-</style>
+<table class="table table-bordered table-hover align-middle text-center">
+    <thead class="table-light">
+        <tr>
+            <th>STT</th>
+            <th>Mã hóa đơn</th>
+            <th>Sinh viên</th>
+            <th>Phòng</th>
+            <th>Loại thanh toán</th>
+            <th>Số tiền (VNĐ)</th>
+            <th>Ngày thanh toán</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int stt = 1;
+        }
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="9" class="text-center text-muted">Không có dữ liệu hóa đơn.</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var p in Model)
+            {
+                string typeVN = "-";
+                if (p.Type == "Rent")
+                {
+                    typeVN = "Tiền phòng";
+                }
+                else if (p.Type == "Electricity")
+                {
+                    typeVN = "Tiền điện";
+                }
+                else if (p.Type == "Water")
+                {
+                    typeVN = "Tiền nước";
+                }
+                else if (p.Type == "Other")
+                {
+                    typeVN = "Khác";
+                }
+                else
+                {
+                    typeVN = p.Type;
+                }
+    <tr>
+        <td>@stt</td>
+        <td>@p.PaymentID</td>
+        <td>@(p.Registration?.User?.FullName ?? "-")</td>
+        <td>@(p.Registration?.Room?.RoomNumber ?? "-")</td>
+        <td>@typeVN</td>
+        <td class="text-end">@String.Format("{0:N0}", p.Amount)</td>
+        <td>@(p.PaymentDate.HasValue ? p.PaymentDate.Value.ToString("dd/MM/yyyy") : "-")</td>
+        <td>
+            @if (p.Status == "Paid")
+            {<span class="badge bg-success">Đã thanh toán</span> }
+            else if (p.Status == "Unpaid")
+            { <span class="badge bg-warning text-dark">Chưa thanh toán</span> }
+            else if (p.Status == "Overdue")
+            { <span class="badge bg-danger">Quá hạn</span> }
+            else
+            { <span class="badge bg-secondary">@p.Status</span>}
+        </td>
+        <td>
+            <a href="@Url.Action("DetailsEdit", new { id = p.PaymentID })" class="btn btn-outline-secondary btn-sm">Chi tiết / Sửa</a>
+            <a href="@Url.Action("Delete", new { id = p.PaymentID })" class="btn btn-outline-danger btn-sm">Xóa</a>
+        </td>
+    </tr>
+                stt++;
+            }
+        }
+    </tbody>
+</table>

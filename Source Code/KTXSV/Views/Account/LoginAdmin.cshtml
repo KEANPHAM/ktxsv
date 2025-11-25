@@ -97,12 +97,27 @@
                 color: #00a86b;
                 font-weight: 500;
             }
+
+        .logo {
+            width: 100px;
+            margin-bottom: 15p
     </style>
 </head>
 <body>
     <div class="login-container">
+        <img src="~/Image/HUFLIT_Logo_English_Official.png" class="logo" />
         <h2>Đăng nhập Quản trị viên</h2>
 
+        @if (ViewBag.Message != null)
+        {
+            <div style="color: #d9534f;
+                    background: #f9d6d5;
+                    padding: 10px;
+                    border-radius: 8px;
+                    margin-bottom: 15px;">
+                @ViewBag.Message
+            </div>
+        }
         @using (Html.BeginForm("LoginAdmin", "Account", FormMethod.Post))
         {
             <input type="text" name="Username" placeholder="Tên đăng nhập" required />
@@ -110,7 +125,7 @@
             <button type="submit">Đăng nhập</button>
         }
 
-       
+
 
         <div class="switch">
             <p>Đăng nhập với tư cách <a href="@Url.Action("LoginStudent", "Account")">Sinh viên</a></p>
