@@ -63,7 +63,6 @@ namespace KTXSV.Controllers
             return View(supportRequest);
         }
 
-        // ===== CREATE =====
         public ActionResult Create()
         {
             if (Session["UserID"] == null)
@@ -110,7 +109,6 @@ namespace KTXSV.Controllers
             return View(supportRequest);
         }
 
-        // ===== EDIT =====
         public ActionResult Edit(int? id)
         {
             if (id == null)

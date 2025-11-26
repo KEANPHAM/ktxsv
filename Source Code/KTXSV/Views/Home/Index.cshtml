@@ -176,7 +176,7 @@
                 @foreach (var item in Model)
                 {
                     <div class="col">
-                        <a href="@Url.Action("ChiTiet", "ThongBao", new { id = item.NotiID })" class="notification-card">
+                        <a href="@Url.Action("ThongBao", "ThongBao", new { id = item.NotiID })" class="notification-card">
                             <h5 class="fw-bold text-uppercase">@item.Title</h5>
                             <p class="mt-2 mb-2 text-dark">@TruncateHtml(item.Content)</p>
                             <div class="d-flex justify-content-between align-items-center mt-3">

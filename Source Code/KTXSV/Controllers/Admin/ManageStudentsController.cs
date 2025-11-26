@@ -38,27 +38,22 @@ namespace KTXSV.Controllers
         // GET: ManageStudents
         public ActionResult Index(string search, string gender, string status, string sort)
         {
-            // Lấy dữ liệu sinh viên, kèm registrations
             var students = db.Users.Include("Registrations")
                                    .Where(u => u.Role == "Student")
                                    .AsQueryable();
 
-            // Tìm kiếm
             if (!string.IsNullOrEmpty(search))
             {
                 students = students.Where(u => u.FullName.Contains(search) || u.Username.Contains(search));
             }
 
-            // Lọc giới tính
             if (!string.IsNullOrEmpty(gender))
             {
                 students = students.Where(u => u.Gender == gender);
             }
 
-            // Đưa dữ liệu về memory để xử lý trạng thái, vì EF6 không hiểu FirstOrDefault trong Where
             var studentList = students.ToList();
 
-            // Lọc trạng thái
             if (!string.IsNullOrEmpty(status))
             {
                 studentList = studentList.Where(u => u.Registrations
@@ -70,7 +65,6 @@ namespace KTXSV.Controllers
                                          .ToList();
             }
 
-            // Sắp xếp
             switch (sort)
             {
                 case "name_asc":
@@ -134,7 +128,6 @@ namespace KTXSV.Controllers
         }
 
 
-        // GET: ManageStudents/Details/5
         public ActionResult Details(int id)
         {
             var student = db.Users
@@ -150,7 +143,6 @@ namespace KTXSV.Controllers
         }
 
 
-        // GET: ManageStudents/Edit/5
         public ActionResult Edit(int id)
         {
             var student = db.Users.Find(id);

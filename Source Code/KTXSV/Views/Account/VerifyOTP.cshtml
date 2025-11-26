@@ -1,6 +1,6 @@
 ﻿@{
     Layout = null;
-    ViewBag.Title = "Đặt lại mật khẩu";
+    ViewBag.Title = "Xác minh mã";
 }
 <!DOCTYPE html>
 <html>
@@ -10,43 +10,73 @@
 <body>
     <div class="forgot-container">
         <img src="~/Image/HUFLIT_Logo_English_Official.png" class="logo" />
-        <div class="head">
+        <div class="title">
 
             <div>
-                <h4>Đặt lại mật khẩu</h4>
-                <div class="desc">
-                    Nhập mật khẩu mới (ít nhất 8 ký tự, có chữ hoa, số và ký tự đặc biệt)
-                </div>
-                <div class="desc">
-                    -----------
-                </div>
+                <h4>Nhập mã xác nhận</h4>
+                <p class="sub">Nhập mã 6 chữ số đã gửi đến email của bạn</p>
             </div>
         </div>
 
         @if (ViewBag.Error != null)
         {
-            <div class="alert alert-danger">@ViewBag.Error</div>
-        }
-        @if (ViewBag.Message != null)
-        {
-            <div class="alert alert-success">@ViewBag.Message</div>
+            <div class="msg msg-error">@ViewBag.Error</div>
         }
 
-        @using (Html.BeginForm("ResetPassword", "Account", FormMethod.Post))
+        @using (Html.BeginForm("VerifyOTP", "Account", FormMethod.Post))
         {
             <div class="mb-3">
-                <label class="form-label small-muted">Mật khẩu mới</label>
-                <input type="password" name="NewPassword" class="form-control" required />
+                <input type="text" name="otp" maxlength="6" pattern="\d{6}" required class="form-control otp-input" placeholder="● ● ● ● ● ●" />
             </div>
+            <button class="btn btn-verify" type="submit">Xác nhận</button>
 
-            <div class="mb-3">
-                <label class="form-label small-muted">Xác nhận mật khẩu</label>
-                <input type="password" name="ConfirmPassword" class="form-control" required />
+            <div class="meta">
+                <div>
+                    Chưa nhận mã?
+                    <a href="javascript:void(0)" id="resend-link" style="color:red">Gửi lại</a>
+                </div>
+                <div id="countdown">05:00</div>
             </div>
-
-            <button class="btn-save" type="submit">Cập nhật mật khẩu</button>
-            <div class="hint">Bạn sẽ được chuyển về trang đăng nhập sau khi thay đổi thành công.</div>
+            <script>
+    document.getElementById("resend-link").addEventListener("click", function () {
+        // Gửi yêu cầu báo lại cho server
+        fetch('/Account/ResendCode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: '@TempData["UserEmail"]' // hoặc lấy từ ViewBag/Model tùy chỗ em đang lưu
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Mã xác minh mới đã được gửi!");
+            } else {
+                alert("Không thể gửi lại mã: " + data.message);
+            }
+        })
+        .catch(err => {
+            alert("Lỗi kết nối máy chủ!");
+            console.error(err);
+        });
+    });
+            </script>
         }
+
+        <script>
+            // JS countdown (5 minutes) — purely UI, session expiry handled server-side
+            (function () {
+                let time = 300;
+                const el = document.getElementById('countdown');
+                const t = setInterval(() => {
+                    if (time <= 0) { clearInterval(t); el.innerText = 'Hết hạn'; return; }
+                    time--; const m = Math.floor(time / 60), s = time % 60;
+                    el.innerText = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                }, 1000);
+            })();
+        </script>
     </div>
     <style>
         body {
@@ -82,7 +112,7 @@
             margin-bottom: 15px;
         }
 
-        .form-control {
+        .otp-input {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #ccc;
@@ -94,29 +124,12 @@
             transition: all 0.2s;
         }
 
-            .form-control:focus {
-                border-color: #00c8ff;
-                box-shadow: 0 0 6px #00c8ff;
-            }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 15px;
-            box-sizing: border-box;
-            outline: none;
-            transition: all 0.2s;
+        .otp-input {
+            border-color: #00c8ff;
+            box-shadow: 0 0 6px #00c8ff;
         }
 
-            .form-control:focus {
-                border-color: #00c8ff;
-                box-shadow: 0 0 6px #00c8ff;
-            }
-
-        .btn-save {
+        .btn-verify {
             width: 100%;
             padding: 12px;
             border: none;
@@ -129,7 +142,7 @@
             transition: 0.3s;
         }
 
-            .btn-save:hover {
+            .btn-verify:hover {
                 background-color: #00a8d1;
             }
 
