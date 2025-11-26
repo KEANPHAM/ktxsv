@@ -2,36 +2,128 @@
 @{
     ViewBag.Title = "Chỉnh Sửa Thông Tin";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var genderList = new List<SelectListItem>
+{
+        new SelectListItem { Text = "Nam", Value = "Male" },
+        new SelectListItem { Text = "Nữ", Value = "Female" }
+    };
 }
 
-<h2 class="text-center mt-3">Chỉnh Sửa Thông Tin Cá Nhân</h2>
-<div class="container mt-4">
-    @using (Html.BeginForm())
+<style>
+    .edit-card {
+        max-width: 650px;
+        margin: 40px auto;
+        padding: 35px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eee;
+    }
+
+        .edit-card h2 {
+            font-weight: 600;
+            font-size: 26px;
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0;
+        color: #444;
+    }
+
+    .edit-card .form-control,
+    .edit-card .form-select {
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #dcdcdc;
+        transition: 0.25s ease;
+        font-size: 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+        .edit-card .form-control:focus,
+        .edit-card .form-select:focus {
+            border-color: #ee6823;
+            box-shadow: 0 0 0 3px rgba(238, 104, 35, 0.2);
+        }
+
+    .btn-save {
+        background: #ee6823;
+        border: none;
+        padding: 12px 28px;
+        font-size: 16px;
+        border-radius: 10px;
+        color: white;
+        transition: 0.25s ease;
+    }
+
+        .btn-save:hover {
+            background: #cf571c;
+        }
+
+    .btn-cancel {
+        padding: 12px 26px;
+        font-size: 16px;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="edit-card">
+    <h2>Chỉnh Sửa Thông Tin Cá Nhân</h2>
+
+    @using (Html.BeginForm("ChinhSuaThongTin", "SinhVien", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.UserID)
 
-        <div class="form-group">
-            <label>Họ tên</label>
-            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+        <!-- HỌ TÊN -->
+        <div class="mb-3 row">
+            <label class="form-label col-sm-3 col-form-label">Họ tên</label>
+            <div class="col-sm-9">
+                @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Nhập họ tên" })
+            </div>
         </div>
 
-        <div class="form-group mt-3">
-            <label>Giới tính</label>
-            @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female" }), "-- Chọn giới tính --", new { @class = "form-control" })
+        <!-- GIỚI TÍNH -->
+        <div class="mb-3 row">
+            <label class="form-label col-sm-3 col-form-label">Giới tính</label>
+            <div class="col-sm-9">
+                @Html.DropDownListFor(
+                    m => m.Gender,
+                    genderList,
+                    "-- Chọn giới tính --",
+                    new { @class = "form-select" }
+                )
+            </div>
         </div>
 
-        <div class="form-group mt-3">
-            <label>Email</label>
-            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+        <!-- EMAIL -->
+        <div class="mb-3 row">
+            <label class="form-label col-sm-3 col-form-label">Email</label>
+            <div class="col-sm-9">
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Nhập email" })
+            </div>
         </div>
 
-        <div class="form-group mt-3">
-            <label>Số điện thoại</label>
-            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+        <!-- SỐ ĐIỆN THOẠI -->
+        <div class="mb-3 row">
+            <label class="form-label col-sm-3 col-form-label">Số điện thoại</label>
+            <div class="col-sm-9">
+                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "Nhập số điện thoại" })
+            </div>
         </div>
 
-        <button type="submit" class="btn btn-success mt-4">Lưu thay đổi</button>
-        <a href="@Url.Action("ThongTinCaNhan", "SinhVien")" class="btn btn-secondary mt-4">Hủy</a>
+        <!-- BUTTONS -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn-save me-2">Lưu thay đổi</button>
+            <a href="@Url.Action("ThongTinCaNhan", "SinhVien")" class="btn btn-secondary btn-cancel">Hủy</a>
+        </div>
     }
 </div>

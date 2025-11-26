@@ -107,12 +107,13 @@
                 Chỉnh sửa hóa đơn
             </div>
             <div class="card-body">
-                @using (Html.BeginForm())
+                @using (Html.BeginForm("DetailsEdit", "PaymentAdmin", FormMethod.Post, new { @id = "editForm" }))
                 {
                     @Html.AntiForgeryToken()
 
                     @Html.HiddenFor(model => model.PaymentID)
                     @Html.HiddenFor(model => model.RegID)
+                    @Html.HiddenFor(model => model.Amount)
 
                     <div class="row">
                         <div class="col-md-6">
@@ -130,7 +131,8 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 @Html.LabelFor(model => model.Amount, "Số tiền (VNĐ)", htmlAttributes: new { @class = "form-label" })
-                                @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", @type = "number", @step = "1000", @min = "0" } })
+                                @Html.TextBox("AmountDisplay", String.Format("{0:N0}", Model.Amount), new { @class = "form-control", @readonly = "readonly" })
+                                @Html.HiddenFor(model => model.Amount)
                                 @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
                             </div>
 

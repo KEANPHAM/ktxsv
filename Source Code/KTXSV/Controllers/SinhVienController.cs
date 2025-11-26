@@ -40,7 +40,7 @@ namespace KTXSV.Controllers
         public ActionResult ThongTinCaNhan()
         {
             if (Session["UserID"] == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("LoginStudent", "Account");
 
             int userId = Convert.ToInt32(Session["UserID"]);
             var user = db.Users.Find(userId);

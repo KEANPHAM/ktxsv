@@ -2,16 +2,225 @@
 @{
     ViewBag.Title = "Thông Tin Cá Nhân";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var roomName = ViewBag.RoomName as string ?? "N/A";
+    var bedNumber = ViewBag.BedNumber;
+    var startDate = ViewBag.StartDate as string ?? "N/A";
+    var endDate = ViewBag.EndDate as string ?? "N/A";
+    var regStatus = ViewBag.RegistrationStatus as string ?? "N/A";
+    var avatarPath = ViewBag.AvatarPath as string;
+
+    // Chuyển giới tính sang tiếng Việt
+    string genderVN = Model.Gender == "Male" ? "Nam" :
+                      Model.Gender == "Female" ? "Nữ" : "Khác";
+
+    var statusClass = regStatus == "Active" ? "text-success" :
+                      regStatus == "Pending" ? "text-warning" : "text-danger";
+
+    var primaryColor = "#ee6823";
 }
 
-<h2 class="text-center mt-3">Thông Tin Cá Nhân</h2>
-<div class="container mt-4">
-    <table class="table table-bordered">
-        <tr><th>Họ tên</th><td>@Model.FullName</td></tr>
-        <tr><th>Giới tính</th><td>@Model.Gender</td></tr>
-        <tr><th>Email</th><td>@Model.Email</td></tr>
-        <tr><th>Số điện thoại</th><td>@Model.Phone</td></tr>
-    </table>
+<style>
+    .profile-container {
+        max-width: 850px;
+        margin: 40px auto;
+    }
+    .data-card {
+        padding: 30px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background-color: #ffffff;
+    }
 
-    <a href="@Url.Action("ChinhSuaThongTin", "SinhVien")" class="btn btn-primary">Chỉnh sửa</a>
+    h2 {
+        font-weight: 300;
+        margin-bottom: 30px;
+        color: #333;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 15px;
+    }
+    h4 {
+        font-weight: 500;
+        color: @primaryColor;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        border-left: 3px solid @primaryColor;
+        padding-left: 10px;
+    }
+
+    /* Grid thông tin */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px 40px;
+    }
+
+    .info-group label {
+        font-weight: 500;
+        color: #666;
+        text-transform: uppercase;
+        font-size: 0.8em;
+        margin-bottom: 2px;
+    }
+    .info-group p {
+        font-weight: 400;
+        color: #333;
+        margin: 0;
+        padding: 5px 0;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    .room-info p {
+        font-weight: 600;
+        color: @primaryColor;
+        border-bottom: 1px solid #ffefe6;
+    }
+
+    .btn-edit {
+        background-color: @primaryColor;
+        border-color: @primaryColor;
+        padding: 10px 25px;
+        font-size: 1.05em;
+        transition: background-color 0.3s;
+    }
+    .btn-edit:hover {
+        background-color: #c9511a;
+        border-color: #c9511a;
+    }
+
+    /* ===== AVATAR ===== */
+    .top-info-layout {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 30px;
+        align-items: start;
+        margin-bottom: 20px;
+    }
+
+    .avatar-left {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    /* Avatar hình vuông - KHÔNG VIỀN */
+    .square-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px !important;
+        object-fit: cover;
+        background: #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 45px;
+        color: #888;
+        box-shadow: 0 0 10px rgba(0,0,0,0.08);
+        border: none !important;
+    }
+
+    /* Avatar mặc định */
+    .default-avatar {
+        background-color: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+        border: none !important;
+        box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+
+</style>
+
+<div class="container profile-container">
+
+
+    <div class="data-card">
+
+        <h4>Thông Tin Cá Nhân</h4>
+
+        <!-- Avatar trái + Thông tin phải -->
+        <div class="top-info-layout">
+
+            <div class="avatar-left">
+                @if (!string.IsNullOrEmpty(avatarPath) && System.IO.File.Exists(Server.MapPath(avatarPath)))
+                {
+                    <img src="@Url.Content(avatarPath)" alt="Avatar" class="square-avatar" />
+                }
+                else
+                {
+                    <div class="square-avatar default-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                }
+            </div>
+
+            <div class="info-right">
+                <div class="info-grid">
+                    <div class="info-group">
+                        <label>Mã Sinh Viên (Username)</label>
+                        <p>@Model.Username</p>
+                    </div>
+                    <div class="info-group">
+                        <label>Họ tên</label>
+                        <p>@Model.FullName</p>
+                    </div>
+                    <div class="info-group">
+                        <label>Giới tính</label>
+                        <p>@genderVN</p> <!-- HIỂN THỊ TIẾNG VIỆT -->
+                    </div>
+                    <div class="info-group">
+                        <label>Ngày sinh</label>
+                        <p>@(Model.BirthDate.HasValue ? Model.BirthDate.Value.ToString("dd/MM/yyyy") : "N/A")</p>
+                    </div>
+                    <div class="info-group">
+                        <label>Email</label>
+                        <p>@Model.Email</p>
+                    </div>
+                    <div class="info-group">
+                        <label>Số điện thoại</label>
+                        <p>@Model.Phone</p>
+                    </div>
+                    <div class="info-group">
+                        <label>CCCD/CMND</label>
+                        <p>@Model.CCCD</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Thông tin KTX -->
+        <h4>Thông Tin Đăng Ký Ký Túc Xá</h4>
+
+        <div class="info-grid room-info">
+            <div class="info-group">
+                <label>Phòng đang ở</label>
+                <p>@roomName</p>
+            </div>
+            <div class="info-group">
+                <label>Giường số</label>
+                <p>@(bedNumber != null ? bedNumber.ToString() : "Chưa có giường")</p>
+            </div>
+            <div class="info-group">
+                <label>Ngày bắt đầu</label>
+                <p>@startDate</p>
+            </div>
+            <div class="info-group">
+                <label>Ngày kết thúc dự kiến</label>
+                <p>@endDate</p>
+            </div>
+            <div class="info-group">
+                <label>Trạng thái đăng ký</label>
+                <p class="@statusClass">@regStatus</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="@Url.Action("ChinhSuaThongTin", "SinhVien")" class="btn btn-edit btn-primary">
+            Chỉnh sửa thông tin cá nhân
+        </a>
+    </div>
+
 </div>

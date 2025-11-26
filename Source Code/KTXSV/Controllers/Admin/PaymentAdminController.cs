@@ -247,5 +247,16 @@ namespace KTXSV.Controllers.Admin
             if (disposing) db.Dispose();
             base.Dispose(disposing);
         }
+
+        public JsonResult GetAmountByRegistration(int regId)
+        {
+            var reg = db.Registrations.Include(r => r.Room).FirstOrDefault(r => r.RegID == regId);
+            if (reg != null && reg.Room != null)
+            {
+                return Json(new { amount = reg.Room.Price }, JsonRequestBehavior.AllowGet);
+            }
+            return Json(new { amount = 0 }, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }
